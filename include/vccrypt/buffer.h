@@ -83,7 +83,7 @@ int vccrypt_buffer_init_for_hex_serialization(
  * \param buffer    the buffer to initialize.
  * \param alloc     the allocator options to use for this buffer.
  * \param size      the size of the buffer in bytes; the real size will be the
- *                  padded Base64 equivalent (size * 4 / 3 + (3 - size % 3)).
+ *                  padded Base64 equivalent.
  *
  * \returns 0 on success and non-zero on failure.
  */
