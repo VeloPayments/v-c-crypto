@@ -57,3 +57,23 @@ TEST(vccrypt_buffer_init, simpletest)
     //dispose of our mock allocator
     dispose((disposable_t*)&alloc_opts);
 }
+
+/**
+ * Test that an error status is returned if allocation fails.
+ */
+TEST(vccrypt_buffer_init, allocation_failure)
+{
+    const size_t BUFFER_SIZE = 4;
+    allocator_options_t alloc_opts;
+    vccrypt_buffer_t buffer;
+
+    //set up our allocator mock
+    mock_allocator_options_init(&alloc_opts, false);
+    mock_allocator_allocate_retval(&alloc_opts, nullptr);
+
+    //the buffer creation should fail
+    ASSERT_NE(0, vccrypt_buffer_init(&buffer, &alloc_opts, BUFFER_SIZE));
+
+    //dispose of our mock allocator
+    dispose((disposable_t*)&alloc_opts);
+}
