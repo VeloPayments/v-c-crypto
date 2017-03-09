@@ -2,15 +2,28 @@ LIB_NAME=libvccrypt.a
 BUILD_DIR=$(CURDIR)/build
 HOST_CHECKED_BUILD_DIR=$(BUILD_DIR)/host/checked
 
+#vpr options
+VPR_DIR?=../vpr
+VPR_INCLUDE_PATH?=$(VPR_DIR)/include
+VPR_CFLAGS=-I $(VPR_INCLUDE_PATH)
+VPR_HOST_CHECKED_LIB_DIR?=$(VPR_DIR)/build/host/checked
+VPR_HOST_RELEASE_LIB_DIR?=$(VPR_DIR)/build/host/release
+VPR_HOST_CHECKED_LINK?=-L $(VPR_HOST_CHECKED_LIB_DIR) -lvpr
+VPR_HOST_RELEASE_LINK?=-L $(VPR_HOST_RELEASE_LIB_DIR) -lvpr
+
+#model check options
+MODEL_CHECK_DIR?=../vcmodel
+include $(MODEL_CHECK_DIR)/model_check.mk
+
 #library source files
 SRCDIR=$(PWD)/src
-DIRS=$(SRCDIR)
+DIRS=$(SRCDIR) $(SRCDIR)/buffer
 SOURCES=$(foreach d,$(DIRS),$(wildcard $(d)/*.c))
 STRIPPED_SOURCES=$(patsubst $(SRCDIR)/%,%,$(SOURCES))
 
 #library test files
 TESTDIR=$(PWD)/test
-TESTDIRS=$(TESTDIR)
+TESTDIRS=$(TESTDIR) $(TESTDIR)/buffer
 TEST_BUILD_DIR=$(HOST_CHECKED_BUILD_DIR)/test
 TEST_DIRS=$(filter-out $(TESTDIR), \
     $(patsubst $(TESTDIR)/%,$(TEST_BUILD_DIR)/%,$(TESTDIRS)))
@@ -70,14 +83,16 @@ CORTEXMHARD_RELEASE_AR=$(TOOLCHAIN_DIR)/cortex-m4-hardfp/bin/arm-none-eabi-ar
 CORTEXMHARD_RELEASE_RANLIB=$(TOOLCHAIN_DIR)/cortex-m4-hardfp/bin/arm-none-eabi-ranlib
 
 #platform compiler flags
-COMMON_CFLAGS=-I $(PWD)/include -Wall -Werror -Wextra
+COMMON_INCLUDES=$(MODEL_CHECK_INCLUDES) $(VPR_CFLAGS) -I $(PWD)/include
+COMMON_CFLAGS=$(COMMON_INCLUDES) -Wall -Werror -Wextra
 HOST_CHECKED_CFLAGS=$(COMMON_CFLAGS) -O0 -fprofile-arcs -ftest-coverage
 HOST_RELEASE_CFLAGS=$(COMMON_CFLAGS) -O2
 COMMON_CXXFLAGS=-I $(PWD)/include -Wall -Werror -Wextra
 HOST_CHECKED_CXXFLAGS=-std=c++14 $(COMMON_CXXFLAGS) -O0 -fprofile-arcs \
     -ftest-coverage
 HOST_RELEASE_CXXFLAGS=-std=c++14 $(COMMON_CXXFLAGS) -O2
-TEST_CXXFLAGS=$(HOST_RELEASE_CXXFLAGS) -I $(GTEST_DIR) -I $(GTEST_DIR)/include
+TEST_CXXFLAGS=$(HOST_RELEASE_CXXFLAGS) $(COMMON_INCLUDES) -I $(GTEST_DIR) \
+     -I $(GTEST_DIR)/include
 CORTEXMSOFT_RELEASE_CFLAGS=-std=gnu99 $(COMMON_CFLAGS) -O2 -mcpu=cortex-m4 \
     -mfloat-abi=soft -mthumb -fno-common -ffunction-sections -fdata-sections \
     -ffreestanding -fno-builtin -mapcs
@@ -173,4 +188,5 @@ $(TESTLIBVCCRYPT): $(HOST_CHECKED_OBJECTS) $(TEST_OBJECTS) $(GTEST_OBJ)
 	$(HOST_RELEASE_CXX) $(TEST_CXXFLAGS) -fprofile-arcs \
 	    -o $@ $(TEST_OBJECTS) \
 	    $(HOST_CHECKED_OBJECTS) $(GTEST_OBJ) -lpthread \
-	    -L $(TOOLCHAIN_DIR)/host/lib64 -lstdc++
+	    -L $(TOOLCHAIN_DIR)/host/lib64 -lstdc++ \
+	    $(VPR_HOST_RELEASE_LINK)
