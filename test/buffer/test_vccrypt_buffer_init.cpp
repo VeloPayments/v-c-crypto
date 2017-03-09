@@ -53,4 +53,7 @@ TEST(vccrypt_buffer_init, simpletest)
     //the buffer should have been cleared
     for (size_t i = 0; i < BUFFER_SIZE; ++i)
         EXPECT_EQ(0, backBuffer[i]);
+
+    //dispose of our mock allocator
+    dispose((disposable_t*)&alloc_opts);
 }
