@@ -12,7 +12,7 @@
 #include <vpr/parameters.h>
 
 /* forward decls */
-uint8_t hex_digit(uint8_t nibble);
+static uint8_t hex_digit(uint8_t nibble);
 
 /**
  * Write buffer data to hex.
@@ -64,7 +64,7 @@ int vccrypt_buffer_write_hex(
  *
  * \returns the saturated hexadecimal digit.
  */
-uint8_t hex_digit(uint8_t nibble)
+static uint8_t hex_digit(uint8_t nibble)
 {
     MODEL_ASSERT(nibble >= 0 && nibble <= 0x0F);
 
