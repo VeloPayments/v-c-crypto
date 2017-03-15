@@ -160,13 +160,15 @@ int vccrypt_buffer_write_base64(
  *
  * Note: buffers must be sized appropriately.
  *
- * \param dest      the destination byte buffer.
- * \param source    the source base64 buffer.
+ * \param dest          the destination byte buffer.
+ * \param source        the source base64 buffer.
+ * \param decoded_bytes the number of bytes decoded.
  *
  * \returns 0 on success and non-zero on failure.
  */
 int vccrypt_buffer_read_base64(
-    vccrypt_buffer_t* dest, const vccrypt_buffer_t* source);
+    vccrypt_buffer_t* dest, const vccrypt_buffer_t* source,
+    size_t* decoded_bytes);
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
