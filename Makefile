@@ -17,13 +17,16 @@ include $(MODEL_CHECK_DIR)/model_check.mk
 
 #library source files
 SRCDIR=$(PWD)/src
-DIRS=$(SRCDIR) $(SRCDIR)/buffer $(SRCDIR)/hash $(SRCDIR)/hash/ref
+DIRS=$(SRCDIR) $(SRCDIR)/buffer $(SRCDIR)/hash $(SRCDIR)/hash/ref \
+     $(SRCDIR)/digital_signature $(SRCDIR)/digital_signature/ref \
+     $(SRCDIR)/prng $(SRCDIR)/prng/unix $(SRCDIR)/prng/windows
 SOURCES=$(foreach d,$(DIRS),$(wildcard $(d)/*.c))
 STRIPPED_SOURCES=$(patsubst $(SRCDIR)/%,%,$(SOURCES))
 
 #library test files
 TESTDIR=$(PWD)/test
-TESTDIRS=$(TESTDIR) $(TESTDIR)/buffer $(TESTDIR)/hash
+TESTDIRS=$(TESTDIR) $(TESTDIR)/buffer $(TESTDIR)/hash \
+         $(TESTDIR)/digital_signature $(TESTDIR)/prng
 TEST_BUILD_DIR=$(HOST_CHECKED_BUILD_DIR)/test
 TEST_DIRS=$(filter-out $(TESTDIR), \
     $(patsubst $(TESTDIR)/%,$(TEST_BUILD_DIR)/%,$(TESTDIRS)))

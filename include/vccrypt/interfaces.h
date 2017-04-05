@@ -21,6 +21,10 @@ extern "C" {
 #define VCCRYPT_INTERFACE_HASH 0x43000010
 /** Message Authentication Code -- see vccrypt/mac.h */
 #define VCCRYPT_INTERFACE_MAC 0x43000020
+/** Digital Signature -- see vccrypt/digital_signature.h */
+#define VCCRYPT_INTERFACE_SIGNATURE 0x43000030
+/** Cryptographic PRNG -- see vccrypt/prng.h */
+#define VCCRYPT_INTERFACE_PRNG 0x43000040
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
