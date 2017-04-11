@@ -17,9 +17,10 @@ include $(MODEL_CHECK_DIR)/model_check.mk
 
 #library source files
 SRCDIR=$(PWD)/src
-DIRS=$(SRCDIR) $(SRCDIR)/buffer $(SRCDIR)/hash $(SRCDIR)/hash/ref \
-     $(SRCDIR)/digital_signature $(SRCDIR)/digital_signature/ref \
-     $(SRCDIR)/prng $(SRCDIR)/prng/unix $(SRCDIR)/prng/windows
+DIRS=$(SRCDIR) $(SRCDIR)/buffer $(SRCDIR)/compare $(SRCDIR)/hash \
+     $(SRCDIR)/hash/ref $(SRCDIR)/digital_signature \
+     $(SRCDIR)/digital_signature/ref $(SRCDIR)/prng $(SRCDIR)/prng/unix \
+     $(SRCDIR)/prng/windows
 SOURCES=$(foreach d,$(DIRS),$(wildcard $(d)/*.c))
 STRIPPED_SOURCES=$(patsubst $(SRCDIR)/%,%,$(SOURCES))
 
