@@ -46,7 +46,7 @@ int vccrypt_prng_os_init(void* options, void* context)
     }
 
     /* attempt to open the entropy device for the OS. */
-    *handle = open("/dev/random", O_RDONLY);
+    *handle = open("/dev/urandom", O_RDONLY);
     if (*handle < 0)
     {
         release(opts->alloc_opts, handle);
