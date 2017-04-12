@@ -20,14 +20,14 @@ SRCDIR=$(PWD)/src
 DIRS=$(SRCDIR) $(SRCDIR)/buffer $(SRCDIR)/compare $(SRCDIR)/hash \
      $(SRCDIR)/hash/ref $(SRCDIR)/digital_signature \
      $(SRCDIR)/digital_signature/ref $(SRCDIR)/prng $(SRCDIR)/prng/unix \
-     $(SRCDIR)/prng/windows
+     $(SRCDIR)/prng/windows $(SRCDIR)/suite
 SOURCES=$(foreach d,$(DIRS),$(wildcard $(d)/*.c))
 STRIPPED_SOURCES=$(patsubst $(SRCDIR)/%,%,$(SOURCES))
 
 #library test files
 TESTDIR=$(PWD)/test
 TESTDIRS=$(TESTDIR) $(TESTDIR)/buffer $(TESTDIR)/hash \
-         $(TESTDIR)/digital_signature $(TESTDIR)/prng
+         $(TESTDIR)/digital_signature $(TESTDIR)/prng $(TESTDIR)/suite
 TEST_BUILD_DIR=$(HOST_CHECKED_BUILD_DIR)/test
 TEST_DIRS=$(filter-out $(TESTDIR), \
     $(patsubst $(TESTDIR)/%,$(TEST_BUILD_DIR)/%,$(TESTDIRS)))

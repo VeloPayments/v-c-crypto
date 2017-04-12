@@ -25,6 +25,8 @@ extern "C" {
 #define VCCRYPT_INTERFACE_SIGNATURE 0x43000030
 /** Cryptographic PRNG -- see vccrypt/prng.h */
 #define VCCRYPT_INTERFACE_PRNG 0x43000040
+/** Crypto Suite Interface -- see vccrypt/suite.h */
+#define VCCRYPT_INTERFACE_SUITE 0x43000050
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
