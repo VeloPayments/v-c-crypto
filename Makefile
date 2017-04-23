@@ -89,8 +89,8 @@ CORTEXMHARD_RELEASE_RANLIB=$(TOOLCHAIN_DIR)/cortex-m4-hardfp/bin/arm-none-eabi-r
 #platform compiler flags
 COMMON_INCLUDES=$(MODEL_CHECK_INCLUDES) $(VPR_CFLAGS) -I $(PWD)/include
 COMMON_CFLAGS=$(COMMON_INCLUDES) -Wall -Werror -Wextra
-HOST_CHECKED_CFLAGS=$(COMMON_CFLAGS) -O0 -fprofile-arcs -ftest-coverage
-HOST_RELEASE_CFLAGS=$(COMMON_CFLAGS) -O2
+HOST_CHECKED_CFLAGS=$(COMMON_CFLAGS) -fpic -O0 -fprofile-arcs -ftest-coverage
+HOST_RELEASE_CFLAGS=$(COMMON_CFLAGS) -fpic -O2
 COMMON_CXXFLAGS=-I $(PWD)/include -Wall -Werror -Wextra
 HOST_CHECKED_CXXFLAGS=-std=c++14 $(COMMON_CXXFLAGS) -O0 -fprofile-arcs \
     -ftest-coverage
