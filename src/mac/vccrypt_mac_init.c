@@ -74,7 +74,14 @@ int vccrypt_mac_init(
  */
 static void vccrypt_mac_dispose(void* context)
 {
-    MODEL_ASSERT(context != NULL);
+    vccrypt_mac_context_t* ctx = (vccrypt_mac_context_t*)context;
+    MODEL_ASSERT(ctx != NULL);
+    MODEL_ASSERT(ctx->options != NULL);
+    MODEL_ASSERT(ctx->options->vccrypt_mac_alg_dispose != NULL);
 
+    /* dispose of any algorithm-specific resources */
+    ctx->options->vccrypt_mac_alg_dispose(ctx->options, ctx);
+
+    /* clear out this structure */
     memset(context, 0, sizeof(vccrypt_mac_context_t));
 }
