@@ -68,7 +68,14 @@ int vccrypt_hash_init(
  */
 static void vccrypt_hash_dispose(void* context)
 {
-    MODEL_ASSERT(context != NULL);
+    vccrypt_hash_context_t* ctx = (vccrypt_hash_context_t*)context;
+    MODEL_ASSERT(ctx != NULL);
+    MODEL_ASSERT(ctx->options != NULL);
+    MODEL_ASSERT(ctx->options->vccrypt_hash_alg_dispose != NULL);
 
-    memset(context, 0, sizeof(vccrypt_hash_context_t));
+    /* dispose any algorithm-specific resources */
+    ctx->options->vccrypt_hash_alg_dispose(ctx->options, ctx);
+
+    /* clear out this structure */
+    memset(ctx, 0, sizeof(vccrypt_hash_context_t));
 }
