@@ -87,6 +87,11 @@ typedef struct vccrypt_hash_options
     size_t hash_size;
 
     /**
+     * The hash block size in bytes.
+     */
+    size_t hash_block_size;
+
+    /**
      * Algorithm-specific initialization for hash.
      *
      * \param options   Opaque pointer to this options structure.

@@ -45,6 +45,7 @@ void vccrypt_hash_register_SHA_2_384()
     sha384_options.hdr.dispose = 0; /* disposal handled by init */
     sha384_options.alloc_opts = 0; /* allocator handled by init */
     sha384_options.hash_size = 48;
+    sha384_options.hash_block_size = 128;
     sha384_options.vccrypt_hash_alg_init = &vccrypt_sha_384_init;
     sha384_options.vccrypt_hash_alg_dispose = &vccrypt_sha_384_dispose;
     sha384_options.vccrypt_hash_alg_digest = &vccrypt_sha_384_digest;
