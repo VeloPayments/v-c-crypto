@@ -127,7 +127,7 @@ typedef struct vccrypt_mac_options
      * \param data          A pointer to raw data to digest.
      * \param size          The size of the data to digest, in bytes.
      *
-     * \returns 0 on success and 1 on failure.
+     * \returns 0 on success and non-zero on failure.
      */
     int (*vccrypt_mac_alg_digest)(
         void* context, const uint8_t* data, size_t size);
@@ -141,7 +141,7 @@ typedef struct vccrypt_mac_options
      * \param mac_buffer    The buffer to receive the MAC.  Must be large enough
      *                      for the given MAC algorithm.
      *
-     * \returns 0 on success and 1 on failure.
+     * \returns 0 on success and non-zero on failure.
      */
     int (*vccrypt_mac_alg_finalize)(
         void* context, vccrypt_buffer_t* mac_buffer);
