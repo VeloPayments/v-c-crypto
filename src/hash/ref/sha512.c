@@ -39,6 +39,28 @@ void SHA384_Init(SHA512_CTX* c)
 }
 
 /**
+ * Initialize a SHA context for SHA-512/256 operation.
+ *
+ * \param c     The SHA context to initialize.
+ */
+void SHA512_256_Init(SHA512_CTX* c)
+{
+    c->h[0] = UINT64_C(0x22312194fc2bf72c);
+    c->h[1] = UINT64_C(0x9f555fa3c84c64c2);
+    c->h[2] = UINT64_C(0x2393b86b6f53b151);
+    c->h[3] = UINT64_C(0x963877195940eabd);
+    c->h[4] = UINT64_C(0x96283ee2a88effe3);
+    c->h[5] = UINT64_C(0xbe5e1e2553863992);
+    c->h[6] = UINT64_C(0x2b0199fc2c85b8aa);
+    c->h[7] = UINT64_C(0x0eb72ddc81c52ca2);
+
+    c->Nl = 0;
+    c->Nh = 0;
+    c->num = 0;
+    c->md_len = SHA512_256_DIGEST_LENGTH;
+}
+
+/**
  * Initialize a SHA context for SHA-512 operation.
  *
  * \param c     The SHA context to initialize.
@@ -65,7 +87,7 @@ void SHA512_Init(SHA512_CTX* c)
  *
  * \param c     The SHA-512 context to finalize.
  * \param md    A pointer to a buffer to hold the SHA-512 hash.  Must be at
- *              least 48 bytes in length.
+ *              least 64 bytes in length.
  *
  * \returns 0 on success and non-zero on failure.
  */
@@ -129,6 +151,22 @@ int SHA512_Final(SHA512_CTX* c, uint8_t* md)
             }
             break;
 
+        case SHA512_256_DIGEST_LENGTH:
+            for (n = 0; n < SHA512_256_DIGEST_LENGTH / 8; n++)
+            {
+                uint64_t t = c->h[n];
+
+                *(md++) = (uint8_t)(t >> 56);
+                *(md++) = (uint8_t)(t >> 48);
+                *(md++) = (uint8_t)(t >> 40);
+                *(md++) = (uint8_t)(t >> 32);
+                *(md++) = (uint8_t)(t >> 24);
+                *(md++) = (uint8_t)(t >> 16);
+                *(md++) = (uint8_t)(t >> 8);
+                *(md++) = (uint8_t)(t);
+            }
+            break;
+
         case SHA512_DIGEST_LENGTH:
             for (n = 0; n < SHA512_DIGEST_LENGTH / 8; n++)
             {
@@ -163,6 +201,20 @@ int SHA512_Final(SHA512_CTX* c, uint8_t* md)
  * \returns 0 on success and non-zero on failure.
  */
 int SHA384_Final(SHA512_CTX* c, uint8_t* md)
+{
+    return SHA512_Final(c, md);
+}
+
+/**
+ * Finalize a SHA-512/256 context and generate the final hash.
+ *
+ * \param c     The SHA-512/256 context to finalize.
+ * \param md    A pointer to a buffer to hold the SHA-512/256 hash.  Must be at
+ *              least 32 bytes in length.
+ *
+ * \returns 0 on success and non-zero on failure.
+ */
+int SHA512_256_Final(SHA512_CTX* c, uint8_t* md)
 {
     return SHA512_Final(c, md);
 }
@@ -246,6 +298,18 @@ void SHA512_Update(SHA512_CTX* c, const void* _data, size_t len)
  * \param len   The length of the data to digest.
  */
 void SHA384_Update(SHA512_CTX* c, const void* data, size_t len)
+{
+    SHA512_Update(c, data, len);
+}
+
+/**
+ * Add the given data to a SHA-512/256 context.
+ *
+ * \param c     The SHA-512/256 context to update.
+ * \param data  A pointer to the data to digest.
+ * \param len   The length of the data to digest.
+ */
+void SHA512_256_Update(SHA512_CTX* c, const void* data, size_t len)
 {
     SHA512_Update(c, data, len);
 }

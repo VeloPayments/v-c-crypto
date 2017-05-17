@@ -79,10 +79,39 @@ void SHA512_Update(SHA512_CTX* c, const void* _data, size_t len);
  *
  * \param c     The SHA-512 context to finalize.
  * \param md    A pointer to a buffer to hold the SHA-512 hash.  Must be at
- *              least 48 bytes in length.
+ *              least 64 bytes in length.
  *
  * \returns 0 on success and non-zero on failure.
  */
 int SHA512_Final(SHA512_CTX* c, uint8_t* md);
+
+#define SHA512_256_DIGEST_LENGTH 32
+
+/**
+ * Initialize a SHA context for SHA-512/256 operation.
+ *
+ * \param c     The SHA context to initialize.
+ */
+void SHA512_256_Init(SHA512_CTX* c);
+
+/**
+ * Add the given data to a SHA-512/256 context.
+ *
+ * \param c     The SHA-512/256 context to update.
+ * \param data  A pointer to the data to digest.
+ * \param len   The length of the data to digest.
+ */
+void SHA512_256_Update(SHA512_CTX* c, const void* _data, size_t len);
+
+/**
+ * Finalize a SHA-512/256 context and generate the final hash.
+ *
+ * \param c     The SHA-512/256 context to finalize.
+ * \param md    A pointer to a buffer to hold the SHA-512/256 hash.  Must be at
+ *              least 32 bytes in length.
+ *
+ * \returns 0 on success and non-zero on failure.
+ */
+int SHA512_256_Final(SHA512_CTX* c, uint8_t* md);
 
 #endif  //HASH_REF_SHA512_HEADER_GUARD
