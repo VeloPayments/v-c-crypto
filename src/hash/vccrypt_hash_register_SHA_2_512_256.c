@@ -44,7 +44,7 @@ void vccrypt_hash_register_SHA_2_512_256()
     /* set up the options for SHA-512_256 */
     sha512_256_options.hdr.dispose = 0; /* disposal handled by init */
     sha512_256_options.alloc_opts = 0; /* allocator handled by init */
-    sha512_256_options.hash_size = 48;
+    sha512_256_options.hash_size = 32;
     sha512_256_options.hash_block_size = 128;
     sha512_256_options.vccrypt_hash_alg_init = &vccrypt_sha_512_256_init;
     sha512_256_options.vccrypt_hash_alg_dispose = &vccrypt_sha_512_256_dispose;
