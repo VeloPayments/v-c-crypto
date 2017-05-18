@@ -21,6 +21,8 @@ extern "C" {
 #define VCCRYPT_INTERFACE_HASH 0x43000010
 /** Message Authentication Code -- see vccrypt/mac.h */
 #define VCCRYPT_INTERFACE_MAC 0x43000020
+/** Key Agreement -- see vccrypt/key_agreement.h */
+#define VCCRYPT_INTERFACE_KEY 0x43000028
 /** Digital Signature -- see vccrypt/digital_signature.h */
 #define VCCRYPT_INTERFACE_SIGNATURE 0x43000030
 /** Cryptographic PRNG -- see vccrypt/prng.h */
