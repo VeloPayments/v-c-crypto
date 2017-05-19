@@ -6238,5 +6238,5 @@ int X25519(
     x25519_scalar_mult(out_shared_key, private_key, peer_public_value);
 
     /* The all-zero output results when the input is a point of small order. */
-    return crypto_memcmp(kZeros, out_shared_key, 32) != 0;
+    return crypto_memcmp(kZeros, out_shared_key, 32) == 0;
 }
