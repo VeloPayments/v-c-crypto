@@ -88,8 +88,38 @@ int vccrypt_suite_options_init(
         goto cleanup_prng_options;
     }
 
+    /* initialize the MAC options */
+    if (0 != vccrypt_mac_options_init(&options->mac_opts, alloc_opts, options->mac_alg))
+    {
+        retval = 5;
+        goto cleanup_digital_signature_options;
+    }
+
+    /* initialize the auth key agreement options */
+    if (0 != vccrypt_key_agreement_options_init(&options->key_auth_opts, alloc_opts, &options->prng_opts, options->key_auth_alg))
+    {
+        retval = 6;
+        goto cleanup_mac_options;
+    }
+
+    /* initialize the cipher key agreement options */
+    if (0 != vccrypt_key_agreement_options_init(&options->key_cipher_opts, alloc_opts, &options->prng_opts, options->key_cipher_alg))
+    {
+        retval = 7;
+        goto cleanup_auth_key_options;
+    }
+
     /* success */
     return 0;
+
+cleanup_auth_key_options:
+    dispose((disposable_t*)&options->key_auth_opts);
+
+cleanup_mac_options:
+    dispose((disposable_t*)&options->mac_opts);
+
+cleanup_digital_signature_options:
+    dispose((disposable_t*)&options->sign_opts);
 
 cleanup_prng_options:
     dispose((disposable_t*)&options->prng_opts);
@@ -111,6 +141,9 @@ static void vccrypt_suite_options_dispose(void* options)
     MODEL_ASSERT(opts != NULL);
 
     /* dispose of options structures */
+    dispose((disposable_t*)&opts->key_auth_opts);
+    dispose((disposable_t*)&opts->key_cipher_opts);
+    dispose((disposable_t*)&opts->mac_opts);
     dispose((disposable_t*)&opts->sign_opts);
     dispose((disposable_t*)&opts->prng_opts);
     dispose((disposable_t*)&opts->hash_opts);

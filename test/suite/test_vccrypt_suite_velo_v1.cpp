@@ -187,3 +187,290 @@ TEST_F(vccrypt_suite_velo_v1, keygen_sign)
     dispose((disposable_t*)&pub);
     dispose((disposable_t*)&signature);
 }
+
+/**
+ * Test that we can use HMAC-SHA-512 from the crypto suite.
+ */
+TEST_F(vccrypt_suite_velo_v1, hmac_sha_512)
+{
+    const uint8_t KEY[] = {
+        0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+        0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+        0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+        0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+        0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+        0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+        0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
+        0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa
+    };
+    const uint8_t DATA[] = {
+        'a', 'b', 'c'
+    };
+    const uint8_t EXPECTED_HMAC[] = {
+        0x06, 0xba, 0x03, 0xa4, 0x4e, 0xf9, 0x1b, 0xf5,
+        0xa4, 0xc7, 0xaf, 0x26, 0xd9, 0xe7, 0xc7, 0xd8,
+        0xd8, 0x0b, 0x95, 0xcc, 0x8d, 0xa3, 0xeb, 0x01,
+        0xb2, 0x31, 0xb9, 0x93, 0x22, 0x03, 0xe7, 0x1c,
+        0x2a, 0xad, 0xb1, 0xf4, 0xfd, 0x2d, 0x85, 0x51,
+        0xd7, 0x9e, 0x01, 0x97, 0x27, 0xfb, 0x32, 0xf0,
+        0x6b, 0x59, 0x70, 0x19, 0x0a, 0x56, 0xbf, 0x6f,
+        0xab, 0xc9, 0x72, 0x39, 0xf5, 0xdc, 0xaa, 0x61
+    };
+
+    //create a buffer sized for the key
+    vccrypt_buffer_t key;
+    ASSERT_EQ(0, vccrypt_suite_buffer_init_for_mac_private_key(&options, &key));
+    ASSERT_EQ(sizeof(KEY), key.size);
+    memcpy(key.data, KEY, sizeof(KEY));
+
+    //initialize MAC
+    vccrypt_mac_context_t mac;
+    ASSERT_EQ(0, vccrypt_suite_mac_init(&options, &mac, &key));
+
+    //digest input
+    ASSERT_EQ(0, vccrypt_mac_digest(&mac, DATA, sizeof(DATA)));
+
+    //create output buffer
+    vccrypt_buffer_t outbuf;
+    ASSERT_EQ(0, vccrypt_suite_buffer_init_for_mac_authentication_code(&options, &outbuf));
+    ASSERT_EQ(sizeof(EXPECTED_HMAC), outbuf.size);
+
+    //finalize hmac
+    ASSERT_EQ(0, vccrypt_mac_finalize(&mac, &outbuf));
+
+    //the HMAC output should match our expected HMAC
+    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+
+    //clean up
+    dispose((disposable_t*)&outbuf);
+    dispose((disposable_t*)&mac);
+    dispose((disposable_t*)&key);
+}
+
+/**
+ * Test that we can use Curve25519-Auth-HMAC-SHA-512 from the crypto suite.
+ */
+TEST_F(vccrypt_suite_velo_v1, curve25519_auth)
+{
+    vccrypt_key_agreement_context_t key;
+
+    //we should be able to create an algorithm instance
+    ASSERT_EQ(0, vccrypt_suite_auth_key_agreement_init(&options, &key));
+
+    //create buffers for public and private keys
+    vccrypt_buffer_t alice_private, alice_public, bob_private, bob_public;
+    vccrypt_buffer_t ab_shared, ba_shared;
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_auth_key_agreement_private_key(
+            &options, &alice_private));
+    ASSERT_EQ(32U, alice_private.size);
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_auth_key_agreement_public_key(
+            &options, &alice_public));
+    ASSERT_EQ(32U, alice_public.size);
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_auth_key_agreement_private_key(
+            &options, &bob_private));
+    ASSERT_EQ(32U, bob_private.size);
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_auth_key_agreement_public_key(
+            &options, &bob_public));
+    ASSERT_EQ(32U, bob_public.size);
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_auth_key_agreement_shared_secret(
+            &options, &ab_shared));
+    ASSERT_EQ(64U, ab_shared.size);
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_auth_key_agreement_shared_secret(
+            &options, &ba_shared));
+    ASSERT_EQ(64U, ba_shared.size);
+
+    //generate alice's keypair
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_keypair_create(
+            &key, &alice_private, &alice_public));
+
+    //generate bob's keypair
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_keypair_create(
+            &key, &bob_private, &bob_public));
+
+    //generate the alice-bob shared secret
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_long_term_secret_create(
+            &key, &alice_private, &bob_public, &ab_shared));
+
+    //generate the bob-alice shared secret
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_long_term_secret_create(
+            &key, &bob_private, &alice_public, &ba_shared));
+
+    //the two shared secrets should match
+    ASSERT_EQ(0, memcmp(ab_shared.data, ba_shared.data, 64));
+
+    //create a prng instance
+    vccrypt_prng_context_t prng;
+    ASSERT_EQ(0, vccrypt_suite_prng_init(&options, &prng));
+
+    //create a buffer for alice's nonce
+    vccrypt_buffer_t alice_nonce;
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_auth_key_agreement_nonce(
+            &options, &alice_nonce));
+    ASSERT_EQ(64U, alice_nonce.size);
+
+    //read random bytes for alice's nonce
+    ASSERT_EQ(0,
+        vccrypt_prng_read(&prng, &alice_nonce, alice_nonce.size));
+
+    //create a buffer for bob's nonce
+    vccrypt_buffer_t bob_nonce;
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_auth_key_agreement_nonce(
+            &options, &bob_nonce));
+    ASSERT_EQ(64U, bob_nonce.size);
+
+    //read random bytes for bob's nonce
+    ASSERT_EQ(0,
+        vccrypt_prng_read(&prng, &bob_nonce, bob_nonce.size));
+
+    //generate the alice-bob short-term secret
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_short_term_secret_create(
+            &key, &alice_private, &bob_public, &alice_nonce, &bob_nonce,
+            &ab_shared));
+
+    //generate the bob-alice short-term secret
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_short_term_secret_create(
+            &key, &bob_private, &alice_public, &alice_nonce, &bob_nonce,
+            &ba_shared));
+
+    //the two shared secrets should match
+    ASSERT_EQ(0, memcmp(ab_shared.data, ba_shared.data, 64));
+
+    dispose((disposable_t*)&alice_nonce);
+    dispose((disposable_t*)&bob_nonce);
+    dispose((disposable_t*)&prng);
+    dispose((disposable_t*)&alice_private);
+    dispose((disposable_t*)&alice_public);
+    dispose((disposable_t*)&bob_private);
+    dispose((disposable_t*)&bob_public);
+    dispose((disposable_t*)&ab_shared);
+    dispose((disposable_t*)&ba_shared);
+    dispose((disposable_t*)&key);
+}
+
+/**
+ * Test that we can use Curve25519-Cipher-HMAC-SHA-512 from the crypto suite.
+ */
+TEST_F(vccrypt_suite_velo_v1, curve25519_cipher)
+{
+    vccrypt_key_agreement_context_t key;
+
+    //we should be able to create an algorithm instance
+    ASSERT_EQ(0, vccrypt_suite_cipher_key_agreement_init(&options, &key));
+
+    //create buffers for public and private keys
+    vccrypt_buffer_t alice_private, alice_public, bob_private, bob_public;
+    vccrypt_buffer_t ab_shared, ba_shared;
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_cipher_key_agreement_private_key(
+            &options, &alice_private));
+    ASSERT_EQ(32U, alice_private.size);
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_cipher_key_agreement_public_key(
+            &options, &alice_public));
+    ASSERT_EQ(32U, alice_public.size);
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_cipher_key_agreement_private_key(
+            &options, &bob_private));
+    ASSERT_EQ(32U, bob_private.size);
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_cipher_key_agreement_public_key(
+            &options, &bob_public));
+    ASSERT_EQ(32U, bob_public.size);
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
+            &options, &ab_shared));
+    ASSERT_EQ(32U, ab_shared.size);
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
+            &options, &ba_shared));
+    ASSERT_EQ(32U, ba_shared.size);
+
+    //generate alice's keypair
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_keypair_create(
+            &key, &alice_private, &alice_public));
+
+    //generate bob's keypair
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_keypair_create(
+            &key, &bob_private, &bob_public));
+
+    //generate the alice-bob shared secret
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_long_term_secret_create(
+            &key, &alice_private, &bob_public, &ab_shared));
+
+    //generate the bob-alice shared secret
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_long_term_secret_create(
+            &key, &bob_private, &alice_public, &ba_shared));
+
+    //the two shared secrets should match
+    ASSERT_EQ(0, memcmp(ab_shared.data, ba_shared.data, 32));
+
+    //create a prng instance
+    vccrypt_prng_context_t prng;
+    ASSERT_EQ(0, vccrypt_suite_prng_init(&options, &prng));
+
+    //create a buffer for alice's nonce
+    vccrypt_buffer_t alice_nonce;
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_cipher_key_agreement_nonce(
+            &options, &alice_nonce));
+    ASSERT_EQ(32U, alice_nonce.size);
+
+    //read random bytes for alice's nonce
+    ASSERT_EQ(0,
+        vccrypt_prng_read(&prng, &alice_nonce, alice_nonce.size));
+
+    //create a buffer for bob's nonce
+    vccrypt_buffer_t bob_nonce;
+    ASSERT_EQ(0,
+        vccrypt_suite_buffer_init_for_cipher_key_agreement_nonce(
+            &options, &bob_nonce));
+    ASSERT_EQ(32U, bob_nonce.size);
+
+    //read random bytes for bob's nonce
+    ASSERT_EQ(0,
+        vccrypt_prng_read(&prng, &bob_nonce, bob_nonce.size));
+
+    //generate the alice-bob short-term secret
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_short_term_secret_create(
+            &key, &alice_private, &bob_public, &alice_nonce, &bob_nonce,
+            &ab_shared));
+
+    //generate the bob-alice short-term secret
+    ASSERT_EQ(0,
+        vccrypt_key_agreement_short_term_secret_create(
+            &key, &bob_private, &alice_public, &alice_nonce, &bob_nonce,
+            &ba_shared));
+
+    //the two shared secrets should match
+    ASSERT_EQ(0, memcmp(ab_shared.data, ba_shared.data, 32));
+
+    dispose((disposable_t*)&alice_nonce);
+    dispose((disposable_t*)&bob_nonce);
+    dispose((disposable_t*)&prng);
+    dispose((disposable_t*)&alice_private);
+    dispose((disposable_t*)&alice_public);
+    dispose((disposable_t*)&bob_private);
+    dispose((disposable_t*)&bob_public);
+    dispose((disposable_t*)&ab_shared);
+    dispose((disposable_t*)&ba_shared);
+    dispose((disposable_t*)&key);
+}
