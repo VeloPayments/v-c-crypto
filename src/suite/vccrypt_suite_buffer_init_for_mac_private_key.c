@@ -28,7 +28,6 @@ int vccrypt_suite_buffer_init_for_mac_private_key(
 {
     MODEL_ASSERT(buffer != NULL);
     MODEL_ASSERT(options != NULL);
-    MODEL_ASSERT(options->mac_opts != 0);
     MODEL_ASSERT(options->mac_opts.key_size > 0);
 
     return vccrypt_buffer_init(
