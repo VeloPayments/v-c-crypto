@@ -49,8 +49,11 @@ void vccrypt_suite_register_velo_v1()
 
     /* register all requisite algorithms and sources */
     vccrypt_hash_register_SHA_2_512();
+    vccrypt_mac_register_SHA_2_512_HMAC();
     vccrypt_digital_signature_register_ed25519();
     vccrypt_prng_register_source_operating_system();
+    vccrypt_key_agreement_register_curve25519_sha512();
+    vccrypt_key_agreement_register_curve25519_sha512_256();
 
     /* set up the options for velo V1 */
     velo_v1_options.hdr.dispose = 0; /* disposal handled by init */
