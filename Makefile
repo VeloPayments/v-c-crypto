@@ -20,7 +20,8 @@ SRCDIR=$(PWD)/src
 DIRS=$(SRCDIR) $(SRCDIR)/buffer $(SRCDIR)/compare $(SRCDIR)/hash \
      $(SRCDIR)/hash/ref $(SRCDIR)/digital_signature \
      $(SRCDIR)/digital_signature/ref $(SRCDIR)/key_agreement $(SRCDIR)/mac \
-     $(SRCDIR)/prng $(SRCDIR)/prng/unix $(SRCDIR)/prng/windows $(SRCDIR)/suite
+     $(SRCDIR)/prng $(SRCDIR)/prng/unix $(SRCDIR)/prng/windows \
+     $(SRCDIR)/stream_cipher $(SRCDIR)/stream_cipher/aes $(SRCDIR)/suite
 SOURCES=$(foreach d,$(DIRS),$(wildcard $(d)/*.c))
 STRIPPED_SOURCES=$(patsubst $(SRCDIR)/%,%,$(SOURCES))
 
@@ -28,7 +29,7 @@ STRIPPED_SOURCES=$(patsubst $(SRCDIR)/%,%,$(SOURCES))
 TESTDIR=$(PWD)/test
 TESTDIRS=$(TESTDIR) $(TESTDIR)/buffer $(TESTDIR)/hash \
          $(TESTDIR)/digital_signature $(TESTDIR)/key_agreement $(TESTDIR)/mac \
-         $(TESTDIR)/prng $(TESTDIR)/suite
+         $(TESTDIR)/prng $(TESTDIR)/stream_cipher $(TESTDIR)/suite
 TEST_BUILD_DIR=$(HOST_CHECKED_BUILD_DIR)/test
 TEST_DIRS=$(filter-out $(TESTDIR), \
     $(patsubst $(TESTDIR)/%,$(TEST_BUILD_DIR)/%,$(TESTDIRS)))
