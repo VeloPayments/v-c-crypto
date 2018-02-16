@@ -110,8 +110,9 @@ typedef struct vccrypt_stream_options
      *
      * \param options   Opaque pointer to this options structure.
      * \param context   Opaque pointer to vccrypt_stream_context_t structure.
-     * \param IV        The IV to use for this instance.  MUST ONLY BE USED ONCE
+     * \param iv        The IV to use for this instance.  MUST ONLY BE USED ONCE
      *                  PER KEY, EVER.
+     * \param ivSize    The size of the IV in bytes.
      * \param output    The output buffer to initialize. Must be at least
      *                  IV_bytes in size.
      * \param offset    Pointer to the current offset of the buffer.  Will be
@@ -120,8 +121,8 @@ typedef struct vccrypt_stream_options
      * \returns 0 on success and non-zero on error.
      */
     int (*vccrypt_stream_alg_start_encryption)(
-        void* options, void* context, const void* iv, void* output,
-        size_t* offset);
+        void* options, void* context, const void* iv, size_t ivSize,
+        void* output, size_t* offset);
 
     /**
      * Algorithm-specific start for the stream cipher decryption.  Reads IV from
@@ -258,8 +259,9 @@ int vccrypt_stream_init(
  * output buffer with IV.
  *
  * \param context   Pointer to the stream cipher context.
- * \param IV        The IV to use for this instance.  MUST ONLY BE USED ONCE
+ * \param iv        The IV to use for this instance.  MUST ONLY BE USED ONCE
  *                  PER KEY, EVER.
+ * \param ivSize    The size of the IV in bytes.
  * \param output    The output buffer to initialize. Must be at least
  *                  IV_bytes in size.
  * \param offset    Pointer to the current offset of the buffer.  Will be
@@ -268,8 +270,8 @@ int vccrypt_stream_init(
  * \returns 0 on success and non-zero on error.
  */
 int vccrypt_stream_start_encryption(
-    vccrypt_stream_context_t* context, const void* iv, void* output,
-    size_t* offset);
+    vccrypt_stream_context_t* context, const void* iv, size_t ivSize,
+    void* output, size_t* offset);
 
 /**
  * Algorithm-specific start for the stream cipher decryption.  Reads IV from
