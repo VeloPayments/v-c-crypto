@@ -120,7 +120,7 @@ typedef struct vccrypt_stream_options
      * \returns 0 on success and non-zero on error.
      */
     int (*vccrypt_stream_alg_start_encryption)(
-        void* options, void* context, uint64_t iv, void* output,
+        void* options, void* context, const void* iv, void* output,
         size_t* offset);
 
     /**
@@ -268,7 +268,7 @@ int vccrypt_stream_init(
  * \returns 0 on success and non-zero on error.
  */
 int vccrypt_stream_start_encryption(
-    vccrypt_stream_context_t* context, uint64_t iv, void* output,
+    vccrypt_stream_context_t* context, const void* iv, void* output,
     size_t* offset);
 
 /**
