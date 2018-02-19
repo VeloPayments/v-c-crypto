@@ -49,10 +49,10 @@ extern "C" {
  *           Algorithms.
  * @{
  */
-void vccrypt_mac_register_AES_256_CTR_FIPS();
-void vccrypt_mac_register_AES_256_2X_CTR();
-void vccrypt_mac_register_AES_256_3X_CTR();
-void vccrypt_mac_register_AES_256_4X_CTR();
+void vccrypt_stream_register_AES_256_CTR_FIPS();
+void vccrypt_stream_register_AES_256_2X_CTR();
+void vccrypt_stream_register_AES_256_3X_CTR();
+void vccrypt_stream_register_AES_256_4X_CTR();
 /**
  * @}
  */
