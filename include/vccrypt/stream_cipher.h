@@ -90,7 +90,7 @@ typedef struct vccrypt_stream_options
     /**
      * The maximum message size, in bytes.
      */
-    size_t maximum_message_size;
+    uint64_t maximum_message_size;
 
     /**
      * Algorithm-specific initialization for stream cipher.
@@ -141,14 +141,6 @@ typedef struct vccrypt_stream_options
         void* options, void* context, const void* input, size_t* offset);
 
     /**
-     * Algorithm-specific disposal for stream cipher.
-     *
-     * \param options   Opaque pointer to this options structure.
-     * \param context   Opaque pointer to vccrypt_stream_context_t structure.
-     */
-    void (*vccrypt_stream_alg_dispose)(void* options, void* context);
-
-    /**
      * Encrypt data using the stream cipher.
      *
      * \param options       Opaque pointer to this options structure.
@@ -187,6 +179,8 @@ typedef struct vccrypt_stream_options
     int (*vccrypt_stream_alg_decrypt)(
         void* options, void* context, const void* input, size_t size,
         void* output, size_t* offset);
+
+    void* data;
 
 } vccrypt_stream_options_t;
 
