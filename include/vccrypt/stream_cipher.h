@@ -12,17 +12,17 @@
 #ifndef VCCRYPT_STREAM_CIPHER_HEADER_GUARD
 #define VCCRYPT_STREAM_CIPHER_HEADER_GUARD
 
-/* make this header C++ friendly. */
-#ifdef __cplusplus
-extern "C" {
-#endif  //__cplusplus
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <vccrypt/buffer.h>
 #include <vccrypt/interfaces.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
+
+/* make this header C++ friendly. */
+#ifdef __cplusplus
+extern "C" {
+#endif  //__cplusplus
 
 /**
  * \defgroup STREAMAlgorithms Stream Cipher Algorithms.
