@@ -1,7 +1,7 @@
 /**
  * \file vccrypt_stream_options_init.c
  *
- * Initialize a digital signature options structure.
+ * Initialize a stream cipher options structure.
  *
  * \copyright 2018 Velo Payments, Inc.  All rights reserved.
  */
