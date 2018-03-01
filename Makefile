@@ -17,8 +17,8 @@ include $(MODEL_CHECK_DIR)/model_check.mk
 
 #library source files
 SRCDIR=$(PWD)/src
-DIRS=$(SRCDIR) $(SRCDIR)/buffer $(SRCDIR)/compare $(SRCDIR)/hash \
-     $(SRCDIR)/hash/ref $(SRCDIR)/digital_signature \
+DIRS=$(SRCDIR) $(SRCDIR)/block_cipher $(SRCDIR)/buffer $(SRCDIR)/compare \
+     $(SRCDIR)/hash $(SRCDIR)/hash/ref $(SRCDIR)/digital_signature \
      $(SRCDIR)/digital_signature/ref $(SRCDIR)/key_agreement $(SRCDIR)/mac \
      $(SRCDIR)/prng $(SRCDIR)/prng/unix $(SRCDIR)/prng/windows \
      $(SRCDIR)/stream_cipher $(SRCDIR)/stream_cipher/aes $(SRCDIR)/suite
@@ -27,7 +27,7 @@ STRIPPED_SOURCES=$(patsubst $(SRCDIR)/%,%,$(SOURCES))
 
 #library test files
 TESTDIR=$(PWD)/test
-TESTDIRS=$(TESTDIR) $(TESTDIR)/buffer $(TESTDIR)/hash \
+TESTDIRS=$(TESTDIR) $(TESTDIR)/block_cipher $(TESTDIR)/buffer $(TESTDIR)/hash \
          $(TESTDIR)/digital_signature $(TESTDIR)/key_agreement $(TESTDIR)/mac \
          $(TESTDIR)/prng $(TESTDIR)/stream_cipher $(TESTDIR)/suite
 TEST_BUILD_DIR=$(HOST_CHECKED_BUILD_DIR)/test

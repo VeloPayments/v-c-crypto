@@ -21,16 +21,18 @@ extern "C" {
 #define VCCRYPT_INTERFACE_HASH 0x43000010
 /** Counter Mode Stream Cipher -- see vccrypt/stream_cipher.h */
 #define VCCRYPT_INTERFACE_STREAM 0x43000020
+/** Cipher Block Chaining Mode Block Cipher -- see vccrypt/block_cipher.h */
+#define VCCRYPT_INTERFACE_BLOCK 0x43000030
 /** Message Authentication Code -- see vccrypt/mac.h */
-#define VCCRYPT_INTERFACE_MAC 0x43000030
+#define VCCRYPT_INTERFACE_MAC 0x43000040
 /** Key Agreement -- see vccrypt/key_agreement.h */
-#define VCCRYPT_INTERFACE_KEY 0x43000040
+#define VCCRYPT_INTERFACE_KEY 0x43000050
 /** Digital Signature -- see vccrypt/digital_signature.h */
-#define VCCRYPT_INTERFACE_SIGNATURE 0x43000050
+#define VCCRYPT_INTERFACE_SIGNATURE 0x43000060
 /** Cryptographic PRNG -- see vccrypt/prng.h */
-#define VCCRYPT_INTERFACE_PRNG 0x43000060
+#define VCCRYPT_INTERFACE_PRNG 0x43000070
 /** Crypto Suite Interface -- see vccrypt/suite.h */
-#define VCCRYPT_INTERFACE_SUITE 0x43000070
+#define VCCRYPT_INTERFACE_SUITE 0x43000080
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
