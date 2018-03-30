@@ -56,10 +56,14 @@ void vccrypt_key_agreement_register_curve25519_plain()
     curve25519_plain_options.hash_algorithm = 0; /* no hash for plain */
     curve25519_plain_options.hmac_algorithm =
         VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC;
-    curve25519_plain_options.shared_secret_size = 32;
-    curve25519_plain_options.private_key_size = 32;
-    curve25519_plain_options.public_key_size = 32;
-    curve25519_plain_options.minimum_nonce_size = 32;
+    curve25519_plain_options.shared_secret_size =
+        VCCRYPT_KEY_AGREEMENT_CURVE25519_SHA512_256_SECRET_SIZE;
+    curve25519_plain_options.private_key_size =
+        VCCRYPT_KEY_AGREEMENT_CURVE25519_SHA512_256_PRIVATE_KEY_SIZE;
+    curve25519_plain_options.public_key_size =
+        VCCRYPT_KEY_AGREEMENT_CURVE25519_SHA512_256_PUBLIC_KEY_SIZE;
+    curve25519_plain_options.minimum_nonce_size =
+        VCCRYPT_KEY_AGREEMENT_CURVE25519_SHA512_256_NONCE_SIZE;
     curve25519_plain_options.vccrypt_key_agreement_alg_init =
         &vccrypt_curve25519_plain_init;
     curve25519_plain_options.vccrypt_key_agreement_alg_dispose =
@@ -104,7 +108,7 @@ static int vccrypt_curve25519_plain_init(void* UNUSED(options), void* context)
     ctx->key_agreement_state = NULL;
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**
@@ -166,12 +170,12 @@ static int vccrypt_curve25519_plain_keypair_create(
     MODEL_ASSERT(ctx != NULL);
     MODEL_ASSERT(ctx->options != NULL);
     MODEL_ASSERT(ctx->options->prng_opts != NULL);
-    int retval = 0;
+    int retval = VCCRYPT_STATUS_SUCCESS;
 
     /* create a PRNG context for use by the keypair algorithm */
     vccrypt_prng_context_t prng_ctx;
     retval = vccrypt_prng_init(ctx->options->prng_opts, &prng_ctx);
-    if (0 != retval)
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
         return retval;
     }

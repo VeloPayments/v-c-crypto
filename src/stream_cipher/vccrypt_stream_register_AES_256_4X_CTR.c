@@ -37,11 +37,13 @@ void vccrypt_stream_register_AES_256_4X_CTR()
     }
 
     /* set up options for aes-256-ctr-4x */
-    aes_4x_options_data.round_multiplier = 4;
+    aes_4x_options_data.round_multiplier =
+        VCCRYPT_AES_CTR_ALG_ROUND_MULT_4X;
     aes_4x_options.hdr.dispose = 0; /* dispose by init */
     aes_4x_options.alloc_opts = 0; /* alloc by init */
-    aes_4x_options.key_size = 32;
-    aes_4x_options.IV_size = 8;
+    aes_4x_options.key_size =
+        VCCRYPT_AES_CTR_ALG_AES_256_KEY_SIZE;
+    aes_4x_options.IV_size = VCCRYPT_AES_CTR_ALG_IV_SIZE;
     aes_4x_options.maximum_message_size = UINT64_MAX;
     aes_4x_options.vccrypt_stream_alg_init = &vccrypt_aes_ctr_alg_init;
     aes_4x_options.vccrypt_stream_alg_start_encryption =

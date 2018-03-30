@@ -38,7 +38,7 @@ int vccrypt_digital_signature_init(
 
     if (options == NULL || options->vccrypt_digital_signature_alg_init == NULL || options->vccrypt_digital_signature_alg_dispose == NULL || context == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_DIGITAL_SIGNATURE_INIT_INVALID_ARG;
     }
 
     memset(context, 0, sizeof(vccrypt_digital_signature_context_t));

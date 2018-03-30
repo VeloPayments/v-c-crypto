@@ -33,7 +33,7 @@ int vccrypt_prng_read(
     /* don't overwrite the buffer */
     if (length > buffer->size)
     {
-        return 1;
+        return VCCRYPT_ERROR_PRNG_READ_WOULD_OVERWRITE;
     }
 
     return vccrypt_prng_read_c(context, buffer->data, length);

@@ -27,6 +27,21 @@ extern "C" {
 #include <vpr/disposable.h>
 
 /**
+ * \defgroup HashConstants Algorithm-specific constants.
+ *
+ * @{
+ */
+#define VCCRYPT_HASH_SHA_512_256_DIGEST_SIZE 32
+#define VCCRYPT_HASH_SHA_512_256_BLOCK_SIZE 128
+#define VCCRYPT_HASH_SHA_512_384_DIGEST_SIZE 48
+#define VCCRYPT_HASH_SHA_512_384_BLOCK_SIZE 128
+#define VCCRYPT_HASH_SHA_512_DIGEST_SIZE 64
+#define VCCRYPT_HASH_SHA_512_BLOCK_SIZE 128
+/**
+ * @}
+ */
+
+/**
  * \defgroup HashAlgorithms Cryptographic Hash Algorithms.
  *
  * Algorithms optionally supported by the hash subsystem.  Note that the

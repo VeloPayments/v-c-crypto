@@ -57,9 +57,12 @@ void vccrypt_digital_signature_register_ed25519()
     ed25519_options.alloc_opts = 0; /* allocator handled by init */
     ed25519_options.prng_opts = 0; /* prng options handled by init */
     ed25519_options.hash_algorithm = VCCRYPT_HASH_ALGORITHM_SHA_2_512;
-    ed25519_options.signature_size = 64;
-    ed25519_options.private_key_size = 64;
-    ed25519_options.public_key_size = 32;
+    ed25519_options.signature_size =
+        VCCRYPT_DIGITAL_SIGNATURE_ED25519_SIGNATURE_SIZE;
+    ed25519_options.private_key_size =
+        VCCRYPT_DIGITAL_SIGNATURE_ED25519_PRIVATE_KEY_SIZE;
+    ed25519_options.public_key_size =
+        VCCRYPT_DIGITAL_SIGNATURE_ED25519_PUBLIC_KEY_SIZE;
     ed25519_options.vccrypt_digital_signature_alg_init =
         &vccrypt_ed25519_init;
     ed25519_options.vccrypt_digital_signature_alg_dispose =
@@ -190,12 +193,12 @@ static int vccrypt_ed25519_keypair_create(
 {
     vccrypt_digital_signature_context_t* ctx =
         (vccrypt_digital_signature_context_t*)context;
-    int retval = 0;
+    int retval = VCCRYPT_STATUS_SUCCESS;
 
     /* create a PRNG context for use by the keypair algorithm. */
     vccrypt_prng_context_t prng_ctx;
     retval = vccrypt_prng_init(ctx->options->prng_opts, &prng_ctx);
-    if (0 != retval)
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
         return retval;
     }

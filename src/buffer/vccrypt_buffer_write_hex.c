@@ -37,7 +37,9 @@ int vccrypt_buffer_write_hex(
 
     /* we can't exceed the destination buffer size */
     if (dest->size < source->size * 2)
-        return 1;
+    {
+        return VCCRYPT_ERROR_BUFFER_WRITE_WOULD_OVERWRITE;
+    }
 
     /* convert data pointers to byte buffers. */
     uint8_t* out = (uint8_t*)dest->data;
@@ -53,7 +55,7 @@ int vccrypt_buffer_write_hex(
     }
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

@@ -38,7 +38,7 @@ int vccrypt_hash_finalize(
         hash_buffer == NULL || hash_buffer->data == NULL ||
         hash_buffer->size < context->options->hash_size)
     {
-        return 1;
+        return VCCRYPT_ERROR_HASH_FINALIZE_INVALID_ARG;
     }
 
     return context->options->vccrypt_hash_alg_finalize(context, hash_buffer);

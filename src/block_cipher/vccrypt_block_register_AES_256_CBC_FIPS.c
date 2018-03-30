@@ -36,11 +36,13 @@ void vccrypt_block_register_AES_256_CBC_FIPS()
     }
 
     /* set up options for aes-256-cbc-fips */
-    aes_fips_options_data.round_multiplier = 1;
+    aes_fips_options_data.round_multiplier =
+        VCCRYPT_AES_CBC_ALG_ROUND_MULT_FIPS;
     aes_fips_options.hdr.dispose = 0; /* dispose by init */
     aes_fips_options.alloc_opts = 0; /* alloc by init */
-    aes_fips_options.key_size = 32;
-    aes_fips_options.IV_size = 16;
+    aes_fips_options.key_size =
+        VCCRYPT_AES_CBC_ALG_AES_256_KEY_SIZE;
+    aes_fips_options.IV_size = VCCRYPT_AES_CBC_ALG_IV_SIZE;
     aes_fips_options.maximum_message_size = UINT64_MAX;
     aes_fips_options.vccrypt_block_alg_init = &vccrypt_aes_cbc_alg_init;
     aes_fips_options.vccrypt_block_alg_encrypt = &vccrypt_aes_cbc_alg_encrypt;

@@ -51,9 +51,9 @@ void vccrypt_mac_register_SHA_2_512_256_HMAC()
     /* set up the options for HMAC-512/256 */
     hmac512_256_options.hdr.dispose = 0; /* disposal handled by init */
     hmac512_256_options.alloc_opts = 0; /* allocator handled by init */
-    hmac512_256_options.key_size = 32;
+    hmac512_256_options.key_size = VCCRYPT_MAC_SHA_512_256_KEY_SIZE;
     hmac512_256_options.key_expansion_supported = true;
-    hmac512_256_options.mac_size = 32;
+    hmac512_256_options.mac_size = VCCRYPT_MAC_SHA_512_256_MAC_SIZE;
     hmac512_256_options.maximum_message_size = SIZE_MAX; /* actually, 2^128-1 */
     hmac512_256_options.vccrypt_mac_alg_init = &hmac512_256_alg_init;
     hmac512_256_options.vccrypt_mac_alg_dispose = &hmac512_256_alg_dispose;
@@ -99,7 +99,7 @@ static int hmac512_256_alg_init(
     hmac512_256_state_t* state = (hmac512_256_state_t*)ctx->mac_state;
     if (state == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_MAC_INIT_OUT_OF_MEMORY;
     }
 
     /* initialize the SHA-512/256 options for this instance */
@@ -120,7 +120,7 @@ static int hmac512_256_alg_init(
     }
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 
 dispose_hash_options:
     dispose((disposable_t*)&state->sha512_256_options);

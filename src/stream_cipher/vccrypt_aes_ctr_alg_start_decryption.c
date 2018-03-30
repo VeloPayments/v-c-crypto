@@ -35,12 +35,12 @@ int vccrypt_aes_ctr_alg_start_decryption(
 
     /* set up stream state */
     memset(ctx_data->ctr, 0, sizeof(ctx_data->ctr));
-    memcpy(ctx_data->ctr, input, 8);
+    memcpy(ctx_data->ctr, input, VCCRYPT_AES_CTR_ALG_IV_SIZE);
     AES_encrypt(ctx_data->ctr, ctx_data->stream, &ctx_data->key);
     ctx_data->count = 0;
 
     /* update offset */
-    *offset = 8;
+    *offset = VCCRYPT_AES_CTR_ALG_IV_SIZE;
 
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }

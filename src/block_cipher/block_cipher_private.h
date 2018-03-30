@@ -18,6 +18,15 @@
 extern "C" {
 #endif /*__cplusplus*/
 
+#define VCCRYPT_AES_CBC_ALG_IV_SIZE 16
+
+#define VCCRYPT_AES_CBC_ALG_ROUND_MULT_FIPS 1
+#define VCCRYPT_AES_CBC_ALG_ROUND_MULT_2X 2
+#define VCCRYPT_AES_CBC_ALG_ROUND_MULT_3X 3
+#define VCCRYPT_AES_CBC_ALG_ROUND_MULT_4X 4
+
+#define VCCRYPT_AES_CBC_ALG_AES_256_KEY_SIZE 32
+
 /**
  * AES CBC Mode specific options data.
  */

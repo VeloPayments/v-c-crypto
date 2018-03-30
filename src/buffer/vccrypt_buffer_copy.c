@@ -32,11 +32,13 @@ int vccrypt_buffer_copy(vccrypt_buffer_t* dest, const vccrypt_buffer_t* source)
 
     /* only copy buffers of equal size. */
     if (dest->size != source->size)
-        return 1;
+    {
+        return VCCRYPT_ERROR_BUFFER_COPY_MISMATCHED_BUFFER_SIZES;
+    }
 
     /* copy data to the buffer. */
     memcpy(dest->data, source->data, dest->size);
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }

@@ -48,7 +48,7 @@ int vccrypt_block_options_init(
     reg = abstract_factory_find(VCCRYPT_INTERFACE_BLOCK, algorithm);
     if (reg == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_BLOCK_OPTIONS_INIT_MISSING_IMPL;
     }
 
     /* copy the context structure into our options structure. */
@@ -61,7 +61,7 @@ int vccrypt_block_options_init(
     options->hdr.dispose = &vccrypt_block_options_dispose;
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

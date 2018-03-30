@@ -33,11 +33,13 @@ int vccrypt_buffer_read_data(
 
     /* we can't exceed the destination buffer size. */
     if (size > dest->size)
-        return 1;
+    {
+        return VCCRYPT_ERROR_BUFFER_READ_WOULD_OVERWRITE;
+    }
 
     /* copy the data. */
     memcpy(dest->data, source, size);
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }

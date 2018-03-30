@@ -32,10 +32,12 @@ int vccrypt_aes_ctr_alg_start_encryption(
     void* UNUSED(options), void* context, const void* iv, size_t ivSize,
     void* output, size_t* offset)
 {
-    /* ivSize *MUST* be 8 */
-    MODEL_ASSERT(8 == ivSize);
-    if (8 != ivSize)
-        return 1;
+    /* ivSize *MUST* be VCCRYPT_AES_CTR_ALG_IV_SIZE (8) */
+    MODEL_ASSERT(VCCRYPT_AES_CTR_ALG_IV_SIZE == ivSize);
+    if (VCCRYPT_AES_CTR_ALG_IV_SIZE != ivSize)
+    {
+        return VCCRYPT_ERROR_STREAM_START_ENCRYPTION_INVALID_ARG;
+    }
 
     vccrypt_stream_context_t* ctx = (vccrypt_stream_context_t*)context;
     aes_ctr_context_data_t* ctx_data =
@@ -51,5 +53,5 @@ int vccrypt_aes_ctr_alg_start_encryption(
     memcpy(output, iv, ivSize);
     *offset = ivSize;
 
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }

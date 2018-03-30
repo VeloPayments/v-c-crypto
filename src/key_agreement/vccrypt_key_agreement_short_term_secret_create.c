@@ -48,7 +48,7 @@ int vccrypt_key_agreement_short_term_secret_create(
     const vccrypt_buffer_t* pub, const vccrypt_buffer_t* server_nonce,
     const vccrypt_buffer_t* client_nonce, vccrypt_buffer_t* shared)
 {
-    int retval = 1;
+    int retval = VCCRYPT_STATUS_SUCCESS;
 
     MODEL_ASSERT(context != NULL);
     MODEL_ASSERT(context->options != NULL);
@@ -75,7 +75,7 @@ int vccrypt_key_agreement_short_term_secret_create(
         shared == NULL ||
         shared->size != context->options->shared_secret_size)
     {
-        return 1;
+        return VCCRYPT_ERROR_KEY_AGREEMENT_SHORT_TERM_CREATE_INVALID_ARG;
     }
 
     /* create buffer to hold long-term secret. */
@@ -83,7 +83,7 @@ int vccrypt_key_agreement_short_term_secret_create(
     retval = vccrypt_buffer_init(
         &ltk, context->options->alloc_opts,
         context->options->shared_secret_size);
-    if (0 != retval)
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
         return retval;
     }
@@ -91,7 +91,7 @@ int vccrypt_key_agreement_short_term_secret_create(
     /* get long-term secret */
     retval = vccrypt_key_agreement_long_term_secret_create(
         context, priv, pub, &ltk);
-    if (0 != retval)
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
         goto dispose_ltk;
     }
@@ -101,7 +101,7 @@ int vccrypt_key_agreement_short_term_secret_create(
     retval = vccrypt_mac_options_init(
         &mac_opts, context->options->alloc_opts,
         context->options->hmac_algorithm);
-    if (0 != retval)
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
         goto dispose_ltk;
     }
@@ -109,21 +109,21 @@ int vccrypt_key_agreement_short_term_secret_create(
     /* create hmac instance */
     vccrypt_mac_context_t mac;
     retval = vccrypt_mac_init(&mac_opts, &mac, &ltk);
-    if (0 != retval)
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
         goto dispose_mac_opts;
     }
 
     /* digest server nonce */
     retval = vccrypt_mac_digest(&mac, server_nonce->data, server_nonce->size);
-    if (0 != retval)
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
         goto dispose_mac;
     }
 
     /* digest client nonce */
     retval = vccrypt_mac_digest(&mac, client_nonce->data, client_nonce->size);
-    if (0 != retval)
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
         goto dispose_mac;
     }

@@ -34,7 +34,7 @@ int vccrypt_suite_options_init(
     vccrypt_suite_options_t* options, allocator_options_t* alloc_opts,
     uint32_t suite_id)
 {
-    int retval = 0;
+    int retval = VCCRYPT_STATUS_SUCCESS;
 
     MODEL_ASSERT(options != NULL);
     MODEL_ASSERT(alloc_opts != NULL);
@@ -49,7 +49,7 @@ int vccrypt_suite_options_init(
     reg = abstract_factory_find(VCCRYPT_INTERFACE_SUITE, suite_id);
     if (reg == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_SUITE_OPTIONS_INIT_MISSING_IMPL;
     }
 
     /* the context structure is the options structure to copy. */
@@ -62,55 +62,58 @@ int vccrypt_suite_options_init(
     options->hdr.dispose = &vccrypt_suite_options_dispose;
 
     /* initialize the hash algorithm options. */
-    if (0 !=
-        vccrypt_hash_options_init(
-            &options->hash_opts, alloc_opts, options->hash_alg))
+    retval = vccrypt_hash_options_init(
+        &options->hash_opts, alloc_opts, options->hash_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        return 2;
+        return retval;
     }
 
     /* initialize the prng options */
-    if (0 !=
-        vccrypt_prng_options_init(
-            &options->prng_opts, alloc_opts, options->prng_src))
+    retval = vccrypt_prng_options_init(
+        &options->prng_opts, alloc_opts, options->prng_src);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        retval = 3;
         goto cleanup_hash_options;
     }
 
     /* initialize the digital signature options. */
-    if (0 !=
-        vccrypt_digital_signature_options_init(
-            &options->sign_opts, alloc_opts, &options->prng_opts,
-            options->sign_alg))
+    retval = vccrypt_digital_signature_options_init(
+        &options->sign_opts, alloc_opts, &options->prng_opts,
+        options->sign_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        retval = 4;
         goto cleanup_prng_options;
     }
 
     /* initialize the MAC options */
-    if (0 != vccrypt_mac_options_init(&options->mac_opts, alloc_opts, options->mac_alg))
+    retval = vccrypt_mac_options_init(
+        &options->mac_opts, alloc_opts, options->mac_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        retval = 5;
         goto cleanup_digital_signature_options;
     }
 
     /* initialize the auth key agreement options */
-    if (0 != vccrypt_key_agreement_options_init(&options->key_auth_opts, alloc_opts, &options->prng_opts, options->key_auth_alg))
+    retval = vccrypt_key_agreement_options_init(
+        &options->key_auth_opts, alloc_opts, &options->prng_opts,
+        options->key_auth_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        retval = 6;
         goto cleanup_mac_options;
     }
 
     /* initialize the cipher key agreement options */
-    if (0 != vccrypt_key_agreement_options_init(&options->key_cipher_opts, alloc_opts, &options->prng_opts, options->key_cipher_alg))
+    retval = vccrypt_key_agreement_options_init(
+        &options->key_cipher_opts, alloc_opts, &options->prng_opts,
+        options->key_cipher_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        retval = 7;
         goto cleanup_auth_key_options;
     }
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 
 cleanup_auth_key_options:
     dispose((disposable_t*)&options->key_auth_opts);

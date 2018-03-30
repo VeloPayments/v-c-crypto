@@ -52,7 +52,7 @@ int vccrypt_digital_signature_options_init(
     reg = abstract_factory_find(VCCRYPT_INTERFACE_SIGNATURE, algorithm);
     if (reg == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_DIGITAL_SIGNATURE_OPTIONS_INIT_MISSING_IMPL;
     }
 
     /* the context structure is the options structure to copy. */
@@ -68,7 +68,7 @@ int vccrypt_digital_signature_options_init(
     options->hdr.dispose = &vccrypt_digital_signature_options_dispose;
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

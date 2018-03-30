@@ -48,5 +48,5 @@ int vccrypt_aes_cbc_alg_encrypt(
     AES_encrypt(block, output, &ctx_data->key);
     memset(block, 0, sizeof(block));
 
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }

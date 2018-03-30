@@ -45,5 +45,5 @@ int vccrypt_aes_cbc_alg_decrypt(
     for (int i = 0; i < 16; ++i)
         out[i] ^= vec[i];
 
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }

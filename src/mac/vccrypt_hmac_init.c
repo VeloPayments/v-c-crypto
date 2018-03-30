@@ -43,7 +43,7 @@ int vccrypt_hmac_init(
         hash_options->hash_size == 0 || state == NULL || key == NULL ||
         key->size == 0)
     {
-        return 1;
+        return VCCRYPT_ERROR_MAC_INIT_INVALID_ARG;
     }
 
     /* set the disposal method */
@@ -137,7 +137,7 @@ static int vccrypt_hmac_key_init(
         ret = vccrypt_hash_init(state->hash_options, &keyhash);
         if (ret != 0)
         {
-            return 4;
+            return ret;
         }
 
         /* digest the key */
@@ -145,7 +145,7 @@ static int vccrypt_hmac_key_init(
         if (ret != 0)
         {
             dispose((disposable_t*)&keyhash);
-            return 5;
+            return ret;
         }
 
         /* finalize the key hash */
@@ -153,7 +153,7 @@ static int vccrypt_hmac_key_init(
         if (ret != 0)
         {
             dispose((disposable_t*)&keyhash);
-            return 6;
+            return ret;
         }
 
         /* set kv to the state key for the next part */
@@ -183,7 +183,7 @@ static int vccrypt_hmac_key_init(
     }
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

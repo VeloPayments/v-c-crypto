@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <vccrypt/buffer.h>
+#include <vccrypt/error_codes.h>
 #include <vccrypt/interfaces.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>

@@ -45,7 +45,7 @@ int vccrypt_buffer_read_base64(
     MODEL_ASSERT(dest->size >= max_output_size);
     if (dest->size < max_output_size)
     {
-        return 1;
+        return VCCRYPT_ERROR_BUFFER_READ_WOULD_OVERWRITE;
     }
 
     //convert source data
@@ -90,7 +90,7 @@ int vccrypt_buffer_read_base64(
             break;
     }
 
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

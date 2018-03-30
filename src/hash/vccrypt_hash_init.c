@@ -38,7 +38,7 @@ int vccrypt_hash_init(
     if (options == NULL || options->alloc_opts == NULL ||
         options->vccrypt_hash_alg_init == NULL || context == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_HASH_INIT_INVALID_ARG;
     }
 
     /* set up the context structure. */
@@ -58,7 +58,7 @@ int vccrypt_hash_init(
     context->hdr.dispose = &vccrypt_hash_dispose;
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

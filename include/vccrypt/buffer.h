@@ -19,6 +19,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <vccrypt/error_codes.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
 

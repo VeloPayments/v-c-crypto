@@ -32,7 +32,7 @@ int vccrypt_aes_ctr_alg_init(
     MODEL_ASSERT(NULL != opt->alloc_opts);
 
     if (NULL == opt->alloc_opts)
-        return 1;
+        return VCCRYPT_ERROR_STREAM_INIT_OUT_OF_MEMORY;
 
     vccrypt_stream_context_t* ctx = (vccrypt_stream_context_t*)context;
     aes_ctr_options_data_t* opt_data = (aes_ctr_options_data_t*)opt->data;
@@ -50,10 +50,10 @@ int vccrypt_aes_ctr_alg_init(
     {
         memset(ctx_data, 0, sizeof(aes_ctr_context_data_t));
         release(opt->alloc_opts, ctx_data);
-        return 2;
+        return VCCRYPT_ERROR_STREAM_INIT_BAD_ENCRYPTION_KEY;
     }
 
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

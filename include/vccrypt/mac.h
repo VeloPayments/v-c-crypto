@@ -25,6 +25,23 @@ extern "C" {
 #include <vpr/disposable.h>
 
 /**
+ * \defgroup MacConstants Algorithm-specific constants.
+ *
+ * @{
+ */
+#define VCCRYPT_MAC_SHA_512_256_KEY_SIZE 32
+#define VCCRYPT_MAC_SHA_512_256_MAC_SIZE 32
+#define VCCRYPT_MAC_SHA_512_256_BLOCK_SIZE 128
+#define VCCRYPT_MAC_SHA_512_384_MAC_SIZE 48
+#define VCCRYPT_MAC_SHA_512_384_BLOCK_SIZE 128
+#define VCCRYPT_MAC_SHA_512_KEY_SIZE 64
+#define VCCRYPT_MAC_SHA_512_MAC_SIZE 64
+#define VCCRYPT_MAC_SHA_512_BLOCK_SIZE 128
+/**
+ * @}
+ */
+
+/**
  * \defgroup MACAlgorithms Message Authentication Code Algorithms.
  *
  * Algorithms optionally supported by the MAC subsystem.  Note that the

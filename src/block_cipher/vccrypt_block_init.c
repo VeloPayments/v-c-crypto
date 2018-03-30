@@ -38,7 +38,9 @@ int vccrypt_block_init(
     MODEL_ASSERT(NULL != key);
 
     if (NULL == options || NULL == options->vccrypt_block_alg_init || NULL == context || NULL == key)
-        return 1;
+    {
+        return VCCRYPT_ERROR_BLOCK_INIT_INVALID_ARG;
+    }
 
     return options->vccrypt_block_alg_init(options, context, key, encrypt);
 }

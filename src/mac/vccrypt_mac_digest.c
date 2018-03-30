@@ -33,7 +33,7 @@ int vccrypt_mac_digest(
     if (context == NULL || context->options == NULL ||
         context->options->vccrypt_mac_alg_digest == NULL || data == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_MAC_DIGEST_INVALID_ARG;
     }
 
     return context->options->vccrypt_mac_alg_digest(context, data, size);

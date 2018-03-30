@@ -54,5 +54,5 @@ int vccrypt_aes_ctr_alg_encrypt(
         ++(*offset);
     }
 
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }

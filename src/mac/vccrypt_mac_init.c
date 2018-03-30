@@ -44,7 +44,7 @@ int vccrypt_mac_init(
     if (options == NULL || options->alloc_opts == NULL ||
         options->vccrypt_mac_alg_init == NULL || context == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_MAC_INIT_INVALID_ARG;
     }
 
     /* set up the context structure */
@@ -64,7 +64,7 @@ int vccrypt_mac_init(
     context->hdr.dispose = &vccrypt_mac_dispose;
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

@@ -47,7 +47,7 @@ int vccrypt_hash_options_init(
     reg = abstract_factory_find(VCCRYPT_INTERFACE_HASH, algorithm);
     if (reg == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_HASH_OPTIONS_INIT_MISSING_IMPL;
     }
 
     /* the context structure is the options structure to copy. */
@@ -60,7 +60,7 @@ int vccrypt_hash_options_init(
     options->hdr.dispose = &vccrypt_hash_options_dispose;
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

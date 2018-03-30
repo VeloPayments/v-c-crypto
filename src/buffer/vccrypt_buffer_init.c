@@ -43,12 +43,12 @@ int vccrypt_buffer_init(
     /* allocation failed. */
     if (buffer->data == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_BUFFER_INIT_OUT_OF_MEMORY;
     }
 
     /* clear out this structure */
     memset(buffer->data, 0, buffer->size);
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }

@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <vccrypt/buffer.h>
+#include <vccrypt/error_codes.h>
 #include <vccrypt/hash.h>
 #include <vccrypt/interfaces.h>
 #include <vccrypt/prng.h>
@@ -33,6 +34,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif  //__cplusplus
+
+/**
+ * \defgroup DigitalSignatureConstants Algorithm-specific constants.
+ *
+ * @{
+ */
+#define VCCRYPT_DIGITAL_SIGNATURE_ED25519_SIGNATURE_SIZE 64
+#define VCCRYPT_DIGITAL_SIGNATURE_ED25519_PRIVATE_KEY_SIZE 64
+#define VCCRYPT_DIGITAL_SIGNATURE_ED25519_PUBLIC_KEY_SIZE 32
+/**
+ * @}
+ */
 
 /**
  * \defgroup DigitalSignatureAlgorithms Digital Signature Algorithms.

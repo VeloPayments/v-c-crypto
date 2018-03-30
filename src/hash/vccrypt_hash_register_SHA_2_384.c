@@ -44,8 +44,8 @@ void vccrypt_hash_register_SHA_2_384()
     /* set up the options for SHA-384 */
     sha384_options.hdr.dispose = 0; /* disposal handled by init */
     sha384_options.alloc_opts = 0; /* allocator handled by init */
-    sha384_options.hash_size = 48;
-    sha384_options.hash_block_size = 128;
+    sha384_options.hash_size = VCCRYPT_HASH_SHA_512_384_DIGEST_SIZE;
+    sha384_options.hash_block_size = VCCRYPT_HASH_SHA_512_384_BLOCK_SIZE;
     sha384_options.vccrypt_hash_alg_init = &vccrypt_sha_384_init;
     sha384_options.vccrypt_hash_alg_dispose = &vccrypt_sha_384_dispose;
     sha384_options.vccrypt_hash_alg_digest = &vccrypt_sha_384_digest;
@@ -82,14 +82,14 @@ static int vccrypt_sha_384_init(void* options, void* context)
     ctx->hash_state = allocate(opts->alloc_opts, sizeof(SHA512_CTX));
     if (ctx->hash_state == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_HASH_INIT_OUT_OF_MEMORY;
     }
 
     /* initialize this context. */
     SHA384_Init((SHA512_CTX*)ctx->hash_state);
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**
@@ -129,7 +129,7 @@ static int vccrypt_sha_384_digest(
     SHA384_Update((SHA512_CTX*)ctx->hash_state, data, size);
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

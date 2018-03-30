@@ -34,7 +34,9 @@ int vccrypt_aes_cbc_alg_init(
     MODEL_ASSERT(NULL != opt->alloc_opts);
 
     if (NULL == opt->alloc_opts)
-        return 1;
+    {
+        return VCCRYPT_ERROR_BLOCK_INIT_BAD_ALLOCATOR;
+    }
 
     vccrypt_block_context_t* ctx = (vccrypt_block_context_t*)context;
     aes_cbc_options_data_t* opt_data = (aes_cbc_options_data_t*)opt->data;
@@ -55,7 +57,7 @@ int vccrypt_aes_cbc_alg_init(
         {
             memset(ctx_data, 0, sizeof(aes_cbc_context_data_t));
             release(opt->alloc_opts, ctx_data);
-            return 2;
+            return VCCRYPT_ERROR_BLOCK_INIT_BAD_ENCRYPTION_KEY;
         }
     }
     else
@@ -66,11 +68,11 @@ int vccrypt_aes_cbc_alg_init(
         {
             memset(ctx_data, 0, sizeof(aes_cbc_context_data_t));
             release(opt->alloc_opts, ctx_data);
-            return 2;
+            return VCCRYPT_ERROR_BLOCK_INIT_BAD_DECRYPTION_KEY;
         }
     }
 
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**

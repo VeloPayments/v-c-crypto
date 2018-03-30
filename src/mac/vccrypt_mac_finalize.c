@@ -39,7 +39,7 @@ int vccrypt_mac_finalize(
         mac_buffer == NULL || mac_buffer->data == NULL ||
         mac_buffer->size < context->options->mac_size)
     {
-        return 1;
+        return VCCRYPT_ERROR_MAC_FINALIZE_INVALID_ARG;
     }
 
     return context->options->vccrypt_mac_alg_finalize(context, mac_buffer);

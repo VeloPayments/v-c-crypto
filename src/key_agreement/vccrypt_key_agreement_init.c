@@ -40,7 +40,7 @@ int vccrypt_key_agreement_init(
         options->vccrypt_key_agreement_alg_dispose == NULL ||
         context == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_KEY_AGREEMENT_INIT_INVALID_ARG;
     }
 
     memset(context, 0, sizeof(vccrypt_key_agreement_context_t));

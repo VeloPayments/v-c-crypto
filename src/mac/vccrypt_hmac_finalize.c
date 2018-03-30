@@ -35,7 +35,7 @@ int vccrypt_hmac_finalize(
         state->hash_options->alloc_opts == NULL || hmac_buffer == NULL ||
         hmac_buffer->size != state->hash_options->hash_size)
     {
-        return 1;
+        return VCCRYPT_ERROR_MAC_FINALIZE_INVALID_ARG;
     }
 
     /* create a buffer to hold the inner hash */

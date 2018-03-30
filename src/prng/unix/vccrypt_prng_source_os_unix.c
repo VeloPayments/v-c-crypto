@@ -42,7 +42,7 @@ int vccrypt_prng_os_init(void* options, void* context)
     int* handle = (int*)allocate(opts->alloc_opts, sizeof(int));
     if (handle == NULL)
     {
-        return 1;
+        return VCCRYPT_ERROR_PRNG_INIT_OUT_OF_MEMORY;
     }
 
     /* attempt to open the entropy device for the OS. */
@@ -50,14 +50,14 @@ int vccrypt_prng_os_init(void* options, void* context)
     if (*handle < 0)
     {
         release(opts->alloc_opts, handle);
-        return 2;
+        return VCCRYPT_ERROR_PRNG_INIT_DEVICE_OPEN_FAILURE;
     }
 
     /* initialize this context */
     ctx->prng_state = handle;
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**
@@ -109,11 +109,11 @@ int vccrypt_prng_os_read(void* context, uint8_t* buffer, size_t length)
     if (ret < 0 || (size_t)ret != length)
     {
         memset(buffer, 0, length);
-        return 1;
+        return VCCRYPT_ERROR_PRNG_READ_FAILURE;
     }
 
     /* success */
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 #endif /* defined(VCCRYPT_OS_UNIX) */

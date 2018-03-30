@@ -45,7 +45,7 @@ int vccrypt_buffer_write_base64(
     MODEL_ASSERT(dest->size >= output_size);
     if (dest->size < output_size)
     {
-        return 1;
+        return VCCRYPT_ERROR_BUFFER_WRITE_WOULD_OVERWRITE;
     }
 
     //iterate over the input data, writing to the output buffer
@@ -74,7 +74,7 @@ int vccrypt_buffer_write_base64(
         *out++ = base64_enc(input, bytes + 1);
     }
 
-    return 0;
+    return VCCRYPT_STATUS_SUCCESS;
 }
 
 /**
