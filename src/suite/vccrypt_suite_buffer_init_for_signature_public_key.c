@@ -14,13 +14,15 @@
 #include <vpr/parameters.h>
 
 /**
- * Create a buffer sized appropriately for the public key of this crypto
+ * \brief Create a buffer sized appropriately for the public key of this crypto
  * suite's digital signature algorithm.
  *
  * \param options       The options structure for this crypto suite.
  * \param buffer        The buffer to instance initialize.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_suite_buffer_init_for_signature_public_key(
     vccrypt_suite_options_t* options,

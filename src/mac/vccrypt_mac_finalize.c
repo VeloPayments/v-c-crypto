@@ -13,14 +13,18 @@
 #include <vpr/parameters.h>
 
 /**
- * Finalize the message authentication code, copying the output data to the
- * given buffer.
+ * \brief Finalize the message authentication code, copying the output data to
+ * the given buffer.
  *
  * \param context       The MAC instance.
  * \param mac_buffer    The buffer to receive the MAC.  Must be large enough for
  *                      the given MAC algorithm.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_MAC_FINALIZE_INVALID_ARG if an invalid argument is
+ *             provided.
+ *      - a non-zero return code on error.
  */
 int vccrypt_mac_finalize(
     vccrypt_mac_context_t* context, vccrypt_buffer_t* mac_buffer)

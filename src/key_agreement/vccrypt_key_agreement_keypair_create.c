@@ -13,14 +13,16 @@
 #include <vpr/parameters.h>
 
 /**
- * Generate a keypair.
+ * \brief Generate a keypair.
  *
  * \param context       The key agreement algorithm instance to use for this
  *                      keypair generation.
  * \param priv          The buffer to receive the private key.
  * \param pub           The buffer to receive the public key.
  *
- * \returns 0 on success and non-zero on error.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero error code indicating failure.
  */
 int vccrypt_key_agreement_keypair_create(
     vccrypt_key_agreement_context_t* context, vccrypt_buffer_t* priv,

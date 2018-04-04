@@ -14,13 +14,15 @@
 #include <vpr/parameters.h>
 
 /**
- * Create a buffer sized appropriately for the message authentication code of
- * this crypto suite's message authentication code algorithm.
+ * \brief Create a buffer sized appropriately for the message authentication
+ * code of this crypto suite's message authentication code algorithm.
  *
  * \param options       The options structure for this crypto suite.
  * \param buffer        The buffer instance to initialize.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_suite_buffer_init_for_mac_authentication_code(
     vccrypt_suite_options_t* options,

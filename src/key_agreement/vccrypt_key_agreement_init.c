@@ -16,7 +16,7 @@
 static void vccrypt_key_agreement_dispose(void* context);
 
 /**
- * Initialize a key agreement algorithm instance with the given options.
+ * \brief Initialize a key agreement algorithm instance with the given options.
  *
  * If initialization is successful, then this key agreement algorithm
  * instance is owned by the caller and must be disposed by calling dispose()
@@ -25,7 +25,11 @@ static void vccrypt_key_agreement_dispose(void* context);
  * \param options       The options to use for this algorithm instance.
  * \param context       The key agreement algorithm instance to initialize.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_KEY_AGREEMENT_INIT_INVALID_ARG if one of the
+ *             provided arguments is invalid.
+ *      - a non-zero error code indicating failure.
  */
 int vccrypt_key_agreement_init(
     vccrypt_key_agreement_options_t* options,

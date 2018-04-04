@@ -14,13 +14,15 @@
 #include <vpr/parameters.h>
 
 /**
- * Create an appropriate symmetric cipher key agreement algorithm instance for
- * this crypto suite.
+ * \brief Create an appropriate symmetric cipher key agreement algorithm
+ * instance for this crypto suite.
  *
  * \param options       The options structure for this crypto suite.
  * \param context       The key agreement algorithm instance to initialize.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_suite_cipher_key_agreement_init(
     vccrypt_suite_options_t* options,

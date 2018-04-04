@@ -16,10 +16,11 @@
 static void vccrypt_key_agreement_options_dispose(void* options);
 
 /**
- * Initialize key agreement options, looking up an appropriate key agreement
- * algorithm registered in the abstract factory.  The options structure is owned
- * by the caller and must be disposed when no longer needed by calling
- * dispose().
+ * \brief Initialize key agreement options, looking up an appropriate key
+ * agreement algorithm registered in the abstract factory.
+ *
+ * The options structure is owned by the caller and must be disposed when no
+ * longer needed by calling dispose().
  *
  * Note that the register method associated with the selected algorithm should
  * have been called during application or library initialization.  Otherwise,
@@ -31,7 +32,11 @@ static void vccrypt_key_agreement_options_dispose(void* options);
  *                      WITH THIS ALGORITHM.
  * \param algorithm     The key agreement algorithm to use.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_KEY_AGREEMENT_OPTIONS_INIT_MISSING_IMPL if the
+ *             provided instance selector is invalid or unregistered.
+ *      - a non-zero error code indicating failure.
  */
 int vccrypt_key_agreement_options_init(
     vccrypt_key_agreement_options_t* options,

@@ -11,7 +11,8 @@
 #include <vpr/parameters.h>
 
 /**
- * Initialize a Block Cipher algorithm instance with the given options and key.
+ * \brief Initialize a Block Cipher algorithm instance with the given options
+ * and key.
  *
  * Note that the key length must correspond to a length appropriate for the
  * Block Cipher algorithm.
@@ -26,7 +27,11 @@
  * \param encrypt       Set to true if this is for encryption, and false for
  *                      decryption.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_BLOCK_INIT_INVALID_ARG if an invalid argument is
+ *             provided.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_block_init(
     vccrypt_block_options_t* options, vccrypt_block_context_t* context,

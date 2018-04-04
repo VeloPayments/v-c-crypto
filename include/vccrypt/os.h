@@ -1,7 +1,7 @@
 /**
  * \file os.h
  *
- * Operating system checks.
+ * \brief Operating system checks.
  *
  * This header file defines a set of macros that can be used to determine some
  * OS characteristics needed for managing OS resources upon which the crypto

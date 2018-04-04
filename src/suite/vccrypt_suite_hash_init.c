@@ -13,12 +13,14 @@
 #include <vpr/parameters.h>
 
 /**
- * Create an appropriate hash algorithm instance for this crypto suite.
+ * \brief Create an appropriate hash algorithm instance for this crypto suite.
  *
  * \param options       The options structure for this crypto suite.
  * \param context       The hash algorithm context to initialize.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_suite_hash_init(
     vccrypt_suite_options_t* options, vccrypt_hash_context_t* context)

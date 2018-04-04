@@ -15,14 +15,18 @@
 static uint8_t from_hex(uint8_t hex);
 
 /**
- * Read buffer data from hex.
+ * \brief Read buffer data from hex.
  *
  * Note: buffers must be sized appropriately.
  *
  * \param dest      the destination byte buffer.
  * \param source    the source hex buffer.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_BUFFER_READ_WOULD_OVERWRITE if this read operation
+ *             would overwrite the destination buffer.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_buffer_read_hex(
     vccrypt_buffer_t* dest, const vccrypt_buffer_t* source)

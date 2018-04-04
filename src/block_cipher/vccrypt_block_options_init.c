@@ -16,10 +16,11 @@
 static void vccrypt_block_options_dispose(void* options);
 
 /**
- * Initialize Block Cipher options, looking up an appropriate Block Cipher
- * algorithm registered in the abstract factory.  The options structure is owned
- * by the caller and must be disposed when no longer needed by calling
- * dispose().
+ * \brief Initialize Block Cipher options, looking up an appropriate Block
+ * Cipher algorithm registered in the abstract factory.
+ *
+ * The options structure is owned by the caller and must be disposed when no
+ * longer needed by calling dispose().
  *
  * Note that the register method associated with the selected algorithm should
  * have been called during application or library initialization.  Otherwise,
@@ -29,7 +30,12 @@ static void vccrypt_block_options_dispose(void* options);
  * \param alloc_opts    The allocator options to use.
  * \param algorithm     The Block Cipher algorithm to use.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_BLOCK_OPTIONS_INIT_MISSING_IMPL if the provided
+ *             selector does not reference a valid implementation or if the
+ *             implementation was not registered.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_block_options_init(
     vccrypt_block_options_t* options, allocator_options_t* alloc_opts,

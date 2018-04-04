@@ -15,7 +15,7 @@
 static void vccrypt_mac_dispose(void* context);
 
 /**
- * Initialize a MAC algorithm instance with the given options and key.
+ * \brief Initialize a MAC algorithm instance with the given options and key.
  *
  * Note that the key length must correspond to a length appropriate for the MAC
  * algorithm.  If the key length is not the correct length, an attempt will be
@@ -29,7 +29,11 @@ static void vccrypt_mac_dispose(void* context);
  * \param context       The MAC instance to initialize.
  * \param key           The key to use for this algorithm instance.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_MAC_INIT_INVALID_ARG if an invalid argument is
+ *             provided to this method.
+ *      - a non-zero return code on error.
  */
 int vccrypt_mac_init(
     vccrypt_mac_options_t* options, vccrypt_mac_context_t* context,

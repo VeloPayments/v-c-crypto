@@ -13,15 +13,17 @@
 #include <vpr/parameters.h>
 
 /**
- * Create an appropriate message authentication code algorithm instance for this
- * crypto suite.
+ * \brief Create an appropriate message authentication code algorithm instance
+ * for this crypto suite.
  *
  * \param options       The options structure for this crypto suite.
  * \param context       The message authentication code instance to
  *                      initialize.
  * \param key           The key to use for this algorithm.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_suite_mac_init(
     vccrypt_suite_options_t* options, vccrypt_mac_context_t* context,

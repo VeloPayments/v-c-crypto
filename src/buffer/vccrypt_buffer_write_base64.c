@@ -16,14 +16,18 @@ static uint32_t base64_enc(uint32_t word, size_t bytes);
 static uint8_t to_base64(uint8_t input);
 
 /**
- * Write buffer data to Base64.
+ * \brief Write buffer data to Base64.
  *
  * Note: buffers must be sized appropriately.
  *
  * \param dest      the destination base64 buffer.
  * \param source    the source byte buffer.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_BUFFER_WRITE_WOULD_OVERWRITE if this write
+ *             operation would overwrite the destination buffer.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_buffer_write_base64(
     vccrypt_buffer_t* dest, const vccrypt_buffer_t* source)

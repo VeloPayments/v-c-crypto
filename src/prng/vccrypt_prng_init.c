@@ -15,7 +15,7 @@
 static void vccrypt_prng_dispose(void* context);
 
 /**
- * Initialize a prng instance with the given options.
+ * \brief Initialize a prng instance with the given options.
  *
  * If initialization is successful, then this prng instance is owned by the
  * caller and must be disposed by calling dispose() when no longer needed.
@@ -23,7 +23,9 @@ static void vccrypt_prng_dispose(void* context);
  * \param options       The options to use for this algorithm instance.
  * \param context       The prng instance to initialize.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero error code indicating failure.
  */
 int vccrypt_prng_init(
     vccrypt_prng_options_t* options, vccrypt_prng_context_t* context)

@@ -38,6 +38,9 @@ STRIPPED_TEST_SOURCES=$(patsubst $(TESTDIR)/%,%,$(TEST_SOURCES))
 TEST_OBJECTS=$(patsubst %.cpp,$(TEST_BUILD_DIR)/%.o,$(STRIPPED_TEST_SOURCES))
 TESTLIBVCCRYPT=$(HOST_CHECKED_BUILD_DIR)/testlibvccrypt
 
+#documentation configuration
+DOC_BUILD_DIR=$(BUILD_DIR)/apidocs
+
 #platform options
 CORTEXMSOFT_RELEASE_BUILD_DIR=$(BUILD_DIR)/cortex-m4-softfp/release
 CORTEXMSOFT_RELEASE_LIB=$(CORTEXMSOFT_RELEASE_BUILD_DIR)/$(LIB_NAME)
@@ -115,10 +118,16 @@ CORTEXMHARD_RELEASE_CXXFLAGS=-std=gnu++14 $(COMMON_CXXFLAGS) -O2 \
 #phony targets
 .PHONY: ALL clean test host.lib.checked host.lib.release cortexmsoft.lib.release
 .PHONY: cortexmhard.lib.release
+.PHONY: docs
 
 #main build target
 ALL: host.lib.checked host.lib.release cortexmsoft.lib.release
 ALL: cortexmhard.lib.release
+
+#Documentation target
+docs:
+	mkdir -p $(DOC_BUILD_DIR)
+	$(TOOLCHAIN_DIR)/host/bin/doxygen doxygen.cfg
 
 #host targets
 host.lib.checked: $(HOST_CHECKED_DIRS) $(HOST_CHECKED_LIB)

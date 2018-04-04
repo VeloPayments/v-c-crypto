@@ -16,9 +16,11 @@
 static void vccrypt_hash_options_dispose(void* options);
 
 /**
- * Initialize hash options, looking up an appropriate hash algorithm registered
- * in the abstract factory.  The options structure is owned by the caller and
- * must be disposed when no longer needed by calling dispose().
+ * \brief Initialize hash options, looking up an appropriate hash algorithm
+ * registered in the abstract factory.
+ *
+ * The options structure is owned by the caller and must be disposed when no
+ * longer needed by calling dispose().
  *
  * Note that the register method associated with the selected algorithm should
  * have been called during application or library initialization.  Otherwise,
@@ -28,7 +30,11 @@ static void vccrypt_hash_options_dispose(void* options);
  * \param alloc_opts    The allocator options to use.
  * \param algorithm     The hash algorithm to use.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_HASH_OPTIONS_INIT_MISSING_IMPL if the requested
+ *             implementation either does not exist or was not registered.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_hash_options_init(
     vccrypt_hash_options_t* options, allocator_options_t* alloc_opts,

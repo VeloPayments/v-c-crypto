@@ -16,7 +16,7 @@
 static void vccrypt_suite_options_dispose(void* options);
 
 /**
- * Initialize a crypto suite options structure.
+ * \brief Initialize a crypto suite options structure.
  *
  * This method initializes a crypto suite options structure so that it can be
  * used to instantiate cryptographic primitives for a given crypto suite.
@@ -28,7 +28,12 @@ static void vccrypt_suite_options_dispose(void* options);
  * \param alloc_opts    The allocator options to use for this suite.
  * \param suite_id      The suite identifier to use for initialization.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_SUITE_OPTIONS_INIT_MISSING_IMPL when the provided
+ *             implementation selector is invalid or the implementation was not
+ *             registered.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_suite_options_init(
     vccrypt_suite_options_t* options, allocator_options_t* alloc_opts,

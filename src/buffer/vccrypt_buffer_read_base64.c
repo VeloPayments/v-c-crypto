@@ -16,7 +16,7 @@
 static int from_base64(uint8_t byte);
 
 /**
- * Read buffer data from Base64.
+ * \brief Read buffer data from Base64.
  *
  * Note: buffers must be sized appropriately.
  *
@@ -24,7 +24,11 @@ static int from_base64(uint8_t byte);
  * \param source        the source base64 buffer.
  * \param decoded_bytes the number of bytes decoded.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_BUFFER_READ_WOULD_OVERWRITE if this read operation
+ *             would overwrite the destination buffer.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_buffer_read_base64(
     vccrypt_buffer_t* dest, const vccrypt_buffer_t* source,

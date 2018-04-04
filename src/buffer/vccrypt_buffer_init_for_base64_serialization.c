@@ -12,7 +12,7 @@
 #include <vpr/parameters.h>
 
 /**
- * Initialize a buffer sized to serialize data in Base64.
+ * \brief Initialize a buffer sized to serialize data in Base64.
  *
  * Note: the buffer is owned by the caller and must be disposed by calling the
  * dispose() method when no longer needed.
@@ -22,7 +22,11 @@
  * \param size      the size of the buffer in bytes; the real size will be the
  *                  padded Base64 equivalent.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_BUFFER_INIT_OUT_OF_MEMORY if this method runs out
+ *             of memory while initializing this buffer.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_buffer_init_for_base64_serialization(
     vccrypt_buffer_t* buffer, allocator_options_t* alloc, size_t size)

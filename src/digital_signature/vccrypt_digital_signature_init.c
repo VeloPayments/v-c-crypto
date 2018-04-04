@@ -16,7 +16,7 @@
 static void vccrypt_digital_signature_dispose(void* context);
 
 /**
- * Initialize a digital signature instance with the given options.
+ * \brief Initialize a digital signature instance with the given options.
  *
  * If initialization is successful, then this digital signature algorithm
  * instance is owned by the caller and must be disposed by calling dispose()
@@ -25,7 +25,11 @@ static void vccrypt_digital_signature_dispose(void* context);
  * \param options       The options to use for this algorithm instance.
  * \param context       The digital signature instance to initialize.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_DIGITAL_SIGNATURE_INIT_INVALID_ARG if one of the
+ *             provided arguments is invalid.
+ *      - a non-zero error code indicating failure.
  */
 int vccrypt_digital_signature_init(
     vccrypt_digital_signature_options_t* options,

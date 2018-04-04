@@ -12,14 +12,19 @@
 #include <vpr/parameters.h>
 
 /**
- * Copy data from one buffer to another.
+ * \brief Copy data from one buffer to another.
  *
  * Note: buffers must be the same size.
  *
  * \param dest      the destination buffer.
  * \param source    the source buffer.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_BUFFER_COPY_MISMATCHED_BUFFER_SIZES if the buffer
+ *             sizes are mismatched and therefore this copy would overwrite one
+ *             buffer.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_buffer_copy(vccrypt_buffer_t* dest, const vccrypt_buffer_t* source)
 {

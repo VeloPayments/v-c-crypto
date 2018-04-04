@@ -11,8 +11,8 @@
 #include <vpr/parameters.h>
 
 /**
- * Algorithm-specific start for the stream cipher encryption.  Initializes
- * output buffer with IV.
+ * \brief Algorithm-specific start for the stream cipher encryption.
+ * Initializes output buffer with IV.
  *
  * \param context   Pointer to the stream cipher context.
  * \param iv        The IV to use for this instance.  MUST ONLY BE USED ONCE
@@ -23,7 +23,9 @@
  * \param offset    Pointer to the current offset of the buffer.  Will be
  *                  set to IV_bytes.  The value in this offset is ignored.
  *
- * \returns 0 on success and non-zero on error.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_stream_start_encryption(
     vccrypt_stream_context_t* context, const void* iv, size_t ivSize,

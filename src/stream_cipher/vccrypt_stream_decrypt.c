@@ -11,7 +11,7 @@
 #include <vpr/parameters.h>
 
 /**
- * Decrypt data using the stream cipher.
+ * \brief Decrypt data using the stream cipher.
  *
  * \param context       The stream cipher context for this operation.
  * \param input         A pointer to the ciphertext input to decrypt.
@@ -22,7 +22,9 @@
  * \param offset        A pointer to the current offset in the buffer.  Will
  *                      be incremented by size.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_stream_decrypt(
     vccrypt_stream_context_t* context, const void* input, size_t size,

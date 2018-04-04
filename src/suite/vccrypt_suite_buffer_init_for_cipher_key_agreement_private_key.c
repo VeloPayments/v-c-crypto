@@ -14,13 +14,15 @@
 #include <vpr/parameters.h>
 
 /**
- * Create a buffer sized appropriately for the private key of this crypto
+ * \brief Create a buffer sized appropriately for the private key of this crypto
  * suite's key agreement algorithm for ciphers.
  *
  * \param options       The options structure for this crypto suite.
  * \param buffer        The buffer instance to initialize.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_suite_buffer_init_for_cipher_key_agreement_private_key(
     vccrypt_suite_options_t* options,

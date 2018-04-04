@@ -12,15 +12,20 @@
 #include <vpr/parameters.h>
 
 /**
- * Read cryptographically random bytes into the given buffer.  Internally, the
- * PRNG source may need to reseed, which may cause the current thread to block
- * until the reseeding process is complete.
+ * \brief Read cryptographically random bytes into the given buffer.
+ *
+ * Internally, the PRNG source may need to reseed, which may cause the current
+ * thread to block until the reseeding process is complete.
  *
  * \param context       The prng instance to initialize.
  * \param buffer        The buffer into which the bytes should be read.
  * \param length        The number of random bytes to write to the buffer.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_PRNG_READ_WOULD_OVERWRITE if this read would
+ *             overwrite the provided \ref vccrypt_buffer_t instance.
+ *      - a non-zero error code indicating failure.
  */
 int vccrypt_prng_read(
     vccrypt_prng_context_t* context, vccrypt_buffer_t* buffer, size_t length)

@@ -13,13 +13,17 @@
 #include <vpr/parameters.h>
 
 /**
- * Digest data for the given hash instance.
+ * \brief Digest data for the given hash instance.
  *
  * \param context       The hash instance.
  * \param data          A pointer to raw data to digest.
  * \param size          The size of the data to digest, in bytes.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_HASH_DIGEST_INVALID_ARG if an invalid argument is
+ *             provided.
+ *      - a non-zero error code.
  */
 int vccrypt_hash_digest(
     vccrypt_hash_context_t* context, const uint8_t* data, size_t size)

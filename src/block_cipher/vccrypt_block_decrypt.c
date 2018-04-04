@@ -11,7 +11,7 @@
 #include <vpr/parameters.h>
 
 /**
- * Decrypt a single block of data using the block cipher.
+ * \brief Decrypt a single block of data using the block cipher.
  *
  * \param context       The block cipher context to use.
  * \param iv            The initialization vector to use for this block.
@@ -25,7 +25,9 @@
  * \param output        The output buffer where data is written.  The output
  *                      buffer must be at least the block size in length.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_block_decrypt(
     vccrypt_block_context_t* context, const void* iv, const void* input,

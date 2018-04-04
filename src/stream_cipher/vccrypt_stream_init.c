@@ -11,7 +11,8 @@
 #include <vpr/parameters.h>
 
 /**
- * Initialize a Stream Cipher algorithm instance with the given options and key.
+ * \brief Initialize a Stream Cipher algorithm instance with the given options
+ * and key.
  *
  * Note that the key length must correspond to a length appropriate for the
  * Stream Cipher algorithm.
@@ -24,7 +25,11 @@
  * \param context       The stream cipher instance to initialize.
  * \param key           The key to use for this algorithm instance.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_STREAM_INIT_INVALID_ARG if one of the provided
+ *             arguments is invalid.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_stream_init(
     vccrypt_stream_options_t* options, vccrypt_stream_context_t* context,

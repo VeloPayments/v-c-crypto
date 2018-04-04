@@ -17,9 +17,11 @@
 static void vccrypt_mac_options_dispose(void* options);
 
 /**
- * Initialize MAC options, looking up an appropriate MAC algorithm registered in
- * the abstract factory.  The options structure is owned by the caller and must
- * be disposed when no longer needed by calling dispose().
+ * \brief Initialize MAC options, looking up an appropriate MAC algorithm
+ * registered in the abstract factory.
+ *
+ * The options structure is owned by the caller and must be disposed when no
+ * longer needed by calling dispose().
  *
  * Note that the register method associated with the selected algorithm should
  * have been called during application or library initialization.  Otherwise,
@@ -29,7 +31,11 @@ static void vccrypt_mac_options_dispose(void* options);
  * \param alloc_opts    The allocator options to use.
  * \param algorithm     The MAC algorithm to use.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_MAC_OPTIONS_INIT_MISSING_IMPL if the implementation
+ *             is missing or was not registered. 
+ *      - a non-zero return code on error.
  */
 int vccrypt_mac_options_init(
     vccrypt_mac_options_t* options, allocator_options_t* alloc_opts,

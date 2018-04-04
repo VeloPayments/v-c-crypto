@@ -13,13 +13,16 @@
 #include <vpr/parameters.h>
 
 /**
- * Finalize the hash, copying the output data to the given buffer.
+ * \brief Finalize the hash, copying the output data to the given buffer.
  *
  * \param context       The hash instance.
  * \param hash_buffer   The buffer to receive the hash.  Must be large enough
  *                      for the given hash algorithm.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_HASH_DIGEST_INVALID_ARG if an invalid argument is
+ *             provided.
  */
 int vccrypt_hash_finalize(
     vccrypt_hash_context_t* context, vccrypt_buffer_t* hash_buffer)

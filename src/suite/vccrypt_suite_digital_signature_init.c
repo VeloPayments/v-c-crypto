@@ -13,13 +13,15 @@
 #include <vpr/parameters.h>
 
 /**
- * Create an appropriate digital signature algorithm instance for this crypto
- * suite.
+ * \brief Create an appropriate digital signature algorithm instance for this
+ * crypto suite.
  *
  * \param options       The options structure for this crypto suite.
  * \param context       The digital signature instance to initialize.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_suite_digital_signature_init(
     vccrypt_suite_options_t* options,

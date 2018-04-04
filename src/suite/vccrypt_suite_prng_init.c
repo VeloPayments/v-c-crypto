@@ -13,12 +13,14 @@
 #include <vpr/parameters.h>
 
 /**
- * Open an appropriate prng source for this crypto suite.
+ * \brief Open an appropriate prng source for this crypto suite.
  *
  * \param options       The options structure for this crypto suite.
  * \param context       The prng instance to initialize with this source.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
  */
 int vccrypt_suite_prng_init(
     vccrypt_suite_options_t* options, vccrypt_prng_context_t* context)

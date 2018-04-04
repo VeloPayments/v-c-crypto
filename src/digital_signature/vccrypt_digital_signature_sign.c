@@ -13,7 +13,7 @@
 #include <vpr/parameters.h>
 
 /**
- * Sign a message, given a private key, a message, and a message length.
+ * \brief Sign a message, given a private key, a message, and a message length.
  *
  * \param context       An opaque pointer to the
  *                      vccrypt_digital_signature_context_t structure.
@@ -23,7 +23,9 @@
  * \param message       The input message.
  * \param size          The size of the message in bytes.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero error code indicating failure.
  */
 int vccrypt_digital_signature_sign(
     vccrypt_digital_signature_context_t* context, vccrypt_buffer_t* sign_buffer,

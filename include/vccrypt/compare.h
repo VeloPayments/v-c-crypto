@@ -1,7 +1,7 @@
 /**
  * \file compare.h
  *
- * Timing safe comparison routines.
+ * \brief Timing attack resistant comparison routines.
  *
  * \copyright 2017 Velo Payments, Inc.  All rights reserved.
  */
@@ -15,13 +15,15 @@ extern "C" {
 #endif  //__cplusplus
 
 /**
- * Compare two buffers in a timing-safe way.  Note that while this function is
- * named like memcmp and shares the same arguments, its behavior is different
- * due to the timing-safe guarantees.  memcmp short circuits on the first
- * difference.  This function gathers all differences into a saturated return
- * value.  Because of this, the ordering of memcmp is broken in this function.
- * This function cannot be used to sort values, but only for giving a
- * true-or-false answer to the question: are these two buffers equal?
+ * \brief Compare two buffers in a timing-safe way.
+ *
+ * Note that while this function is named like memcmp and shares the same
+ * arguments, its behavior is different due to the timing-safe guarantees.
+ * memcmp short circuits on the first difference.  This function gathers all
+ * differences into a saturated return value.  Because of this, the ordering of
+ * memcmp is broken in this function. This function cannot be used to sort
+ * values, but only for giving a true-or-false answer to the question: are these
+ * two buffers equal?
  *
  * \param lhs       The left-hand-side buffer to compare.
  * \param rhs       The right-hand-side buffer to compare.

@@ -12,7 +12,7 @@
 #include <vpr/parameters.h>
 
 /**
- * Read data from a C buffer.
+ * \brief Read data from a C buffer.
  *
  * Note: C buffer size cannot exceed buffer size.
  *
@@ -20,7 +20,11 @@
  * \param source    the source C buffer.
  * \param size      the number of bytes to read.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_BUFFER_READ_WOULD_OVERWRITE if this read operation
+ *             would overwrite the buffer.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_buffer_read_data(
     vccrypt_buffer_t* dest, const void* source, size_t size)

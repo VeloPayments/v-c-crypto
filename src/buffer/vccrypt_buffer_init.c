@@ -15,7 +15,7 @@
 extern void vccrypt_buffer_dispose(void*);
 
 /**
- * Initialize a buffer with the given size.
+ * \brief Initialize a buffer with the given size.
  *
  * Note: the buffer is owned by the caller and must be disposed by calling the
  * dispose() method when no longer needed.
@@ -24,7 +24,11 @@ extern void vccrypt_buffer_dispose(void*);
  * \param alloc     the allocator options to use for this buffer.
  * \param size      the size of the buffer in bytes.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_BUFFER_INIT_OUT_OF_MEMORY if this method runs out
+ *             of memory while initializing this buffer.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_buffer_init(
     vccrypt_buffer_t* buffer, allocator_options_t* alloc, size_t size)

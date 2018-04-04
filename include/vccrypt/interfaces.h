@@ -1,8 +1,10 @@
 /**
  * \file interfaces.h
  *
- * Cryptographic primitive interfaces.  Each interface has a unique 32-bit value
- * that is used for abstract factory registration.
+ * \brief Cryptographic primitive interfaces for the vccrypt library.
+ *
+ * Each interface has a unique 32-bit value that is used for abstract factory
+ * registration.
  *
  * \copyright 2017 Velo Payments, Inc.  All rights reserved.
  */
@@ -15,24 +17,63 @@
 extern "C" {
 #endif  //__cplusplus
 
-/** The base interface ID is 0x43000000 */
+/**
+ * \defgroup Interfaces Cryptographic interfaces.
+ *
+ * \brief These cryptographic interfaces are used for registration.
+ *
+ * @{
+ */
+
+/**
+ * \brief The base interface ID, representing the range for all interfaces in
+ * this module.
+ */
 #define VCCRYPT_INTERFACE_BASE 0x43000000
-/** Cryptographic Hash -- see vccrypt/hash.h */
+
+/** 
+ * \brief The Cryptographic Hash interface -- see vccrypt/hash.h
+ */
 #define VCCRYPT_INTERFACE_HASH 0x43000010
-/** Counter Mode Stream Cipher -- see vccrypt/stream_cipher.h */
+
+/** \brief The Counter Mode Stream Cipher interface -- see
+ * vccrypt/stream_cipher.h 
+ */
 #define VCCRYPT_INTERFACE_STREAM 0x43000020
-/** Cipher Block Chaining Mode Block Cipher -- see vccrypt/block_cipher.h */
+
+/**
+ * \brief The Cipher Block Chaining Mode Block Cipher interface -- see
+ * vccrypt/block_cipher.h
+ */
 #define VCCRYPT_INTERFACE_BLOCK 0x43000030
-/** Message Authentication Code -- see vccrypt/mac.h */
+
+/**
+ * \brief The Message Authentication Code interface -- see vccrypt/mac.h
+ */
 #define VCCRYPT_INTERFACE_MAC 0x43000040
-/** Key Agreement -- see vccrypt/key_agreement.h */
+
+/**
+ * \brief The Key Agreement interface -- see vccrypt/key_agreement.h
+ */
 #define VCCRYPT_INTERFACE_KEY 0x43000050
-/** Digital Signature -- see vccrypt/digital_signature.h */
+
+/**
+ * \brief The Digital Signature interface -- see vccrypt/digital_signature.h
+ */
 #define VCCRYPT_INTERFACE_SIGNATURE 0x43000060
-/** Cryptographic PRNG -- see vccrypt/prng.h */
+
+/**
+ * \brief The Cryptographic PRNG interface -- see vccrypt/prng.h
+ */
 #define VCCRYPT_INTERFACE_PRNG 0x43000070
-/** Crypto Suite Interface -- see vccrypt/suite.h */
+
+/**
+ * \brief The Crypto Suite interface -- see vccrypt/suite.h
+ */
 #define VCCRYPT_INTERFACE_SUITE 0x43000080
+/**
+ * @}
+ */
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus

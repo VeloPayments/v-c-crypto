@@ -15,7 +15,7 @@
 static void vccrypt_hash_dispose(void* context);
 
 /**
- * Initialize a hash algorithm instance with the given options.
+ * \brief Initialize a hash algorithm instance with the given options.
  *
  * If initialization is successful, then this hash algorithm instance is owned
  * by the caller and must be disposed by calling dispose() when no longer
@@ -24,7 +24,11 @@ static void vccrypt_hash_dispose(void* context);
  * \param options       The options to use for this algorithm instance.
  * \param context       The hash instance to initialize.
  *
- * \returns 0 on success and 1 on failure.
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_HASH_INIT_INVALID_ARG if an invalid argument is
+ *             provided.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_hash_init(
     vccrypt_hash_options_t* options, vccrypt_hash_context_t* context)

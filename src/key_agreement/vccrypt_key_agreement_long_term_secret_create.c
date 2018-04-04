@@ -14,7 +14,7 @@
 #include <vpr/parameters.h>
 
 /**
- * Generate a long-term secret, given a private key and a public key.
+ * \brief Generate a long-term secret, given a private key and a public key.
  *
  * \param context       The key agreement algorithm instance to use for this
  *                      derivation.
@@ -22,7 +22,9 @@
  * \param pub           The public key to use for this operation.
  * \param shared        The buffer to receive the long-term secret.
  *
- * \returns 0 on success and non-zero on error.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero error code indicating failure.
  */
 int vccrypt_key_agreement_long_term_secret_create(
     vccrypt_key_agreement_context_t* context, const vccrypt_buffer_t* priv,

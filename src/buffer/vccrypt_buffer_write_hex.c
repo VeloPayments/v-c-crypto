@@ -15,14 +15,18 @@
 static uint8_t hex_digit(uint8_t nibble);
 
 /**
- * Write buffer data to hex.
+ * \brief Write buffer data to hex.
  *
  * Note: buffers must be sized appropriately.
  *
  * \param dest      the destination hex buffer.
  * \param source    the source byte buffer.
  *
- * \returns 0 on success and non-zero on failure.
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - \ref VCCRYPT_ERROR_BUFFER_WRITE_WOULD_OVERWRITE if this write
+ *             operation would overwrite the destination buffer.
+ *      - a non-zero error code on failure.
  */
 int vccrypt_buffer_write_hex(
     vccrypt_buffer_t* dest, const vccrypt_buffer_t* source)
