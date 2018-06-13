@@ -2,6 +2,9 @@ LIB_NAME=libvccrypt.a
 BUILD_DIR=$(CURDIR)/build
 HOST_CHECKED_BUILD_DIR=$(BUILD_DIR)/host/checked
 
+#OpenBSD compatibility
+PWD?=$(shell pwd)
+
 #vpr options
 VPR_DIR?=../vpr
 VPR_INCLUDE_PATH?=$(VPR_DIR)/include
