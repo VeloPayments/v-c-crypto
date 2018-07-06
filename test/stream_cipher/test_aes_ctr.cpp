@@ -13,7 +13,7 @@
 #include "../../src/stream_cipher/aes/aes.h"
 #include "../../src/stream_cipher/stream_cipher_private.h"
 
-static uint64_t htonll(uint64_t n)
+static uint64_t mmhtonll(uint64_t n)
 {
     return ((((0xFF00000000000000 & n) >> 56) << 0) | (((0x00FF000000000000 & n) >> 48) << 8) | (((0x0000FF0000000000 & n) >> 40) << 16) | (((0x000000FF00000000 & n) >> 32) << 24) | (((0x00000000FF000000 & n) >> 24) << 32) | (((0x0000000000FF0000 & n) >> 16) << 40) | (((0x000000000000FF00 & n) >> 8) << 48) | (((0x00000000000000FF & n) >> 0) << 56));
 }
@@ -171,7 +171,7 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_01)
         0x14, 0x5a, 0xd0, 0x1d, 0xbf, 0x82, 0x4e, 0xc7,
         0x56, 0x08, 0x63, 0xdc, 0x71, 0xe3, 0xe0, 0xc0
     };
-    uint64_t DUMMY_IV = htonll(0x0102030405060708UL);
+    uint64_t DUMMY_IV = mmhtonll(0x0102030405060708UL);
     uint8_t output[24];
     uint8_t poutput[16];
     size_t offset = 99;
@@ -296,7 +296,7 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_02)
         0x55, 0x30, 0x83, 0x1d, 0x93, 0x44, 0xaf, 0x1c
     };
 
-    uint64_t DUMMY_IV = htonll(0x0102030405060708UL);
+    uint64_t DUMMY_IV = mmhtonll(0x0102030405060708UL);
     uint8_t output[40];
     uint8_t poutput[32];
     size_t offset = 99;
@@ -423,7 +423,7 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_03)
         0x1e, 0xc0, 0xe6, 0xb8
     };
 
-    uint64_t DUMMY_IV = htonll(0x0102030405060708UL);
+    uint64_t DUMMY_IV = mmhtonll(0x0102030405060708UL);
     uint8_t output[44];
     uint8_t poutput[36];
     size_t offset = 99;
