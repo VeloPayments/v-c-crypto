@@ -68,6 +68,10 @@ HOST_RELEASE_DIRS=$(filter-out $(SRCDIR), \
     $(patsubst $(SRCDIR)/%,$(HOST_RELEASE_BUILD_DIR)/%,$(DIRS)))
 HOST_RELEASE_OBJECTS= \
     $(patsubst %.c,$(HOST_RELEASE_BUILD_DIR)/%.o,$(STRIPPED_SOURCES))
+WASM_RELEASE_LIB=$(WASM_RELEASE_BUILD_DIR)/$(LIB_NAME)
+WASM_RELEASE_BUILD_DIR=$(BUILD_DIR)/wasm/release
+WASM_RELEASE_OBJECTS= \
+	$(patsubst %.c,$(WASM_RELEASE_BUILD_DIR)/%.o,$(STRIPPED_SOURCES))
 
 #Dependencies
 GTEST_DIR?=../googletest/googletest
@@ -85,6 +89,11 @@ HOST_RELEASE_CC=$(TOOLCHAIN_DIR)/host/bin/gcc
 HOST_RELEASE_CXX=$(TOOLCHAIN_DIR)/host/bin/g++
 HOST_RELEASE_AR=$(AR)
 HOST_RELEASE_RANLIB=$(RANLIB)
+
+# TODO vendor these into vc-toolchain
+WASM_RELEASE_CC=emcc
+WASM_RELEASE_AR=emar
+
 CORTEXMSOFT_RELEASE_CC=$(TOOLCHAIN_DIR)/cortex-m4-softfp/bin/arm-none-eabi-gcc
 CORTEXMSOFT_RELEASE_CXX=$(TOOLCHAIN_DIR)/cortex-m4-softfp/bin/arm-none-eabi-g++
 CORTEXMSOFT_RELEASE_AR=$(TOOLCHAIN_DIR)/cortex-m4-softfp/bin/arm-none-eabi-ar
@@ -97,6 +106,7 @@ CORTEXMHARD_RELEASE_RANLIB=$(TOOLCHAIN_DIR)/cortex-m4-hardfp/bin/arm-none-eabi-r
 #platform compiler flags
 COMMON_INCLUDES=$(MODEL_CHECK_INCLUDES) $(VPR_CFLAGS) -I $(PWD)/include
 COMMON_CFLAGS=$(COMMON_INCLUDES) -Wall -Werror -Wextra
+WASM_RELEASE_CFLAGS=$(COMMON_CFLAGS) -O2
 HOST_CHECKED_CFLAGS=$(COMMON_CFLAGS) -fPIC -O0 -fprofile-arcs -ftest-coverage
 HOST_RELEASE_CFLAGS=$(COMMON_CFLAGS) -fPIC -O2
 COMMON_CXXFLAGS=-I $(PWD)/include -Wall -Werror -Wextra
@@ -136,6 +146,8 @@ docs:
 host.lib.checked: $(HOST_CHECKED_DIRS) $(HOST_CHECKED_LIB)
 host.lib.release: $(HOST_RELEASE_DIRS) $(HOST_RELEASE_LIB)
 
+wasm.lib.release: $(WASM_RELEASE_DIRS) $(WASM_RELEASE_LIB)
+
 #cortex M4 soft floating point targets
 cortexmsoft.lib.release: $(CORTEXMSOFT_RELEASE_DIRS) $(CORTEXMSOFT_RELEASE_LIB)
 
@@ -155,6 +167,9 @@ $(HOST_CHECKED_LIB) : $(HOST_CHECKED_OBJECTS)
 #Host release library
 $(HOST_RELEASE_LIB) : $(HOST_RELEASE_OBJECTS)
 	$(AR) rcs $@ $(HOST_RELEASE_OBJECTS)
+
+$(WASM_RELEASE_LIB) : $(WASM_RELEASE_OBJECTS)
+	$(WASM_RELEASE_AR) rcs $@ $(WASM_RELEASE_OBJECTS)
 
 #Cortex-M4 softfp library
 $(CORTEXMSOFT_RELEASE_LIB) : $(CORTEXMSOFT_RELEASE_OBJECTS)
@@ -193,6 +208,10 @@ $(CORTEXMSOFT_RELEASE_BUILD_DIR)/%.o: $(SRCDIR)/%.c
 $(CORTEXMHARD_RELEASE_BUILD_DIR)/%.o: $(SRCDIR)/%.c
 	mkdir -p $(dir $@)
 	$(CORTEXMHARD_RELEASE_CC) $(CORTEXMHARD_RELEASE_CFLAGS) -c -o $@ $<
+
+$(WASM_RELEASE_BUILD_DIR)/%.o: $(SRCDIR)/%.c
+	mkdir -p $(dir $@)
+	$(WASM_RELEASE_CC) $(WASM_RELEASE_CFLAGS) -c -o $@ $<
 
 test: $(TEST_DIRS) host.lib.checked $(TESTLIBVCCRYPT)
 	LD_LIBRARY_PATH=$(TOOLCHAIN_DIR)/host/lib:$(TOOLCHAIN_DIR)/host/lib64:$(LD_LIBRARY_PATH) $(TESTLIBVCCRYPT)
