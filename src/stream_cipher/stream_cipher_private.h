@@ -87,6 +87,21 @@ int vccrypt_aes_ctr_alg_start_encryption(
     void* output, size_t* offset);
 
 /**
+ * Algorithm-specific continuation for the stream cipher encryption.
+ *
+ * \param options       Opaque pointer to this options structure.
+ * \param context       Opaque pointer to vccrypt_stream_context_t structure.
+ * \param iv            The IV to use for this instance.  MUST ONLY BE USED ONCE
+ * \param iv_size       The size of the IV in bytes.
+ * \param input_offset  Current offset of the input buffer.
+ *
+ * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on error.
+ */
+int vccrypt_aes_ctr_alg_continue_encryption(
+    void* options, void* context, const void* iv,
+    size_t iv_size, size_t input_offset);
+
+/**
  * Algorithm-specific start for the stream cipher decryption.  Reads IV from
  * input buffer.
  *
@@ -101,6 +116,22 @@ int vccrypt_aes_ctr_alg_start_encryption(
  */
 int vccrypt_aes_ctr_alg_start_decryption(
     void* options, void* context, const void* input, size_t* offset);
+
+
+/**
+ * Algorithm-specific continuation for the stream cipher decryption.
+ *
+ * \param options       Opaque pointer to this options structure.
+ * \param context       Opaque pointer to vccrypt_stream_context_t structure.
+ * \param iv            The IV to use for this instance.  MUST ONLY BE USED ONCE
+ * \param iv_size       The size of the IV in bytes.
+ * \param input_offset  Current offset of the input buffer.
+ *
+ * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on error.
+ */
+int vccrypt_aes_ctr_alg_continue_decryption(
+    void* options, void* context, const void* iv,
+    size_t iv_size, size_t input_offset);
 
 /**
  * Encrypt data using the stream cipher.
