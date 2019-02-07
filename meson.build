@@ -47,3 +47,8 @@ test(
   vccrypt_test,
   workdir : meson.source_root()
 )
+
+vccrypt_dep = declare_dependency(
+  link_with : vccrypt_lib,
+  include_directories : vccrypt_include
+)
