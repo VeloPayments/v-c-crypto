@@ -91,8 +91,18 @@ TEST_F(vccrypt_ed25519_ref_test, simple_sign)
             &options, &alloc_opts, &prng_opts,
             VCCRYPT_DIGITAL_SIGNATURE_ALGORITHM_ED25519));
 
+    char* test_signature_path = std::getenv("TEST_SIGNATURE_PATH");
+    std::string sign_path;
+
+    if (test_signature_path != nullptr)
+    {
+        sign_path = std::string(test_signature_path);
+    }
+
+    sign_path += "/test/digital_signature/sign.input";
+
     //read the signature input file
-    ifstream in("test/digital_signature/sign.input");
+    ifstream in(sign_path);
 
     //this stream should be valid
     ASSERT_TRUE(in.good());
