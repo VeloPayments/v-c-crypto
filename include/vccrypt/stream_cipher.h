@@ -164,6 +164,24 @@ typedef struct vccrypt_stream_options
         void* output, size_t* offset);
 
     /**
+     * \brief Algorithm-specific continuation of the stream cipher encryption.
+     *
+     * \param options   Opaque pointer to this options structure.
+     * \param context   Pointer to the stream cipher context.
+     * \param iv        The IV to use for this instance.  MUST ONLY BE USED ONCE
+     *                  PER KEY, EVER.
+     * \param ivSize    The size of the IV in bytes.
+     * \param offset    The current offset of the buffer.  
+     *
+     * \returns a status indicating success or failure.
+     *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+     *      - a non-zero error code on failure.
+     */
+    int (*vccrypt_stream_alg_continue_encryption)(
+        void* options, void* context, const void* iv, size_t ivSize,
+        size_t offset);
+
+    /**
      * \brief Algorithm-specific start for the stream cipher decryption.  Reads
      * IV from input buffer.
      *
@@ -178,6 +196,23 @@ typedef struct vccrypt_stream_options
      */
     int (*vccrypt_stream_alg_start_decryption)(
         void* options, void* context, const void* input, size_t* offset);
+
+    /**
+     * \brief Algorithm-specific continuation of the stream cipher decryption.
+     *
+     * \param options   Opaque pointer to this options structure.
+     * \param context   Pointer to the stream cipher context.
+     * \param iv        The IV to use for this instance.  MUST ONLY BE USED ONCE
+     *                  PER KEY, EVER.
+     * \param ivSize    The size of the IV in bytes.
+     * \param offset    The current offset of the buffer.
+     *
+     * \returns a status indicating success or failure.
+     *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+     *      - a non-zero error code on failure.
+     */
+    int (*vccrypt_stream_alg_continue_decryption)(
+        void* options, void* context, const void* iv, size_t ivSize, size_t offset);
 
     /**
      * \brief Encrypt data using the stream cipher.
@@ -322,6 +357,23 @@ int vccrypt_stream_start_encryption(
     void* output, size_t* offset);
 
 /**
+ * \brief Algorithm-specific continuation of the stream cipher encryption.
+ *
+ * \param context   Pointer to the stream cipher context.
+ * \param iv        The IV to use for this instance.  MUST ONLY BE USED ONCE
+ *                  PER KEY, EVER.
+ * \param ivSize    The size of the IV in bytes.
+ * \param offset    The current offset of the buffer.  
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_stream_continue_encryption(
+    vccrypt_stream_context_t* context, const void* iv, size_t ivSize,
+    size_t offset);
+
+/**
  * \brief Algorithm-specific start for the stream cipher decryption.  Reads IV
  * from input buffer.
  *
@@ -337,6 +389,19 @@ int vccrypt_stream_start_encryption(
  */
 int vccrypt_stream_start_decryption(
     vccrypt_stream_context_t* context, const void* input, size_t* offset);
+
+
+/**
+ * \brief Algorithm-specific continuation for the stream cipher decryption.
+ *
+ * \param context       Opaque pointer to vccrypt_stream_context_t structure.
+ * \param input_offset  Current offset of the input buffer.
+ *
+ * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on error.
+ */
+int vccrypt_stream_continue_decryption(
+    vccrypt_stream_context_t* context, const void* iv, size_t iv_size,
+    size_t input_offset);
 
 /**
  * \brief Encrypt data using the stream cipher.

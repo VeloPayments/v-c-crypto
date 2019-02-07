@@ -48,8 +48,12 @@ void vccrypt_stream_register_AES_256_3X_CTR()
     aes_3x_options.vccrypt_stream_alg_init = &vccrypt_aes_ctr_alg_init;
     aes_3x_options.vccrypt_stream_alg_start_encryption =
         &vccrypt_aes_ctr_alg_start_encryption;
+    aes_3x_options.vccrypt_stream_alg_continue_encryption =
+        &vccrypt_aes_ctr_alg_continue_encryption;
     aes_3x_options.vccrypt_stream_alg_start_decryption =
         &vccrypt_aes_ctr_alg_start_decryption;
+    aes_3x_options.vccrypt_stream_alg_continue_decryption =
+        &vccrypt_aes_ctr_alg_continue_decryption;
     aes_3x_options.vccrypt_stream_alg_encrypt =
         &vccrypt_aes_ctr_alg_encrypt; /* yes... both are the same. */
     aes_3x_options.vccrypt_stream_alg_decrypt =
