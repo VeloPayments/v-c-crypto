@@ -23,6 +23,7 @@
 #include <vccrypt/key_agreement.h>
 #include <vccrypt/mac.h>
 #include <vccrypt/prng.h>
+#include <vccrypt/stream_cipher.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
 
@@ -119,6 +120,12 @@ typedef struct vccrypt_suite_options
     uint32_t key_cipher_alg;
 
     /**
+     * \brief The stream cipher algorithm to use for this suite -- see
+     * vccrypt/stream_cipher.h
+     */
+    uint32_t stream_cipher_alg;
+
+    /**
      * \brief The allocator options to use for this suite.
      */
     allocator_options_t* alloc_opts;
@@ -153,6 +160,13 @@ typedef struct vccrypt_suite_options
      * \brief The key agreement for cipher options to use for this suite.
      */
     vccrypt_key_agreement_options_t key_cipher_opts;
+
+
+    /**
+     * \brief The stream cipher options to use for this suite.
+     */
+    vccrypt_stream_options_t stream_cipher_opts;
+
 
     /**
      * \brief Suite-specific initialization for a hash algorithm instance.
@@ -225,6 +239,20 @@ typedef struct vccrypt_suite_options
      */
     int (*vccrypt_suite_key_cipher_init)(
         void* options, vccrypt_key_agreement_context_t* context);
+
+
+    /**
+     * \brief Suite-specific initialization for stream cipher algorithm
+     * instance.
+     *
+     * \param options       Opaque pointer to the suite options.
+     * \param context       The stream cipher algorithm instance to initialize.
+     * \param key           The key to use for this algorithm.
+     *
+     * \return VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_suite_stream_alg_init)(
+        void* options, vccrypt_stream_context_t* context, vccrypt_buffer_t* key);
 
 } vccrypt_suite_options_t;
 
@@ -549,6 +577,23 @@ int vccrypt_suite_buffer_init_for_cipher_key_agreement_nonce(
 int vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
     vccrypt_suite_options_t* options,
     vccrypt_buffer_t* buffer);
+
+
+/**
+ * \brief
+ *
+ * \param options       The options structure for this crypto suite.
+ * \param context       The stream cipher instance to initialize.
+ * \param key           The key to use for this algorithm.
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
+ */
+int vccrypt_suite_stream_init(
+    vccrypt_stream_options_t* options, vccrypt_stream_context_t* context,
+    vccrypt_buffer_t* key);
+
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus

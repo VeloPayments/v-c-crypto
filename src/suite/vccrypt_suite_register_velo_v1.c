@@ -28,6 +28,9 @@ static int velo_v1_key_auth_init(
     void* options, vccrypt_key_agreement_context_t* context);
 static int velo_v1_key_cipher_init(
     void* options, vccrypt_key_agreement_context_t* context);
+static int velo_v1_stream_cipher_init(
+    void* options, vccrypt_stream_context_t* context,
+    vccrypt_buffer_t* key);
 
 /* static data for this instance */
 static abstract_factory_registration_t velo_v1_impl;
@@ -54,6 +57,7 @@ void vccrypt_suite_register_velo_v1()
     vccrypt_prng_register_source_operating_system();
     vccrypt_key_agreement_register_curve25519_sha512();
     vccrypt_key_agreement_register_curve25519_sha512_256();
+    vccrypt_stream_register_AES_256_4X_CTR();
 
     /* set up the options for velo V1 */
     velo_v1_options.hdr.dispose = 0; /* disposal handled by init */
@@ -66,6 +70,9 @@ void vccrypt_suite_register_velo_v1()
         VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512;
     velo_v1_options.key_cipher_alg =
         VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512_256;
+    velo_v1_options.stream_cipher_alg =
+        VCCRYPT_STREAM_ALGORITHM_AES_256_4X_CTR;
+
     velo_v1_options.vccrypt_suite_hash_alg_init =
         &velo_v1_hash_init;
     velo_v1_options.vccrypt_suite_digital_signature_alg_init =
@@ -78,6 +85,8 @@ void vccrypt_suite_register_velo_v1()
         &velo_v1_key_auth_init;
     velo_v1_options.vccrypt_suite_key_cipher_init =
         &velo_v1_key_cipher_init;
+    velo_v1_options.vccrypt_suite_stream_alg_init =
+        &velo_v1_stream_cipher_init;
 
     /* set up this registration for the abstract factory. */
     velo_v1_impl.interface =
@@ -214,4 +223,27 @@ static int velo_v1_key_cipher_init(
     MODEL_ASSERT(context != NULL);
 
     return vccrypt_key_agreement_init(&opts->key_cipher_opts, context);
+}
+
+
+/**
+ * Suite-specific initialization for a stream cipher algorithm instance
+ *
+ * \param options       Opaque pointer to the suite options.
+ * \param context       The stream cipher algorithm instance to initialize.
+ * \param key           The key to use for this algorithm.
+ *
+ * \returns 0 on success and non-zero on failure.
+ */
+static int velo_v1_stream_cipher_init(
+    void* options, vccrypt_stream_context_t* context,
+    vccrypt_buffer_t* key)
+{
+    vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
+
+    MODEL_ASSERT(opts != NULL);
+    MODEL_ASSERT(context != NULL);
+    MODEL_ASSERT(key != NULL);
+
+    return vccrypt_stream_init(&opts->stream_cipher_opts, context, key);
 }

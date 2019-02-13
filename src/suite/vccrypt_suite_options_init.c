@@ -117,8 +117,20 @@ int vccrypt_suite_options_init(
         goto cleanup_auth_key_options;
     }
 
+    /* initialize the stream cipher options */
+    retval = vccrypt_stream_options_init(
+        &options->stream_cipher_opts, alloc_opts,
+        options->stream_cipher_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
+    {
+        goto cleanup_stream_cipher_options;
+    }
+
     /* success */
     return VCCRYPT_STATUS_SUCCESS;
+
+cleanup_stream_cipher_options:
+    dispose((disposable_t*)&options->stream_cipher_opts);
 
 cleanup_auth_key_options:
     dispose((disposable_t*)&options->key_auth_opts);
@@ -155,6 +167,7 @@ static void vccrypt_suite_options_dispose(void* options)
     dispose((disposable_t*)&opts->sign_opts);
     dispose((disposable_t*)&opts->prng_opts);
     dispose((disposable_t*)&opts->hash_opts);
+    dispose((disposable_t*)&opts->stream_cipher_opts);
 
     /* clear out this structure */
     memset(opts, 0, sizeof(vccrypt_suite_options_t));
