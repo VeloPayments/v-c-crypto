@@ -117,6 +117,16 @@ int vccrypt_suite_options_init(
         goto cleanup_auth_key_options;
     }
 
+    /* initialize the block cipher options */
+    retval = vccrypt_block_options_init(
+        &options->block_cipher_opts, alloc_opts,
+        options->block_cipher_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
+    {
+        goto cleanup_block_cipher_options;
+    }
+
+
     /* initialize the stream cipher options */
     retval = vccrypt_stream_options_init(
         &options->stream_cipher_opts, alloc_opts,
@@ -131,6 +141,9 @@ int vccrypt_suite_options_init(
 
 cleanup_stream_cipher_options:
     dispose((disposable_t*)&options->stream_cipher_opts);
+
+cleanup_block_cipher_options:
+    dispose((disposable_t*)&options->block_cipher_opts);
 
 cleanup_auth_key_options:
     dispose((disposable_t*)&options->key_auth_opts);

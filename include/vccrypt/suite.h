@@ -23,6 +23,7 @@
 #include <vccrypt/key_agreement.h>
 #include <vccrypt/mac.h>
 #include <vccrypt/prng.h>
+#include <vccrypt/block_cipher.h>
 #include <vccrypt/stream_cipher.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
@@ -120,6 +121,13 @@ typedef struct vccrypt_suite_options
     uint32_t key_cipher_alg;
 
     /**
+     * \brief The block cipher algorithm to use for this suite -- see
+    * vccrypt/block_cipher.h
+    */
+    uint32_t block_cipher_alg;
+
+
+    /**
      * \brief The stream cipher algorithm to use for this suite -- see
      * vccrypt/stream_cipher.h
      */
@@ -160,6 +168,11 @@ typedef struct vccrypt_suite_options
      * \brief The key agreement for cipher options to use for this suite.
      */
     vccrypt_key_agreement_options_t key_cipher_opts;
+
+    /**
+     * \brief The block cipher options to use for this suite.
+    */
+    vccrypt_block_options_t block_cipher_opts;
 
 
     /**
@@ -240,6 +253,21 @@ typedef struct vccrypt_suite_options
     int (*vccrypt_suite_key_cipher_init)(
         void* options, vccrypt_key_agreement_context_t* context);
 
+    /**
+     * \brief Suite-specific initialization for block cipher algorithm
+     * instance.
+     *
+     * \param options       Opaque pointer to the suite options.
+     * \param context       The block cipher algorithm instance to initialize.
+     * \param key           The key to use for this algorithm.
+     * \param encrypt       Set to true if this is for encryption, and false for
+     *                      decryption.
+     *
+     * \return VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_suite_block_alg_init)(
+        void* options, vccrypt_block_context_t* context,
+        vccrypt_buffer_t* key, bool encrypt);
 
     /**
      * \brief Suite-specific initialization for stream cipher algorithm
@@ -578,6 +606,23 @@ int vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
     vccrypt_suite_options_t* options,
     vccrypt_buffer_t* buffer);
 
+
+/**
+ * \brief
+ *
+ * \param options       The options structure for this crypto suite.
+ * \param context       The block cipher instance to initialize.
+ * \param key           The key to use for this algorithm.
+ * \param encrypt       Set to true if this is for encryption, and false for
+ *                      decryption.
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
+ */
+int vccrypt_suite_block_init(
+    vccrypt_suite_options_t* options, vccrypt_block_context_t* context,
+    vccrypt_buffer_t* key, bool encrypt);
 
 /**
  * \brief

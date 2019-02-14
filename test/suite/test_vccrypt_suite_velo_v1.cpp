@@ -482,7 +482,82 @@ TEST_F(vccrypt_suite_velo_v1, curve25519_cipher)
 }
 
 /**
- * Test that we can encrypt using a stream cipher from the crypto suite.
+ * Test that we can encrypt and decrypt using a block cipher from the
+ * crypto suite.
+ */
+TEST_F(vccrypt_suite_velo_v1, block_cipher)
+{
+    vccrypt_block_context_t context;
+    vccrypt_buffer_t key;
+
+    const uint8_t KEY[32] = {
+        0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
+        0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81,
+        0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7,
+        0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4
+    };
+    const uint8_t IV[16] = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
+    };
+    const uint8_t PLAINTEXT[64] = {
+        0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
+        0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a,
+        0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c,
+        0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51,
+        0x30, 0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11,
+        0xe5, 0xfb, 0xc1, 0x19, 0x1a, 0x0a, 0x52, 0xef,
+        0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17,
+        0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10
+    };
+
+    uint8_t output[64];
+    uint8_t poutput[64];
+
+    // write junk to the output buffers
+    memset(output, 0xFC, sizeof(output));
+    memset(poutput, 0xFC, sizeof(poutput));
+
+    // create a buffer for the key data
+    ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
+    // read the key into the buffer.
+    ASSERT_EQ(0, vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
+
+    // instantiate the algorithm instance from the suite to encrypt
+    ASSERT_EQ(0, vccrypt_suite_block_init(&options, &context, &key, true));
+
+    // encrypt each plaintext block, writing to output.
+    ASSERT_EQ(0, vccrypt_block_encrypt(&context, IV, PLAINTEXT, output));
+    ASSERT_EQ(0, vccrypt_block_encrypt(&context, output, PLAINTEXT + 16, output + 16));
+    ASSERT_EQ(0, vccrypt_block_encrypt(&context, output + 16, PLAINTEXT + 32, output + 32));
+    ASSERT_EQ(0, vccrypt_block_encrypt(&context, output + 32, PLAINTEXT + 48, output + 48));
+
+    // clean up encryption context
+    dispose((disposable_t*)&context);
+
+    // the encrypted data should not match the plain text
+    ASSERT_NE(0, memcmp(output, PLAINTEXT, sizeof(output)));
+
+    // instantiate the algorithm instance from the suite to decrypt
+    ASSERT_EQ(0, vccrypt_suite_block_init(&options, &context, &key, false));
+
+    // decrypt each ciphertext block, writing it to poutput.
+    ASSERT_EQ(0, vccrypt_block_decrypt(&context, IV, output, poutput));
+    ASSERT_EQ(0, vccrypt_block_decrypt(&context, output, output + 16, poutput + 16));
+    ASSERT_EQ(0, vccrypt_block_decrypt(&context, output + 16, output + 32, poutput + 32));
+    ASSERT_EQ(0, vccrypt_block_decrypt(&context, output + 32, output + 48, poutput + 48));
+
+    // the decrypted data should match our plaintext
+    ASSERT_EQ(0, memcmp(poutput, PLAINTEXT, sizeof(poutput)));
+
+    // cleanup
+    dispose((disposable_t*)&context);
+    dispose((disposable_t*)&key);
+}
+
+/**
+ * Test that we can encrypt and decrypt using a stream cipher from the
+ * crypto suite.
  */
 TEST_F(vccrypt_suite_velo_v1, stream_cipher)
 {
@@ -548,16 +623,7 @@ TEST_F(vccrypt_suite_velo_v1, stream_cipher)
 
     // we don't know what encryption algorithm was used, but we can ensure
     // the cipher text is not the same as the plain text.
-    bool changed = false;
-    for (int i = 0; i < 32; ++i)
-    {
-        if (PLAINTEXT[i] != poutput[i])
-        {
-            changed = true;
-            break;
-        }
-    }
-    ASSERT_TRUE(changed);
+    ASSERT_NE(0, memcmp(output + 8, PLAINTEXT, sizeof(PLAINTEXT)));
 
     // start decryption using the dummy IV.
     ASSERT_EQ(0,
@@ -575,15 +641,9 @@ TEST_F(vccrypt_suite_velo_v1, stream_cipher)
             &context, output + 8, 32, poutput, &offset));
 
     // the output should correspond to our plaintext.
-    for (int i = 0; i < 32; ++i)
-    {
-        EXPECT_EQ(PLAINTEXT[i], poutput[i]);
-    }
+    ASSERT_EQ(0, memcmp(poutput, PLAINTEXT, sizeof(PLAINTEXT)));
 
-
-    //dispose of the stream cipher context
+    // cleanup
     dispose((disposable_t*)&context);
-
-    //dispose all buffers
     dispose((disposable_t*)&key);
 }
