@@ -57,7 +57,7 @@ void vccrypt_suite_register_velo_v1()
     vccrypt_prng_register_source_operating_system();
     vccrypt_key_agreement_register_curve25519_sha512();
     vccrypt_key_agreement_register_curve25519_sha512_256();
-    vccrypt_stream_register_AES_256_4X_CTR();
+    vccrypt_stream_register_AES_256_2X_CTR();
 
     /* set up the options for velo V1 */
     velo_v1_options.hdr.dispose = 0; /* disposal handled by init */
@@ -71,7 +71,7 @@ void vccrypt_suite_register_velo_v1()
     velo_v1_options.key_cipher_alg =
         VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512_256;
     velo_v1_options.stream_cipher_alg =
-        VCCRYPT_STREAM_ALGORITHM_AES_256_4X_CTR;
+        VCCRYPT_STREAM_ALGORITHM_AES_256_2X_CTR;
 
     velo_v1_options.vccrypt_suite_hash_alg_init =
         &velo_v1_hash_init;

@@ -15,6 +15,12 @@
 
 using namespace std;
 
+static uint64_t mmhtonll(uint64_t n)
+{
+    return ((((0xFF00000000000000 & n) >> 56) << 0) | (((0x00FF000000000000 & n) >> 48) << 8) | (((0x0000FF0000000000 & n) >> 40) << 16) | (((0x000000FF00000000 & n) >> 32) << 24) | (((0x00000000FF000000 & n) >> 24) << 32) | (((0x0000000000FF0000 & n) >> 16) << 40) | (((0x000000000000FF00 & n) >> 8) << 48) | (((0x00000000000000FF & n) >> 0) << 56));
+}
+
+
 class vccrypt_suite_velo_v1 : public ::testing::Test {
 protected:
     void SetUp() override
@@ -472,5 +478,99 @@ TEST_F(vccrypt_suite_velo_v1, curve25519_cipher)
     dispose((disposable_t*)&bob_public);
     dispose((disposable_t*)&ab_shared);
     dispose((disposable_t*)&ba_shared);
+    dispose((disposable_t*)&key);
+}
+
+/**
+ * Test that we can encrypt using a stream cipher from the crypto suite.
+ */
+TEST_F(vccrypt_suite_velo_v1, stream_cipher)
+{
+    vccrypt_stream_context_t context;
+    vccrypt_buffer_t key;
+
+    const uint8_t KEY[32] = {
+        0xf6, 0xd6, 0x6d, 0x6b, 0xd5, 0x2d, 0x59, 0xbb,
+        0x07, 0x96, 0x36, 0x58, 0x79, 0xef, 0xf8, 0x86,
+        0xc6, 0x6d, 0xd5, 0x1a, 0x5b, 0x6a, 0x99, 0x74,
+        0x4b, 0x50, 0x59, 0x0c, 0x87, 0xa2, 0x38, 0x84
+    };
+    const uint8_t PLAINTEXT[32] = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+        0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
+    };
+
+
+    // create a buffer for the key data
+    ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
+    // read the key into the buffer.
+    ASSERT_EQ(0, vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
+
+    // instantiate the algorithm instance from the suite
+    ASSERT_EQ(0, vccrypt_suite_stream_init(&options, &context, &key));
+
+
+    uint64_t DUMMY_IV = mmhtonll(0x0102030405060708UL);
+    uint8_t output[40];
+    uint8_t poutput[32];
+    size_t offset = 99;
+
+    // write junk to the output buffer
+    memset(output, 0xFC, sizeof(output));
+
+    // start encryption using a dummy IV.
+    ASSERT_EQ(0,
+        vccrypt_stream_start_encryption(
+            &context, &DUMMY_IV, sizeof(DUMMY_IV), output, &offset));
+
+    // the offset should be set to 8.
+    EXPECT_EQ(8U, offset);
+
+    // the first 8 bytes of output should be set to the value of DUMMY_IV
+    EXPECT_EQ(0x01U, output[0]);
+    EXPECT_EQ(0x02U, output[1]);
+    EXPECT_EQ(0x03U, output[2]);
+    EXPECT_EQ(0x04U, output[3]);
+    EXPECT_EQ(0x05U, output[4]);
+    EXPECT_EQ(0x06U, output[5]);
+    EXPECT_EQ(0x07U, output[6]);
+    EXPECT_EQ(0x08U, output[7]);
+
+    // encrypt the plaintext.
+    ASSERT_EQ(0,
+        vccrypt_stream_encrypt(
+            &context, PLAINTEXT, sizeof(PLAINTEXT), output, &offset));
+
+    // the offset should be set to 40.
+    EXPECT_EQ(40U, offset);
+
+    // start decryption using the dummy IV.
+    ASSERT_EQ(0,
+        vccrypt_stream_start_decryption(
+            &context, output, &offset));
+
+    // the offset should be set to 8
+    EXPECT_EQ(8U, offset);
+
+    offset = 0;
+
+    // decrypt the ciphertext.
+    ASSERT_EQ(0,
+        vccrypt_stream_decrypt(
+            &context, output + 8, 32, poutput, &offset));
+
+    // the output should correspond to our plaintext.
+    for (int i = 0; i < 32; ++i)
+    {
+        EXPECT_EQ(PLAINTEXT[i], poutput[i]);
+    }
+
+
+    //dispose of the stream cipher context
+    dispose((disposable_t*)&context);
+
+    //dispose all buffers
     dispose((disposable_t*)&key);
 }

@@ -591,7 +591,7 @@ int vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
  *      - a non-zero return code on failure.
  */
 int vccrypt_suite_stream_init(
-    vccrypt_stream_options_t* options, vccrypt_stream_context_t* context,
+    vccrypt_suite_options_t* options, vccrypt_stream_context_t* context,
     vccrypt_buffer_t* key);
 
 

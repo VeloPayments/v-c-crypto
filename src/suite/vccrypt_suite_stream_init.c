@@ -24,15 +24,15 @@
  *      - a non-zero return code on failure.
  */
 int vccrypt_suite_stream_init(
-    vccrypt_stream_options_t* options, vccrypt_stream_context_t* context,
+    vccrypt_suite_options_t* options, vccrypt_stream_context_t* context,
     vccrypt_buffer_t* key)
 {
 
     MODEL_ASSERT(NULL != options);
-    MODEL_ASSERT(NULL != options->vccrypt_stream_alg_init);
+    MODEL_ASSERT(NULL != options->vccrypt_suite_stream_alg_init);
     MODEL_ASSERT(NULL != context);
     MODEL_ASSERT(NULL != key);
 
 
-    return options->vccrypt_stream_alg_init(options, context, key);
+    return options->vccrypt_suite_stream_alg_init(options, context, key);
 }
