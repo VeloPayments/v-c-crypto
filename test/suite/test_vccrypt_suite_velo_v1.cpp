@@ -546,6 +546,19 @@ TEST_F(vccrypt_suite_velo_v1, stream_cipher)
     // the offset should be set to 40.
     EXPECT_EQ(40U, offset);
 
+    // we don't know what encryption algorithm was used, but we can ensure
+    // the cipher text is not the same as the plain text.
+    bool changed = false;
+    for (int i = 0; i < 32; ++i)
+    {
+        if (PLAINTEXT[i] != poutput[i])
+        {
+            changed = true;
+            break;
+        }
+    }
+    ASSERT_TRUE(changed);
+
     // start decryption using the dummy IV.
     ASSERT_EQ(0,
         vccrypt_stream_start_decryption(
