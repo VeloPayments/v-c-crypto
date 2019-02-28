@@ -188,6 +188,7 @@ static void vccrypt_suite_options_dispose(void* options)
     dispose((disposable_t*)&opts->key_auth_opts);
     dispose((disposable_t*)&opts->key_cipher_opts);
     dispose((disposable_t*)&opts->mac_opts);
+    dispose((disposable_t*)&opts->mac_short_opts);
     dispose((disposable_t*)&opts->sign_opts);
     dispose((disposable_t*)&opts->prng_opts);
     dispose((disposable_t*)&opts->hash_opts);
