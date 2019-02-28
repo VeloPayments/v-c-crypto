@@ -99,13 +99,21 @@ int vccrypt_suite_options_init(
         goto cleanup_digital_signature_options;
     }
 
+    /* initialize the short MAC options */
+    retval = vccrypt_mac_options_init(
+        &options->mac_short_opts, alloc_opts, options->mac_short_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
+    {
+        goto cleanup_mac_options;
+    }
+
     /* initialize the auth key agreement options */
     retval = vccrypt_key_agreement_options_init(
         &options->key_auth_opts, alloc_opts, &options->prng_opts,
         options->key_auth_alg);
     if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        goto cleanup_mac_options;
+        goto cleanup_mac_short_options;
     }
 
     /* initialize the cipher key agreement options */
@@ -147,6 +155,9 @@ cleanup_block_cipher_options:
 
 cleanup_auth_key_options:
     dispose((disposable_t*)&options->key_auth_opts);
+
+cleanup_mac_short_options:
+    dispose((disposable_t*)&options->mac_short_opts);
 
 cleanup_mac_options:
     dispose((disposable_t*)&options->mac_opts);

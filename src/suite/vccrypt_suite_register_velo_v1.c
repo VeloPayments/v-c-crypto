@@ -24,6 +24,8 @@ static int velo_v1_prng_init(
     void* options, vccrypt_prng_context_t* context);
 static int velo_v1_mac_init(
     void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key);
+static int velo_v1_mac_short_init(
+    void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key);
 static int velo_v1_key_auth_init(
     void* options, vccrypt_key_agreement_context_t* context);
 static int velo_v1_key_cipher_init(
@@ -56,6 +58,7 @@ void vccrypt_suite_register_velo_v1()
     /* register all requisite algorithms and sources */
     vccrypt_hash_register_SHA_2_512();
     vccrypt_mac_register_SHA_2_512_HMAC();
+    vccrypt_mac_register_SHA_2_512_256_HMAC();
     vccrypt_digital_signature_register_ed25519();
     vccrypt_prng_register_source_operating_system();
     vccrypt_key_agreement_register_curve25519_sha512();
@@ -70,6 +73,7 @@ void vccrypt_suite_register_velo_v1()
     velo_v1_options.sign_alg = VCCRYPT_DIGITAL_SIGNATURE_ALGORITHM_ED25519;
     velo_v1_options.prng_src = VCCRYPT_PRNG_SOURCE_OPERATING_SYSTEM;
     velo_v1_options.mac_alg = VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC;
+    velo_v1_options.mac_short_alg = VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC;
     velo_v1_options.key_auth_alg =
         VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512;
     velo_v1_options.key_cipher_alg =
@@ -87,6 +91,8 @@ void vccrypt_suite_register_velo_v1()
         &velo_v1_prng_init;
     velo_v1_options.vccrypt_suite_mac_alg_init =
         &velo_v1_mac_init;
+    velo_v1_options.vccrypt_suite_mac_short_alg_init =
+        &velo_v1_mac_short_init;
     velo_v1_options.vccrypt_suite_key_auth_init =
         &velo_v1_key_auth_init;
     velo_v1_options.vccrypt_suite_key_cipher_init =
@@ -191,6 +197,29 @@ static int velo_v1_mac_init(
     MODEL_ASSERT(key != NULL);
 
     return vccrypt_mac_init(&opts->mac_opts, context, key);
+}
+
+/**
+ * Suite-specific initialization for a short message authentication code
+ * algorithm instance.
+ *
+ * \param options       Opaque pointer to the suite options.
+ * \param context       The message authentication code instance to
+ *                      initialize.
+ * \param key           The key to use for this algorithm.
+ *
+ * \returns 0 on success and non-zero on failure.
+ */
+static int velo_v1_mac_short_init(
+    void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key)
+{
+    vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
+
+    MODEL_ASSERT(opts != NULL);
+    MODEL_ASSERT(context != NULL);
+    MODEL_ASSERT(key != NULL);
+
+    return vccrypt_mac_init(&opts->mac_short_opts, context, key);
 }
 
 /**

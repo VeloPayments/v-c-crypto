@@ -195,6 +195,62 @@ TEST_F(vccrypt_suite_velo_v1, keygen_sign)
 }
 
 /**
+ * Test that we can use HMAC-SHA-512-256 from the crypto suite.
+ */
+TEST_F(vccrypt_suite_velo_v1, hmac_sha_512_256)
+{
+    const uint8_t KEY[] = {
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+        0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
+        0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+        0x19
+    };
+    const uint8_t DATA[] = {
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd
+    };
+    const uint8_t EXPECTED_HMAC[] = {
+        0x36, 0xd6, 0x0c, 0x8a, 0xa1, 0xd0, 0xbe, 0x85,
+        0x6e, 0x10, 0x80, 0x4c, 0xf8, 0x36, 0xe8, 0x21,
+        0xe8, 0x73, 0x3c, 0xba, 0xfe, 0xae, 0x87, 0x63,
+        0x05, 0x89, 0xfd, 0x0b, 0x9b, 0x0a, 0x2f, 0x4c
+    };
+
+    //create a buffer sized for the key
+    vccrypt_buffer_t key;
+    ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
+    memcpy(key.data, KEY, sizeof(KEY));
+
+    //initialize MAC
+    vccrypt_mac_context_t mac;
+    ASSERT_EQ(0, vccrypt_suite_mac_short_init(&options, &mac, &key));
+
+    //digest input
+    ASSERT_EQ(0, vccrypt_mac_digest(&mac, DATA, sizeof(DATA)));
+
+    //create output buffer
+    vccrypt_buffer_t outbuf;
+    ASSERT_EQ(0, vccrypt_suite_buffer_init_for_mac_authentication_code(&options, &outbuf, true));
+    ASSERT_EQ(sizeof(EXPECTED_HMAC), outbuf.size);
+
+    //finalize hmac
+    ASSERT_EQ(0, vccrypt_mac_finalize(&mac, &outbuf));
+
+    //the HMAC output should match our expected HMAC
+    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+
+    //clean up
+    dispose((disposable_t*)&outbuf);
+    dispose((disposable_t*)&mac);
+    dispose((disposable_t*)&key);
+}
+
+/**
  * Test that we can use HMAC-SHA-512 from the crypto suite.
  */
 TEST_F(vccrypt_suite_velo_v1, hmac_sha_512)
@@ -238,7 +294,7 @@ TEST_F(vccrypt_suite_velo_v1, hmac_sha_512)
 
     //create output buffer
     vccrypt_buffer_t outbuf;
-    ASSERT_EQ(0, vccrypt_suite_buffer_init_for_mac_authentication_code(&options, &outbuf));
+    ASSERT_EQ(0, vccrypt_suite_buffer_init_for_mac_authentication_code(&options, &outbuf, false));
     ASSERT_EQ(sizeof(EXPECTED_HMAC), outbuf.size);
 
     //finalize hmac

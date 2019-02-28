@@ -109,6 +109,12 @@ typedef struct vccrypt_suite_options
     uint32_t mac_alg;
 
     /**
+     * \brief The short MAC algorithm to use for this suite -- see
+     * vccrypt/mac.h.
+     */
+    uint32_t mac_short_alg;
+
+    /**
      * \brief The key agreement for authentication algorithm to use for this
      * suite -- see vccrypt/key_agreement.h.
      */
@@ -154,9 +160,14 @@ typedef struct vccrypt_suite_options
     vccrypt_prng_options_t prng_opts;
 
     /**
-     * \brief The MAC options to use for this suite.
+     * \brief The long MAC options to use for this suite.
      */
     vccrypt_mac_options_t mac_opts;
+
+    /**
+     * \brief The short MAC options to use for this suite.
+     */
+    vccrypt_mac_options_t mac_short_opts;
 
     /**
      * \brief The key agreement for authentication options to use for this
@@ -227,6 +238,20 @@ typedef struct vccrypt_suite_options
      * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
      */
     int (*vccrypt_suite_mac_alg_init)(
+        void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key);
+
+    /**
+     * \brief Suite-specific initialization for a short message authentication
+     * code algorithm instance.
+     *
+     * \param options       Opaque pointer to the suite options.
+     * \param context       The message authentication code instance to
+     *                      initialize.
+     * \param key           The key to use for this algorithm.
+     *
+     * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_suite_mac_short_alg_init)(
         void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key);
 
     /**
@@ -367,6 +392,24 @@ int vccrypt_suite_mac_init(
     vccrypt_buffer_t* key);
 
 /**
+ * \brief Create an appropriate short message authentication code algorithm
+ * instance for this crypto suite.
+ *
+ * \param options       The options structure for this crypto suite.
+ * \param context       The message authentication code instance to
+ *                      initialize.
+ * \param key           The key to use for this algorithm.
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
+ */
+int vccrypt_suite_mac_short_init(
+    vccrypt_suite_options_t* options, vccrypt_mac_context_t* context,
+    vccrypt_buffer_t* key);
+
+
+/**
  * \brief Create an appropriate authentication key agreement algorithm instance
  * for this crypto suite.
  *
@@ -477,6 +520,7 @@ int vccrypt_suite_buffer_init_for_mac_private_key(
  *
  * \param options       The options structure for this crypto suite.
  * \param buffer        The buffer instance to initialize.
+ * \param short_mac     Whether the buffer is for a short or long MAC.
  *
  * \returns a status indicating success or failure.
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
@@ -484,7 +528,7 @@ int vccrypt_suite_buffer_init_for_mac_private_key(
  */
 int vccrypt_suite_buffer_init_for_mac_authentication_code(
     vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+    vccrypt_buffer_t* buffer, bool short_mac);
 
 /**
  * \brief Create a buffer sized appropriately for the private key of this crypto
