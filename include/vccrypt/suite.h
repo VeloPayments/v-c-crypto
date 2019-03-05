@@ -23,6 +23,8 @@
 #include <vccrypt/key_agreement.h>
 #include <vccrypt/mac.h>
 #include <vccrypt/prng.h>
+#include <vccrypt/block_cipher.h>
+#include <vccrypt/stream_cipher.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
 
@@ -107,6 +109,12 @@ typedef struct vccrypt_suite_options
     uint32_t mac_alg;
 
     /**
+     * \brief The short MAC algorithm to use for this suite -- see
+     * vccrypt/mac.h.
+     */
+    uint32_t mac_short_alg;
+
+    /**
      * \brief The key agreement for authentication algorithm to use for this
      * suite -- see vccrypt/key_agreement.h.
      */
@@ -117,6 +125,19 @@ typedef struct vccrypt_suite_options
      * see vccrypt/key_agreement.h.
      */
     uint32_t key_cipher_alg;
+
+    /**
+     * \brief The block cipher algorithm to use for this suite -- see
+    * vccrypt/block_cipher.h
+    */
+    uint32_t block_cipher_alg;
+
+
+    /**
+     * \brief The stream cipher algorithm to use for this suite -- see
+     * vccrypt/stream_cipher.h
+     */
+    uint32_t stream_cipher_alg;
 
     /**
      * \brief The allocator options to use for this suite.
@@ -139,9 +160,14 @@ typedef struct vccrypt_suite_options
     vccrypt_prng_options_t prng_opts;
 
     /**
-     * \brief The MAC options to use for this suite.
+     * \brief The long MAC options to use for this suite.
      */
     vccrypt_mac_options_t mac_opts;
+
+    /**
+     * \brief The short MAC options to use for this suite.
+     */
+    vccrypt_mac_options_t mac_short_opts;
 
     /**
      * \brief The key agreement for authentication options to use for this
@@ -153,6 +179,18 @@ typedef struct vccrypt_suite_options
      * \brief The key agreement for cipher options to use for this suite.
      */
     vccrypt_key_agreement_options_t key_cipher_opts;
+
+    /**
+     * \brief The block cipher options to use for this suite.
+    */
+    vccrypt_block_options_t block_cipher_opts;
+
+
+    /**
+     * \brief The stream cipher options to use for this suite.
+     */
+    vccrypt_stream_options_t stream_cipher_opts;
+
 
     /**
      * \brief Suite-specific initialization for a hash algorithm instance.
@@ -203,6 +241,20 @@ typedef struct vccrypt_suite_options
         void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key);
 
     /**
+     * \brief Suite-specific initialization for a short message authentication
+     * code algorithm instance.
+     *
+     * \param options       Opaque pointer to the suite options.
+     * \param context       The message authentication code instance to
+     *                      initialize.
+     * \param key           The key to use for this algorithm.
+     *
+     * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_suite_mac_short_alg_init)(
+        void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key);
+
+    /**
      * \brief Suite-specific initialization for a key agreement algorithm
      * instance to be used for authentication purposes.
      *
@@ -225,6 +277,35 @@ typedef struct vccrypt_suite_options
      */
     int (*vccrypt_suite_key_cipher_init)(
         void* options, vccrypt_key_agreement_context_t* context);
+
+    /**
+     * \brief Suite-specific initialization for block cipher algorithm
+     * instance.
+     *
+     * \param options       Opaque pointer to the suite options.
+     * \param context       The block cipher algorithm instance to initialize.
+     * \param key           The key to use for this algorithm.
+     * \param encrypt       Set to true if this is for encryption, and false for
+     *                      decryption.
+     *
+     * \return VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_suite_block_alg_init)(
+        void* options, vccrypt_block_context_t* context,
+        vccrypt_buffer_t* key, bool encrypt);
+
+    /**
+     * \brief Suite-specific initialization for stream cipher algorithm
+     * instance.
+     *
+     * \param options       Opaque pointer to the suite options.
+     * \param context       The stream cipher algorithm instance to initialize.
+     * \param key           The key to use for this algorithm.
+     *
+     * \return VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_suite_stream_alg_init)(
+        void* options, vccrypt_stream_context_t* context, vccrypt_buffer_t* key);
 
 } vccrypt_suite_options_t;
 
@@ -309,6 +390,24 @@ int vccrypt_suite_digital_signature_init(
 int vccrypt_suite_mac_init(
     vccrypt_suite_options_t* options, vccrypt_mac_context_t* context,
     vccrypt_buffer_t* key);
+
+/**
+ * \brief Create an appropriate short message authentication code algorithm
+ * instance for this crypto suite.
+ *
+ * \param options       The options structure for this crypto suite.
+ * \param context       The message authentication code instance to
+ *                      initialize.
+ * \param key           The key to use for this algorithm.
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
+ */
+int vccrypt_suite_mac_short_init(
+    vccrypt_suite_options_t* options, vccrypt_mac_context_t* context,
+    vccrypt_buffer_t* key);
+
 
 /**
  * \brief Create an appropriate authentication key agreement algorithm instance
@@ -421,6 +520,7 @@ int vccrypt_suite_buffer_init_for_mac_private_key(
  *
  * \param options       The options structure for this crypto suite.
  * \param buffer        The buffer instance to initialize.
+ * \param short_mac     Whether the buffer is for a short or long MAC.
  *
  * \returns a status indicating success or failure.
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
@@ -428,7 +528,7 @@ int vccrypt_suite_buffer_init_for_mac_private_key(
  */
 int vccrypt_suite_buffer_init_for_mac_authentication_code(
     vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+    vccrypt_buffer_t* buffer, bool short_mac);
 
 /**
  * \brief Create a buffer sized appropriately for the private key of this crypto
@@ -549,6 +649,40 @@ int vccrypt_suite_buffer_init_for_cipher_key_agreement_nonce(
 int vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
     vccrypt_suite_options_t* options,
     vccrypt_buffer_t* buffer);
+
+
+/**
+ * \brief
+ *
+ * \param options       The options structure for this crypto suite.
+ * \param context       The block cipher instance to initialize.
+ * \param key           The key to use for this algorithm.
+ * \param encrypt       Set to true if this is for encryption, and false for
+ *                      decryption.
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
+ */
+int vccrypt_suite_block_init(
+    vccrypt_suite_options_t* options, vccrypt_block_context_t* context,
+    vccrypt_buffer_t* key, bool encrypt);
+
+/**
+ * \brief
+ *
+ * \param options       The options structure for this crypto suite.
+ * \param context       The stream cipher instance to initialize.
+ * \param key           The key to use for this algorithm.
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
+ */
+int vccrypt_suite_stream_init(
+    vccrypt_suite_options_t* options, vccrypt_stream_context_t* context,
+    vccrypt_buffer_t* key);
+
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus

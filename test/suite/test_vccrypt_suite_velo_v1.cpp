@@ -15,6 +15,12 @@
 
 using namespace std;
 
+static uint64_t mmhtonll(uint64_t n)
+{
+    return ((((0xFF00000000000000 & n) >> 56) << 0) | (((0x00FF000000000000 & n) >> 48) << 8) | (((0x0000FF0000000000 & n) >> 40) << 16) | (((0x000000FF00000000 & n) >> 32) << 24) | (((0x00000000FF000000 & n) >> 24) << 32) | (((0x0000000000FF0000 & n) >> 16) << 40) | (((0x000000000000FF00 & n) >> 8) << 48) | (((0x00000000000000FF & n) >> 0) << 56));
+}
+
+
 class vccrypt_suite_velo_v1 : public ::testing::Test {
 protected:
     void SetUp() override
@@ -189,6 +195,62 @@ TEST_F(vccrypt_suite_velo_v1, keygen_sign)
 }
 
 /**
+ * Test that we can use HMAC-SHA-512-256 from the crypto suite.
+ */
+TEST_F(vccrypt_suite_velo_v1, hmac_sha_512_256)
+{
+    const uint8_t KEY[] = {
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+        0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
+        0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+        0x19
+    };
+    const uint8_t DATA[] = {
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd, 0xcd,
+        0xcd, 0xcd
+    };
+    const uint8_t EXPECTED_HMAC[] = {
+        0x36, 0xd6, 0x0c, 0x8a, 0xa1, 0xd0, 0xbe, 0x85,
+        0x6e, 0x10, 0x80, 0x4c, 0xf8, 0x36, 0xe8, 0x21,
+        0xe8, 0x73, 0x3c, 0xba, 0xfe, 0xae, 0x87, 0x63,
+        0x05, 0x89, 0xfd, 0x0b, 0x9b, 0x0a, 0x2f, 0x4c
+    };
+
+    //create a buffer sized for the key
+    vccrypt_buffer_t key;
+    ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
+    memcpy(key.data, KEY, sizeof(KEY));
+
+    //initialize MAC
+    vccrypt_mac_context_t mac;
+    ASSERT_EQ(0, vccrypt_suite_mac_short_init(&options, &mac, &key));
+
+    //digest input
+    ASSERT_EQ(0, vccrypt_mac_digest(&mac, DATA, sizeof(DATA)));
+
+    //create output buffer
+    vccrypt_buffer_t outbuf;
+    ASSERT_EQ(0, vccrypt_suite_buffer_init_for_mac_authentication_code(&options, &outbuf, true));
+    ASSERT_EQ(sizeof(EXPECTED_HMAC), outbuf.size);
+
+    //finalize hmac
+    ASSERT_EQ(0, vccrypt_mac_finalize(&mac, &outbuf));
+
+    //the HMAC output should match our expected HMAC
+    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+
+    //clean up
+    dispose((disposable_t*)&outbuf);
+    dispose((disposable_t*)&mac);
+    dispose((disposable_t*)&key);
+}
+
+/**
  * Test that we can use HMAC-SHA-512 from the crypto suite.
  */
 TEST_F(vccrypt_suite_velo_v1, hmac_sha_512)
@@ -232,7 +294,7 @@ TEST_F(vccrypt_suite_velo_v1, hmac_sha_512)
 
     //create output buffer
     vccrypt_buffer_t outbuf;
-    ASSERT_EQ(0, vccrypt_suite_buffer_init_for_mac_authentication_code(&options, &outbuf));
+    ASSERT_EQ(0, vccrypt_suite_buffer_init_for_mac_authentication_code(&options, &outbuf, false));
     ASSERT_EQ(sizeof(EXPECTED_HMAC), outbuf.size);
 
     //finalize hmac
@@ -472,5 +534,172 @@ TEST_F(vccrypt_suite_velo_v1, curve25519_cipher)
     dispose((disposable_t*)&bob_public);
     dispose((disposable_t*)&ab_shared);
     dispose((disposable_t*)&ba_shared);
+    dispose((disposable_t*)&key);
+}
+
+/**
+ * Test that we can encrypt and decrypt using a block cipher from the
+ * crypto suite.
+ */
+TEST_F(vccrypt_suite_velo_v1, block_cipher)
+{
+    vccrypt_block_context_t context;
+    vccrypt_buffer_t key;
+
+    const uint8_t KEY[32] = {
+        0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
+        0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81,
+        0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7,
+        0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4
+    };
+    const uint8_t IV[16] = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
+    };
+    const uint8_t PLAINTEXT[64] = {
+        0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
+        0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a,
+        0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c,
+        0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51,
+        0x30, 0xc8, 0x1c, 0x46, 0xa3, 0x5c, 0xe4, 0x11,
+        0xe5, 0xfb, 0xc1, 0x19, 0x1a, 0x0a, 0x52, 0xef,
+        0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17,
+        0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10
+    };
+
+    uint8_t output[64];
+    uint8_t poutput[64];
+
+    // write junk to the output buffers
+    memset(output, 0xFC, sizeof(output));
+    memset(poutput, 0xFC, sizeof(poutput));
+
+    // create a buffer for the key data
+    ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
+    // read the key into the buffer.
+    ASSERT_EQ(0, vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
+
+    // instantiate the algorithm instance from the suite to encrypt
+    ASSERT_EQ(0, vccrypt_suite_block_init(&options, &context, &key, true));
+
+    // encrypt each plaintext block, writing to output.
+    ASSERT_EQ(0, vccrypt_block_encrypt(&context, IV, PLAINTEXT, output));
+    ASSERT_EQ(0, vccrypt_block_encrypt(&context, output, PLAINTEXT + 16, output + 16));
+    ASSERT_EQ(0, vccrypt_block_encrypt(&context, output + 16, PLAINTEXT + 32, output + 32));
+    ASSERT_EQ(0, vccrypt_block_encrypt(&context, output + 32, PLAINTEXT + 48, output + 48));
+
+    // clean up encryption context
+    dispose((disposable_t*)&context);
+
+    // the encrypted data should not match the plain text
+    ASSERT_NE(0, memcmp(output, PLAINTEXT, sizeof(output)));
+
+    // instantiate the algorithm instance from the suite to decrypt
+    ASSERT_EQ(0, vccrypt_suite_block_init(&options, &context, &key, false));
+
+    // decrypt each ciphertext block, writing it to poutput.
+    ASSERT_EQ(0, vccrypt_block_decrypt(&context, IV, output, poutput));
+    ASSERT_EQ(0, vccrypt_block_decrypt(&context, output, output + 16, poutput + 16));
+    ASSERT_EQ(0, vccrypt_block_decrypt(&context, output + 16, output + 32, poutput + 32));
+    ASSERT_EQ(0, vccrypt_block_decrypt(&context, output + 32, output + 48, poutput + 48));
+
+    // the decrypted data should match our plaintext
+    ASSERT_EQ(0, memcmp(poutput, PLAINTEXT, sizeof(poutput)));
+
+    // cleanup
+    dispose((disposable_t*)&context);
+    dispose((disposable_t*)&key);
+}
+
+/**
+ * Test that we can encrypt and decrypt using a stream cipher from the
+ * crypto suite.
+ */
+TEST_F(vccrypt_suite_velo_v1, stream_cipher)
+{
+    vccrypt_stream_context_t context;
+    vccrypt_buffer_t key;
+
+    const uint8_t KEY[32] = {
+        0xf6, 0xd6, 0x6d, 0x6b, 0xd5, 0x2d, 0x59, 0xbb,
+        0x07, 0x96, 0x36, 0x58, 0x79, 0xef, 0xf8, 0x86,
+        0xc6, 0x6d, 0xd5, 0x1a, 0x5b, 0x6a, 0x99, 0x74,
+        0x4b, 0x50, 0x59, 0x0c, 0x87, 0xa2, 0x38, 0x84
+    };
+    const uint8_t PLAINTEXT[32] = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+        0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
+    };
+
+
+    // create a buffer for the key data
+    ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
+    // read the key into the buffer.
+    ASSERT_EQ(0, vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
+
+    // instantiate the algorithm instance from the suite
+    ASSERT_EQ(0, vccrypt_suite_stream_init(&options, &context, &key));
+
+
+    uint64_t DUMMY_IV = mmhtonll(0x0102030405060708UL);
+    uint8_t output[40];
+    uint8_t poutput[32];
+    size_t offset = 99;
+
+    // write junk to the output buffer
+    memset(output, 0xFC, sizeof(output));
+
+    // start encryption using a dummy IV.
+    ASSERT_EQ(0,
+        vccrypt_stream_start_encryption(
+            &context, &DUMMY_IV, sizeof(DUMMY_IV), output, &offset));
+
+    // the offset should be set to 8.
+    EXPECT_EQ(8U, offset);
+
+    // the first 8 bytes of output should be set to the value of DUMMY_IV
+    EXPECT_EQ(0x01U, output[0]);
+    EXPECT_EQ(0x02U, output[1]);
+    EXPECT_EQ(0x03U, output[2]);
+    EXPECT_EQ(0x04U, output[3]);
+    EXPECT_EQ(0x05U, output[4]);
+    EXPECT_EQ(0x06U, output[5]);
+    EXPECT_EQ(0x07U, output[6]);
+    EXPECT_EQ(0x08U, output[7]);
+
+    // encrypt the plaintext.
+    ASSERT_EQ(0,
+        vccrypt_stream_encrypt(
+            &context, PLAINTEXT, sizeof(PLAINTEXT), output, &offset));
+
+    // the offset should be set to 40.
+    EXPECT_EQ(40U, offset);
+
+    // we don't know what encryption algorithm was used, but we can ensure
+    // the cipher text is not the same as the plain text.
+    ASSERT_NE(0, memcmp(output + 8, PLAINTEXT, sizeof(PLAINTEXT)));
+
+    // start decryption using the dummy IV.
+    ASSERT_EQ(0,
+        vccrypt_stream_start_decryption(
+            &context, output, &offset));
+
+    // the offset should be set to 8
+    EXPECT_EQ(8U, offset);
+
+    offset = 0;
+
+    // decrypt the ciphertext.
+    ASSERT_EQ(0,
+        vccrypt_stream_decrypt(
+            &context, output + 8, 32, poutput, &offset));
+
+    // the output should correspond to our plaintext.
+    ASSERT_EQ(0, memcmp(poutput, PLAINTEXT, sizeof(PLAINTEXT)));
+
+    // cleanup
+    dispose((disposable_t*)&context);
     dispose((disposable_t*)&key);
 }

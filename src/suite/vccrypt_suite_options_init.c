@@ -99,13 +99,21 @@ int vccrypt_suite_options_init(
         goto cleanup_digital_signature_options;
     }
 
+    /* initialize the short MAC options */
+    retval = vccrypt_mac_options_init(
+        &options->mac_short_opts, alloc_opts, options->mac_short_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
+    {
+        goto cleanup_mac_options;
+    }
+
     /* initialize the auth key agreement options */
     retval = vccrypt_key_agreement_options_init(
         &options->key_auth_opts, alloc_opts, &options->prng_opts,
         options->key_auth_alg);
     if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        goto cleanup_mac_options;
+        goto cleanup_mac_short_options;
     }
 
     /* initialize the cipher key agreement options */
@@ -117,11 +125,39 @@ int vccrypt_suite_options_init(
         goto cleanup_auth_key_options;
     }
 
+    /* initialize the block cipher options */
+    retval = vccrypt_block_options_init(
+        &options->block_cipher_opts, alloc_opts,
+        options->block_cipher_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
+    {
+        goto cleanup_block_cipher_options;
+    }
+
+
+    /* initialize the stream cipher options */
+    retval = vccrypt_stream_options_init(
+        &options->stream_cipher_opts, alloc_opts,
+        options->stream_cipher_alg);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
+    {
+        goto cleanup_stream_cipher_options;
+    }
+
     /* success */
     return VCCRYPT_STATUS_SUCCESS;
 
+cleanup_stream_cipher_options:
+    dispose((disposable_t*)&options->stream_cipher_opts);
+
+cleanup_block_cipher_options:
+    dispose((disposable_t*)&options->block_cipher_opts);
+
 cleanup_auth_key_options:
     dispose((disposable_t*)&options->key_auth_opts);
+
+cleanup_mac_short_options:
+    dispose((disposable_t*)&options->mac_short_opts);
 
 cleanup_mac_options:
     dispose((disposable_t*)&options->mac_opts);
@@ -152,9 +188,12 @@ static void vccrypt_suite_options_dispose(void* options)
     dispose((disposable_t*)&opts->key_auth_opts);
     dispose((disposable_t*)&opts->key_cipher_opts);
     dispose((disposable_t*)&opts->mac_opts);
+    dispose((disposable_t*)&opts->mac_short_opts);
     dispose((disposable_t*)&opts->sign_opts);
     dispose((disposable_t*)&opts->prng_opts);
     dispose((disposable_t*)&opts->hash_opts);
+    dispose((disposable_t*)&opts->block_cipher_opts);
+    dispose((disposable_t*)&opts->stream_cipher_opts);
 
     /* clear out this structure */
     memset(opts, 0, sizeof(vccrypt_suite_options_t));
