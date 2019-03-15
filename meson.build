@@ -42,10 +42,13 @@ vccrypt_test = executable(
   link_with : vccrypt_lib
 )
 
+test_env = environment()
+test_env.set('TEST_SIGNATURE_PATH', join_paths(meson.current_source_dir()))
+
 test(
   'libvccrypt-test', 
   vccrypt_test,
-  workdir : meson.source_root()
+  env : test_env
 )
 
 vccrypt_dep = declare_dependency(
