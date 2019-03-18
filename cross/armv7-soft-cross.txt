@@ -1,0 +1,16 @@
+[binaries]
+c = '/opt/vctoolchain/armv7-soft/bin/arm-none-eabi-gcc'
+cpp = '/opt/vctoolchain/armv7-soft/bin/arm-none-eabi-g++'
+ar = '/opt/vctoolchain/armv7-soft/bin/arm-none-eabi-ar'
+as = '/opt/vctoolchain/armv7-soft/bin/arm-none-eabi-as'
+strip = '/opt/vctoolchain/armv7-soft/bin/arm-none-eabi-strip'
+
+[host_machine]
+system     = 'none'
+cpu_family = 'arm'
+cpu        = 'cortex-m4'
+endian     = 'little'
+
+c_args = ['-std=gnu99', '-mcpu=cortex-m4', '-mfloat-abi=soft', '-mthumb', 
+          '-fno-common', '-ffunction-sections' , '-fdata-sections',
+          '-ffreestanding', '-fno-builtin', '-mapcs']
