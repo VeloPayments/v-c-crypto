@@ -78,3 +78,5 @@ test(
   vccrypt_test,
   env : test_env
 )
+
+# vim: ts=2 sw=2 et colorcolumn=120
