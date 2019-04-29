@@ -238,6 +238,44 @@ extern "C" {
  * \brief An invalid argument was passed to vccrypt_mac_finalize().
  */
 #define VCCRYPT_ERROR_MAC_FINALIZE_INVALID_ARG 0x216C
+
+/**
+ * \brief An invalid argument was passed to pkcs5_pbkdf2().
+ */
+#define VCCRYPT_ERROR_PBKDF2_INVALID_ARG 0x2170
+
+/**
+ * \brief pkdf2() ran out of memory when initializing dynamic memory to contain
+ * the salt data.
+ */
+#define VCCRYPT_ERROR_PBKDF2_INIT_OUT_OF_MEMORY 0x2174
+
+/**
+ * \brief An attempt was made to call vccrypt_key_derivation_options_init()
+ * with a key derivation algorithm selector that either does not exist, or was
+ * not registered.
+ */
+#define VCCRYPT_ERROR_KEY_DERIVATION_OPTIONS_INIT_MISSING_IMPL 0x2178
+
+/**
+ * \brief An attempt was made to call vccrypt_key_derivation_options_init()
+ * with an HMAC algorithm selector that either does not exist, or was not
+ * registered.
+ */
+#define VCCRYPT_ERROR_KEY_DERIVATION_OPTIONS_INIT_MISSING_HMAC_IMPL 0x217A
+
+/**
+ * \brief An attempt was made to call vccrypt_key_derivation_init() with an
+ * invalid argument.
+ */
+#define VCCRYPT_ERROR_KEY_DERIVATION_INIT_INVALID_ARG 0x217C
+
+/**
+ * \brief An attempt was made to call vccrypt_key_derivation_derive_key()
+ * with a invalid argument.
+ */
+#define VCCRYPT_ERROR_KEY_DERIVATION_DERIVE_KEY_INVALID_ARG 0x2180
+
 /**
  * @}
  */

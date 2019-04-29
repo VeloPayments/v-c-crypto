@@ -21,6 +21,7 @@
 #include <vccrypt/hash.h>
 #include <vccrypt/interfaces.h>
 #include <vccrypt/key_agreement.h>
+#include <vccrypt/key_derivation.h>
 #include <vccrypt/mac.h>
 #include <vccrypt/prng.h>
 #include <vccrypt/block_cipher.h>
@@ -75,12 +76,15 @@ void vccrypt_suite_register_velo_v1();
  * @}
  */
 
+/* forward decl */
+typedef struct vccrypt_suite_options vccrypt_suite_options_t;
+
 /**
  * \brief Cryptographic Suite options.
  *
  * These options are returned by the vccrypt_suite_options_init() method.
  */
-typedef struct vccrypt_suite_options
+struct vccrypt_suite_options
 {
     /**
      * \brief This options structure is disposable.
@@ -125,6 +129,18 @@ typedef struct vccrypt_suite_options
      * see vccrypt/key_agreement.h.
      */
     uint32_t key_cipher_alg;
+
+    /**
+     * \brief The key derivation algorithm to use for this suite -- see
+     * vccrypt/key_derivation.h.
+     */
+    uint32_t key_derivation_alg;
+
+    /**
+     * \brief The HMAC algorithm to use for the key derivation PRF -- see
+     * vccrypt/mac.h
+     */
+    uint32_t key_derivation_hmac_alg;
 
     /**
      * \brief The block cipher algorithm to use for this suite -- see
@@ -179,6 +195,12 @@ typedef struct vccrypt_suite_options
      * \brief The key agreement for cipher options to use for this suite.
      */
     vccrypt_key_agreement_options_t key_cipher_opts;
+
+    /**
+     * \brief The key derivation options to use for this suite.
+     */
+    vccrypt_key_derivation_options_t key_derivation_opts;
+
 
     /**
      * \brief The block cipher options to use for this suite.
@@ -278,6 +300,21 @@ typedef struct vccrypt_suite_options
     int (*vccrypt_suite_key_cipher_init)(
         void* options, vccrypt_key_agreement_context_t* context);
 
+
+    /**
+     * \brief Suite-specific initialization for a key derivation algorithm
+     * instance to be used for deriving keys from passwords.
+     *
+     * \param context       The key derivation algorithm instance to
+     *                      initialize.
+     * \param options       Pointer to the suite options.
+     *
+     * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_suite_key_derivation_alg_init)(
+        vccrypt_key_derivation_context_t* context,
+        vccrypt_suite_options_t* options);
+
     /**
      * \brief Suite-specific initialization for block cipher algorithm
      * instance.
@@ -306,8 +343,7 @@ typedef struct vccrypt_suite_options
      */
     int (*vccrypt_suite_stream_alg_init)(
         void* options, vccrypt_stream_context_t* context, vccrypt_buffer_t* key);
-
-} vccrypt_suite_options_t;
+};
 
 /**
  * \brief Initialize a crypto suite options structure.
@@ -650,6 +686,21 @@ int vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
     vccrypt_suite_options_t* options,
     vccrypt_buffer_t* buffer);
 
+
+/**
+ * \brief Create an appropriate key derivation algorithm instance
+ * for this crypto suite.
+ *
+ * \param context       The key derivation instance to initialize.
+ * \param options       The options structure for this crypto suite.
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
+ */
+int vccrypt_suite_key_derivation_init(
+    vccrypt_key_derivation_context_t* context,
+    vccrypt_suite_options_t* options);
 
 /**
  * \brief
