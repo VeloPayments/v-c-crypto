@@ -261,6 +261,7 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_01)
     }
 
     /* tear down this instance. */
+    dispose((disposable_t*)&key);
     dispose((disposable_t*)&ctx);
 }
 
@@ -386,6 +387,7 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_02)
     }
 
     /* tear down this instance. */
+    dispose((disposable_t*)&key);
     dispose((disposable_t*)&ctx);
 }
 
@@ -513,5 +515,6 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_03)
     }
 
     /* tear down this instance. */
+    dispose((disposable_t*)&key);
     dispose((disposable_t*)&ctx);
 }
