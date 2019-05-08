@@ -228,4 +228,7 @@ TEST_F(vccrypt_buffer_read_base64_test, size_mismatch)
 
     //fail.
     ASSERT_NE(0, vccrypt_buffer_read_base64(&dest, &source, &outlen));
+
+    dispose((disposable_t*)&source);
+    dispose((disposable_t*)&dest);
 }
