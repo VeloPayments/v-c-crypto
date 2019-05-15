@@ -13,6 +13,15 @@
 
 #include "sha512.h"
 
+/*
+ * By using __asm__ on GCC we avoid the need to compile with gnu11. 
+ * This definition also provides sideways compat to other non GCC compilers.
+ */
+
+#ifndef __GNUC__
+#define __asm__ asm
+#endif
+
 /* forward decls */
 static void sha512_block_data_order(SHA512_CTX* ctx, const void* in, size_t num);
 
@@ -363,24 +372,24 @@ static const uint64_t K512[80] = {
 #if defined(__GNUC__) && __GNUC__ >= 2 && !defined(OPENSSL_NO_ASM) && !defined(OPENSSL_NO_INLINE_ASM)
 #if defined(__x86_64) || defined(__x86_64__)
 #define ROTR(a, n) ({ uint64_t ret;        \
-                asm ("rorq %1,%0"    \
+                __asm__ ("rorq %1,%0"    \
                 : "=r"(ret)        \
                 : "J"(n),"0"(a)        \
                 : "cc"); ret; })
 #define PULL64(x) ({ uint64_t ret=*((const uint64_t *)(&(x)));    \
-                asm ("bswapq    %0"        \
+                __asm__ ("bswapq    %0"        \
                 : "=r"(ret)            \
                 : "0"(ret)); ret; })
 #elif (defined(__i386) || defined(__i386__))
 #define PULL64(x) ({ const unsigned int *p=(const unsigned int *)(&(x));\
              unsigned int hi=p[0],lo=p[1];        \
-                asm ("bswapl %0; bswapl %1;"    \
+                __asm__ ("bswapl %0; bswapl %1;"    \
                 : "=r"(lo),"=r"(hi)        \
                 : "0"(lo),"1"(hi));        \
                 ((uint64_t)hi)<<32|lo; })
 #elif (defined(_ARCH_PPC) && defined(__64BIT__)) || defined(_ARCH_PPC64)
 #define ROTR(a, n) ({ uint64_t ret;        \
-                asm ("rotrdi %0,%1,%2"    \
+                __asm__ ("rotrdi %0,%1,%2"    \
                 : "=r"(ret)        \
                 : "r"(a),"K"(n)); ret; })
 #endif
