@@ -424,6 +424,64 @@ TEST_F(vccrypt_suite_velo_v1, curve25519_auth)
 }
 
 /**
+ * Test that we can derive a cryptographic key from a password.
+ *
+ * TODO: once we have a test vector for SHA-512/256, verify expected
+ * value.  For now we are testing the algorithm more comprehensively
+ * using SHA-512 elsewhere.
+ *
+ */
+TEST_F(vccrypt_suite_velo_v1, key_derivation)
+{
+    vccrypt_key_derivation_context_t ctx;
+
+    // ensure we have the right HMAC algorithm
+    EXPECT_EQ((unsigned int)VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC,
+        options.key_derivation_opts.hmac_algorithm);
+    EXPECT_EQ(32u, options.key_derivation_opts.hmac_digest_length);
+
+
+    // we should be able to create an algorithm instance
+    ASSERT_EQ(0, vccrypt_suite_key_derivation_init(&ctx, &options));
+
+
+    // as a starting point we should be able to derive a key from a
+    // password and a salt
+    const char* password = "password123";
+    vccrypt_buffer_t password_buffer;
+    ASSERT_EQ(0, vccrypt_buffer_init(&password_buffer, &alloc_opts, strlen(password)));
+    memcpy(password_buffer.data, password, strlen(password));
+
+    vccrypt_buffer_t salt_buffer;
+    ASSERT_EQ(0, vccrypt_buffer_init(&salt_buffer, &alloc_opts, 10));
+    uint8_t salt[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
+    memcpy(salt_buffer.data, &salt[0], sizeof(salt));
+
+    vccrypt_buffer_t dk_buffer;
+    ASSERT_EQ(0, vccrypt_buffer_init(&dk_buffer, &alloc_opts, 10));
+    ASSERT_EQ(10U, dk_buffer.size);
+
+    ASSERT_EQ(0,
+        vccrypt_key_derivation_derive_key(&dk_buffer,
+            &ctx, &password_buffer, &salt_buffer,
+            10));  // just a few rounds for this test.
+
+
+    // verify derived key is not all 0
+    uint8_t test_block[dk_buffer.size];
+    memset(test_block, 0, sizeof(test_block));
+
+    EXPECT_NE(0, memcmp(dk_buffer.data, test_block, dk_buffer.size));
+
+
+    dispose((disposable_t*)&dk_buffer);
+    dispose((disposable_t*)&salt_buffer);
+    dispose((disposable_t*)&password_buffer);
+    dispose((disposable_t*)&ctx);
+}
+
+
+/**
  * Test that we can use Curve25519-Cipher-HMAC-SHA-512 from the crypto suite.
  */
 TEST_F(vccrypt_suite_velo_v1, curve25519_cipher)

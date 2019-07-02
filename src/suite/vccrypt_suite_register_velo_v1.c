@@ -30,6 +30,9 @@ static int velo_v1_key_auth_init(
     void* options, vccrypt_key_agreement_context_t* context);
 static int velo_v1_key_cipher_init(
     void* options, vccrypt_key_agreement_context_t* context);
+static int velo_v1_key_derivation_init(
+    vccrypt_key_derivation_context_t* context,
+    vccrypt_suite_options_t* options);
 static int velo_v1_block_cipher_init(
     void* options, vccrypt_block_context_t* context,
     vccrypt_buffer_t* key, bool encrypt);
@@ -63,6 +66,7 @@ void vccrypt_suite_register_velo_v1()
     vccrypt_prng_register_source_operating_system();
     vccrypt_key_agreement_register_curve25519_sha512();
     vccrypt_key_agreement_register_curve25519_sha512_256();
+    vccrypt_key_derivation_register_pbkdf2();
     vccrypt_block_register_AES_256_2X_CBC();
     vccrypt_stream_register_AES_256_2X_CTR();
 
@@ -78,6 +82,10 @@ void vccrypt_suite_register_velo_v1()
         VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512;
     velo_v1_options.key_cipher_alg =
         VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512_256;
+    velo_v1_options.key_derivation_alg =
+        VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2;
+    velo_v1_options.key_derivation_hmac_alg =
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC;
     velo_v1_options.block_cipher_alg =
         VCCRYPT_BLOCK_ALGORITHM_AES_256_2X_CBC;
     velo_v1_options.stream_cipher_alg =
@@ -97,6 +105,8 @@ void vccrypt_suite_register_velo_v1()
         &velo_v1_key_auth_init;
     velo_v1_options.vccrypt_suite_key_cipher_init =
         &velo_v1_key_cipher_init;
+    velo_v1_options.vccrypt_suite_key_derivation_alg_init =
+        &velo_v1_key_derivation_init;
     velo_v1_options.vccrypt_suite_block_alg_init =
         &velo_v1_block_cipher_init;
     velo_v1_options.vccrypt_suite_stream_alg_init =
@@ -261,6 +271,26 @@ static int velo_v1_key_cipher_init(
 
     return vccrypt_key_agreement_init(&opts->key_cipher_opts, context);
 }
+
+/**
+ * Suite-specific initialization for a key derivation algorithm instance to
+ * be used for creating cryptographic keys from passwords or passphrases.
+ *
+ * \param context       The key derivation algorithm instance to initialize.
+ * \param options       Pointer to the suite options.
+ *
+ * \returns 0 on success and non-zero on failure.
+ */
+static int velo_v1_key_derivation_init(
+    vccrypt_key_derivation_context_t* context,
+    vccrypt_suite_options_t* options)
+{
+    MODEL_ASSERT(options != NULL);
+    MODEL_ASSERT(context != NULL);
+
+    return vccrypt_key_derivation_init(context, &options->key_derivation_opts);
+}
+
 
 /**
  * Suite-specific initialization for a stream cipher algorithm instance

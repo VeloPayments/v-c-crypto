@@ -58,6 +58,11 @@ extern "C" {
 #define VCCRYPT_INTERFACE_KEY 0x43000050
 
 /**
+ * \brief The Key Derivation interface -- see vccrypt/key_derivation.h
+ */
+#define VCCRYPT_INTERFACE_KD 0x43000055
+
+/**
  * \brief The Digital Signature interface -- see vccrypt/digital_signature.h
  */
 #define VCCRYPT_INTERFACE_SIGNATURE 0x43000060
