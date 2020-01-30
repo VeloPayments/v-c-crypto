@@ -9,6 +9,8 @@
 #ifndef VCCRYPT_COMPARE_HEADER_GUARD
 #define VCCRYPT_COMPARE_HEADER_GUARD
 
+#include <vccrypt/function_decl.h>
+
 /* make this header C++ friendly. */
 #ifdef __cplusplus
 extern "C" {
@@ -32,7 +34,8 @@ extern "C" {
  * \returns 0 if these two buffers are equal, and a non-zero values if
  *          differences were encountered.
  */
-int crypto_memcmp(const void* lhs, const void* rhs, size_t length);
+int VCCRYPT_DECL_MUST_CHECK crypto_memcmp(
+    const void* lhs, const void* rhs, size_t length);
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus

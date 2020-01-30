@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <vccrypt/buffer.h>
 #include <vccrypt/digital_signature.h>
+#include <vccrypt/function_decl.h>
 #include <vccrypt/hash.h>
 #include <vccrypt/interfaces.h>
 #include <vccrypt/key_agreement.h>
@@ -365,7 +366,8 @@ struct vccrypt_suite_options
  *             registered.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_options_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_options_init(
     vccrypt_suite_options_t* options, allocator_options_t* alloc_opts,
     uint32_t suite_id);
 
@@ -379,7 +381,8 @@ int vccrypt_suite_options_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_hash_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_hash_init(
     vccrypt_suite_options_t* options, vccrypt_hash_context_t* context);
 
 /**
@@ -392,7 +395,8 @@ int vccrypt_suite_hash_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_prng_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_prng_init(
     vccrypt_suite_options_t* options, vccrypt_prng_context_t* context);
 
 /**
@@ -406,7 +410,8 @@ int vccrypt_suite_prng_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_digital_signature_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_digital_signature_init(
     vccrypt_suite_options_t* options,
     vccrypt_digital_signature_context_t* context);
 
@@ -423,7 +428,8 @@ int vccrypt_suite_digital_signature_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_mac_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_mac_init(
     vccrypt_suite_options_t* options, vccrypt_mac_context_t* context,
     vccrypt_buffer_t* key);
 
@@ -440,10 +446,10 @@ int vccrypt_suite_mac_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_mac_short_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_mac_short_init(
     vccrypt_suite_options_t* options, vccrypt_mac_context_t* context,
     vccrypt_buffer_t* key);
-
 
 /**
  * \brief Create an appropriate authentication key agreement algorithm instance
@@ -456,9 +462,9 @@ int vccrypt_suite_mac_short_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_auth_key_agreement_init(
-    vccrypt_suite_options_t* options,
-    vccrypt_key_agreement_context_t* context);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_auth_key_agreement_init(
+    vccrypt_suite_options_t* options, vccrypt_key_agreement_context_t* context);
 
 /**
  * \brief Create an appropriate symmetric cipher key agreement algorithm
@@ -471,9 +477,9 @@ int vccrypt_suite_auth_key_agreement_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_cipher_key_agreement_init(
-    vccrypt_suite_options_t* options,
-    vccrypt_key_agreement_context_t* context);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_cipher_key_agreement_init(
+    vccrypt_suite_options_t* options, vccrypt_key_agreement_context_t* context);
 
 /**
  * \brief Create a buffer sized appropriately for the output of this crypto
@@ -486,9 +492,9 @@ int vccrypt_suite_cipher_key_agreement_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_hash(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_hash(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for the private key of this crypto
@@ -501,9 +507,9 @@ int vccrypt_suite_buffer_init_for_hash(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_signature_private_key(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_signature_private_key(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for the public key of this crypto
@@ -516,9 +522,9 @@ int vccrypt_suite_buffer_init_for_signature_private_key(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_signature_public_key(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_signature_public_key(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for the signature of this crypto
@@ -531,9 +537,9 @@ int vccrypt_suite_buffer_init_for_signature_public_key(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_signature(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_signature(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for the private key of this crypto
@@ -546,9 +552,9 @@ int vccrypt_suite_buffer_init_for_signature(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_mac_private_key(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_mac_private_key(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for the message authentication
@@ -562,9 +568,9 @@ int vccrypt_suite_buffer_init_for_mac_private_key(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_mac_authentication_code(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer, bool short_mac);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_mac_authentication_code(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer, bool short_mac);
 
 /**
  * \brief Create a buffer sized appropriately for the private key of this crypto
@@ -577,9 +583,9 @@ int vccrypt_suite_buffer_init_for_mac_authentication_code(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_auth_key_agreement_private_key(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_auth_key_agreement_private_key(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for the public key of this crypto
@@ -592,9 +598,9 @@ int vccrypt_suite_buffer_init_for_auth_key_agreement_private_key(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_auth_key_agreement_public_key(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_auth_key_agreement_public_key(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for a nonce value for this crypto
@@ -607,9 +613,9 @@ int vccrypt_suite_buffer_init_for_auth_key_agreement_public_key(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_auth_key_agreement_nonce(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_auth_key_agreement_nonce(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for the shared secret of this
@@ -622,9 +628,9 @@ int vccrypt_suite_buffer_init_for_auth_key_agreement_nonce(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_auth_key_agreement_shared_secret(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_auth_key_agreement_shared_secret(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for the private key of this crypto
@@ -637,9 +643,9 @@ int vccrypt_suite_buffer_init_for_auth_key_agreement_shared_secret(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_cipher_key_agreement_private_key(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_cipher_key_agreement_private_key(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for the public key of this crypto
@@ -652,9 +658,9 @@ int vccrypt_suite_buffer_init_for_cipher_key_agreement_private_key(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_cipher_key_agreement_public_key(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_cipher_key_agreement_public_key(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for a nonce value for this crypto
@@ -667,9 +673,9 @@ int vccrypt_suite_buffer_init_for_cipher_key_agreement_public_key(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_cipher_key_agreement_nonce(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_cipher_key_agreement_nonce(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create a buffer sized appropriately for the shared secret of this
@@ -682,10 +688,9 @@ int vccrypt_suite_buffer_init_for_cipher_key_agreement_nonce(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
-    vccrypt_suite_options_t* options,
-    vccrypt_buffer_t* buffer);
-
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
  * \brief Create an appropriate key derivation algorithm instance
@@ -698,9 +703,9 @@ int vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_key_derivation_init(
-    vccrypt_key_derivation_context_t* context,
-    vccrypt_suite_options_t* options);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_key_derivation_init(
+    vccrypt_key_derivation_context_t* context, vccrypt_suite_options_t* options);
 
 /**
  * \brief
@@ -715,7 +720,8 @@ int vccrypt_suite_key_derivation_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_block_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_block_init(
     vccrypt_suite_options_t* options, vccrypt_block_context_t* context,
     vccrypt_buffer_t* key, bool encrypt);
 
@@ -730,10 +736,10 @@ int vccrypt_suite_block_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_suite_stream_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_stream_init(
     vccrypt_suite_options_t* options, vccrypt_stream_context_t* context,
     vccrypt_buffer_t* key);
-
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus

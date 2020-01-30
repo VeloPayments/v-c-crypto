@@ -21,6 +21,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdlib.h>
 #include <vccrypt/buffer.h>
+#include <vccrypt/function_decl.h>
 #include <vccrypt/interfaces.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
@@ -266,7 +267,8 @@ typedef struct vccrypt_hash_context
  *             implementation either does not exist or was not registered.
  *      - a non-zero error code on failure.
  */
-int vccrypt_hash_options_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_hash_options_init(
     vccrypt_hash_options_t* options, allocator_options_t* alloc_opts,
     uint32_t algorithm);
 
@@ -286,7 +288,8 @@ int vccrypt_hash_options_init(
  *             provided.
  *      - a non-zero error code on failure.
  */
-int vccrypt_hash_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_hash_init(
     vccrypt_hash_options_t* options, vccrypt_hash_context_t* context);
 
 /**
@@ -302,7 +305,8 @@ int vccrypt_hash_init(
  *             provided.
  *      - a non-zero error code.
  */
-int vccrypt_hash_digest(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_hash_digest(
     vccrypt_hash_context_t* context, const uint8_t* data, size_t size);
 
 /**
@@ -317,7 +321,8 @@ int vccrypt_hash_digest(
  *      - \ref VCCRYPT_ERROR_HASH_DIGEST_INVALID_ARG if an invalid argument is
  *             provided.
  */
-int vccrypt_hash_finalize(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_hash_finalize(
     vccrypt_hash_context_t* context, vccrypt_buffer_t* hash_buffer);
 
 /* make this header C++ friendly. */

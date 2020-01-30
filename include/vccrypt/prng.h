@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <vccrypt/buffer.h>
 #include <vccrypt/error_codes.h>
+#include <vccrypt/function_decl.h>
 #include <vccrypt/interfaces.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
@@ -161,7 +162,8 @@ typedef struct vccrypt_prng_context
  *             CPRNG source selector is either invalid or unregistered.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_prng_options_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_prng_options_init(
     vccrypt_prng_options_t* options, allocator_options_t* alloc_opts,
     uint32_t source);
 
@@ -178,7 +180,8 @@ int vccrypt_prng_options_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_prng_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_prng_init(
     vccrypt_prng_options_t* options, vccrypt_prng_context_t* context);
 
 /**
@@ -197,7 +200,8 @@ int vccrypt_prng_init(
  *             overwrite the provided \ref vccrypt_buffer_t instance.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_prng_read(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_prng_read(
     vccrypt_prng_context_t* context, vccrypt_buffer_t* buffer, size_t length);
 
 /**
@@ -214,7 +218,8 @@ int vccrypt_prng_read(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_prng_read_c(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_prng_read_c(
     vccrypt_prng_context_t* context, uint8_t* buffer, size_t length);
 
 /* make this header C++ friendly. */

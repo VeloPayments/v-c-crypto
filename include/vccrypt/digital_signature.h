@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <vccrypt/buffer.h>
 #include <vccrypt/error_codes.h>
+#include <vccrypt/function_decl.h>
 #include <vccrypt/hash.h>
 #include <vccrypt/interfaces.h>
 #include <vccrypt/prng.h>
@@ -273,7 +274,8 @@ typedef struct vccrypt_digital_signature_context
  *             provided instance selector is invalid or unregistered.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_digital_signature_options_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_digital_signature_options_init(
     vccrypt_digital_signature_options_t* options,
     allocator_options_t* alloc_opts, vccrypt_prng_options_t* prng_opts,
     uint32_t algorithm);
@@ -294,7 +296,8 @@ int vccrypt_digital_signature_options_init(
  *             provided arguments is invalid.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_digital_signature_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_digital_signature_init(
     vccrypt_digital_signature_options_t* options,
     vccrypt_digital_signature_context_t* context);
 
@@ -313,7 +316,8 @@ int vccrypt_digital_signature_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_digital_signature_sign(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_digital_signature_sign(
     vccrypt_digital_signature_context_t* context, vccrypt_buffer_t* sign_buffer,
     const vccrypt_buffer_t* priv, const uint8_t* message, size_t message_size);
 
@@ -331,7 +335,8 @@ int vccrypt_digital_signature_sign(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_digital_signature_verify(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_digital_signature_verify(
     vccrypt_digital_signature_context_t* context,
     const vccrypt_buffer_t* signature, const vccrypt_buffer_t* pub,
     const uint8_t* message, size_t message_size);
@@ -350,7 +355,8 @@ int vccrypt_digital_signature_verify(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_digital_signature_keypair_create(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_digital_signature_keypair_create(
     vccrypt_digital_signature_context_t* context, vccrypt_buffer_t* priv,
     vccrypt_buffer_t* pub);
 

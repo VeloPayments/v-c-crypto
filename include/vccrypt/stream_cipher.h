@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <vccrypt/buffer.h>
 #include <vccrypt/error_codes.h>
+#include <vccrypt/function_decl.h>
 #include <vccrypt/interfaces.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
@@ -306,7 +307,8 @@ typedef struct vccrypt_stream_context
  *             not been registered.
  *      - a non-zero error code on failure.
  */
-int vccrypt_stream_options_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_stream_options_init(
     vccrypt_stream_options_t* options, allocator_options_t* alloc_opts,
     uint32_t algorithm);
 
@@ -331,7 +333,8 @@ int vccrypt_stream_options_init(
  *             arguments is invalid.
  *      - a non-zero error code on failure.
  */
-int vccrypt_stream_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_stream_init(
     vccrypt_stream_options_t* options, vccrypt_stream_context_t* context,
     vccrypt_buffer_t* key);
 
@@ -352,7 +355,8 @@ int vccrypt_stream_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code on failure.
  */
-int vccrypt_stream_start_encryption(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_stream_start_encryption(
     vccrypt_stream_context_t* context, const void* iv, size_t ivSize,
     void* output, size_t* offset);
 
@@ -369,7 +373,8 @@ int vccrypt_stream_start_encryption(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code on failure.
  */
-int vccrypt_stream_continue_encryption(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_stream_continue_encryption(
     vccrypt_stream_context_t* context, const void* iv, size_t ivSize,
     size_t offset);
 
@@ -387,7 +392,8 @@ int vccrypt_stream_continue_encryption(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code on failure.
  */
-int vccrypt_stream_start_decryption(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_stream_start_decryption(
     vccrypt_stream_context_t* context, const void* input, size_t* offset);
 
 
@@ -399,7 +405,8 @@ int vccrypt_stream_start_decryption(
  *
  * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on error.
  */
-int vccrypt_stream_continue_decryption(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_stream_continue_decryption(
     vccrypt_stream_context_t* context, const void* iv, size_t iv_size,
     size_t input_offset);
 
@@ -419,7 +426,8 @@ int vccrypt_stream_continue_decryption(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code on failure.
  */
-int vccrypt_stream_encrypt(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_stream_encrypt(
     vccrypt_stream_context_t* context, const void* input, size_t size,
     void* output, size_t* offset);
 
@@ -439,7 +447,8 @@ int vccrypt_stream_encrypt(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code on failure.
  */
-int vccrypt_stream_decrypt(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_stream_decrypt(
     vccrypt_stream_context_t* context, const void* input, size_t size,
     void* output, size_t* offset);
 

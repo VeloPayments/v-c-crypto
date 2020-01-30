@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <vccrypt/buffer.h>
 #include <vccrypt/error_codes.h>
+#include <vccrypt/function_decl.h>
 #include <vccrypt/interfaces.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
@@ -248,7 +249,7 @@ typedef struct vccrypt_block_context
  *             implementation was not registered.
  *      - a non-zero return code on failure.
  */
-int vccrypt_block_options_init(
+int VCCRYPT_DECL_MUST_CHECK vccrypt_block_options_init(
     vccrypt_block_options_t* options, allocator_options_t* alloc_opts,
     uint32_t algorithm);
 
@@ -275,7 +276,7 @@ int vccrypt_block_options_init(
  *             provided.
  *      - a non-zero return code on failure.
  */
-int vccrypt_block_init(
+int VCCRYPT_DECL_MUST_CHECK vccrypt_block_init(
     vccrypt_block_options_t* options, vccrypt_block_context_t* context,
     vccrypt_buffer_t* key, bool encrypt);
 
@@ -297,7 +298,7 @@ int vccrypt_block_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_block_encrypt(
+int VCCRYPT_DECL_MUST_CHECK vccrypt_block_encrypt(
     vccrypt_block_context_t* context, const void* iv, const void* input,
     void* output);
 
@@ -320,7 +321,7 @@ int vccrypt_block_encrypt(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero return code on failure.
  */
-int vccrypt_block_decrypt(
+int VCCRYPT_DECL_MUST_CHECK vccrypt_block_decrypt(
     vccrypt_block_context_t* context, const void* iv, const void* input,
     void* output);
 
