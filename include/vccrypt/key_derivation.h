@@ -14,6 +14,7 @@
 
 #include <vccrypt/error_codes.h>
 #include <vccrypt/buffer.h>
+#include <vccrypt/function_decl.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
 
@@ -166,7 +167,8 @@ struct vccrypt_key_derivation_context
  *             provided instance selector is invalid or unregistered.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_key_derivation_options_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_key_derivation_options_init(
     vccrypt_key_derivation_options_t* options,
     allocator_options_t* alloc_opts, uint32_t kd_algorithm,
     uint32_t hmac_algorithm);
@@ -187,7 +189,8 @@ int vccrypt_key_derivation_options_init(
  *             provided arguments is invalid.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_key_derivation_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_key_derivation_init(
     vccrypt_key_derivation_context_t* context,
     vccrypt_key_derivation_options_t* options);
 
@@ -210,12 +213,11 @@ int vccrypt_key_derivation_init(
  *
  * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on error.
  */
-int vccrypt_key_derivation_derive_key(
-    vccrypt_buffer_t* derived_key,
-    vccrypt_key_derivation_context_t* context,
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_key_derivation_derive_key(
+    vccrypt_buffer_t* derived_key, vccrypt_key_derivation_context_t* context,
     const vccrypt_buffer_t* pass, const vccrypt_buffer_t* salt,
     unsigned int rounds);
-
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus

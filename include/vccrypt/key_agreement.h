@@ -21,6 +21,7 @@
 #define VCCRYPT_KEY_AGREEMENT_HEADER_GUARD
 
 #include <vccrypt/error_codes.h>
+#include <vccrypt/function_decl.h>
 #include <vccrypt/prng.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
@@ -312,7 +313,8 @@ typedef struct vccrypt_key_agreement_context
  *             provided instance selector is invalid or unregistered.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_key_agreement_options_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_key_agreement_options_init(
     vccrypt_key_agreement_options_t* options,
     allocator_options_t* alloc_opts, vccrypt_prng_options_t* prng_opts,
     uint32_t algorithm);
@@ -333,7 +335,8 @@ int vccrypt_key_agreement_options_init(
  *             provided arguments is invalid.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_key_agreement_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_key_agreement_init(
     vccrypt_key_agreement_options_t* options,
     vccrypt_key_agreement_context_t* context);
 
@@ -350,7 +353,8 @@ int vccrypt_key_agreement_init(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_key_agreement_long_term_secret_create(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_key_agreement_long_term_secret_create(
     vccrypt_key_agreement_context_t* context, const vccrypt_buffer_t* priv,
     const vccrypt_buffer_t* pub, vccrypt_buffer_t* shared);
 
@@ -387,7 +391,8 @@ int vccrypt_key_agreement_long_term_secret_create(
  *             of the provided arguments is invalid.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_key_agreement_short_term_secret_create(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_key_agreement_short_term_secret_create(
     vccrypt_key_agreement_context_t* context, const vccrypt_buffer_t* priv,
     const vccrypt_buffer_t* pub, const vccrypt_buffer_t* server_nonce,
     const vccrypt_buffer_t* client_nonce, vccrypt_buffer_t* shared);
@@ -404,7 +409,8 @@ int vccrypt_key_agreement_short_term_secret_create(
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
  *      - a non-zero error code indicating failure.
  */
-int vccrypt_key_agreement_keypair_create(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_key_agreement_keypair_create(
     vccrypt_key_agreement_context_t* context, vccrypt_buffer_t* priv,
     vccrypt_buffer_t* pub);
 

@@ -3,3 +3,5 @@ build
 subprojects/googletest
 subprojects/vcmodel
 subprojects/vpr
+cscope*
+tags

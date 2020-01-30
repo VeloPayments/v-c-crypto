@@ -20,6 +20,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdlib.h>
 #include <vccrypt/buffer.h>
+#include <vccrypt/function_decl.h>
 #include <vccrypt/interfaces.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
@@ -295,7 +296,8 @@ typedef struct vccrypt_mac_context
  *             is missing or was not registered. 
  *      - a non-zero return code on error.
  */
-int vccrypt_mac_options_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_mac_options_init(
     vccrypt_mac_options_t* options, allocator_options_t* alloc_opts,
     uint32_t algorithm);
 
@@ -320,7 +322,8 @@ int vccrypt_mac_options_init(
  *             provided to this method.
  *      - a non-zero return code on error.
  */
-int vccrypt_mac_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_mac_init(
     vccrypt_mac_options_t* options, vccrypt_mac_context_t* context,
     vccrypt_buffer_t* key);
 
@@ -337,7 +340,8 @@ int vccrypt_mac_init(
  *             provided.
  *      - a non-zero return code on error.
  */
-int vccrypt_mac_digest(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_mac_digest(
     vccrypt_mac_context_t* context, const uint8_t* data, size_t size);
 
 /**
@@ -354,7 +358,8 @@ int vccrypt_mac_digest(
  *             provided.
  *      - a non-zero return code on error.
  */
-int vccrypt_mac_finalize(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_mac_finalize(
     vccrypt_mac_context_t* context, vccrypt_buffer_t* mac_buffer);
 
 /* make this header C++ friendly. */

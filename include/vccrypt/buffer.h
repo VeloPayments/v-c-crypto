@@ -22,6 +22,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdlib.h>
 #include <vccrypt/error_codes.h>
+#include <vccrypt/function_decl.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
 
@@ -68,7 +69,8 @@ typedef struct vccrypt_buffer
  *             of memory while initializing this buffer.
  *      - a non-zero error code on failure.
  */
-int vccrypt_buffer_init(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_buffer_init(
     vccrypt_buffer_t* buffer, allocator_options_t* alloc, size_t size);
 
 /**
@@ -88,7 +90,8 @@ int vccrypt_buffer_init(
  *             of memory while initializing this buffer.
  *      - a non-zero error code on failure.
  */
-int vccrypt_buffer_init_for_hex_serialization(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_buffer_init_for_hex_serialization(
     vccrypt_buffer_t* buffer, allocator_options_t* alloc, size_t size);
 
 /**
@@ -108,7 +111,8 @@ int vccrypt_buffer_init_for_hex_serialization(
  *             of memory while initializing this buffer.
  *      - a non-zero error code on failure.
  */
-int vccrypt_buffer_init_for_base64_serialization(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_buffer_init_for_base64_serialization(
     vccrypt_buffer_t* buffer, allocator_options_t* alloc, size_t size);
 
 /**
@@ -126,7 +130,9 @@ int vccrypt_buffer_init_for_base64_serialization(
  *             buffer.
  *      - a non-zero error code on failure.
  */
-int vccrypt_buffer_copy(vccrypt_buffer_t* dest, const vccrypt_buffer_t* source);
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_buffer_copy(
+    vccrypt_buffer_t* dest, const vccrypt_buffer_t* source);
 
 /**
  * \brief Read data from a C buffer.
@@ -143,7 +149,8 @@ int vccrypt_buffer_copy(vccrypt_buffer_t* dest, const vccrypt_buffer_t* source);
  *             would overwrite the buffer.
  *      - a non-zero error code on failure.
  */
-int vccrypt_buffer_read_data(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_buffer_read_data(
     vccrypt_buffer_t* dest, const void* source, size_t size);
 
 /**
@@ -160,7 +167,8 @@ int vccrypt_buffer_read_data(
  *             operation would overwrite the destination buffer.
  *      - a non-zero error code on failure.
  */
-int vccrypt_buffer_write_hex(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_buffer_write_hex(
     vccrypt_buffer_t* dest, const vccrypt_buffer_t* source);
 
 /**
@@ -177,7 +185,8 @@ int vccrypt_buffer_write_hex(
  *             would overwrite the destination buffer.
  *      - a non-zero error code on failure.
  */
-int vccrypt_buffer_read_hex(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_buffer_read_hex(
     vccrypt_buffer_t* dest, const vccrypt_buffer_t* source);
 
 /**
@@ -194,7 +203,8 @@ int vccrypt_buffer_read_hex(
  *             operation would overwrite the destination buffer.
  *      - a non-zero error code on failure.
  */
-int vccrypt_buffer_write_base64(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_buffer_write_base64(
     vccrypt_buffer_t* dest, const vccrypt_buffer_t* source);
 
 /**
@@ -212,7 +222,8 @@ int vccrypt_buffer_write_base64(
  *             would overwrite the destination buffer.
  *      - a non-zero error code on failure.
  */
-int vccrypt_buffer_read_base64(
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_buffer_read_base64(
     vccrypt_buffer_t* dest, const vccrypt_buffer_t* source,
     size_t* decoded_bytes);
 

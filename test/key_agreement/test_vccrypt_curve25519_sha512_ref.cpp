@@ -26,19 +26,32 @@ protected:
 
         malloc_allocator_options_init(&alloc_opts);
 
-        vccrypt_prng_options_init(
-            &prng_opts, &alloc_opts, VCCRYPT_PRNG_SOURCE_OPERATING_SYSTEM);
+        vccrypt_prng_options_init_status =
+            vccrypt_prng_options_init(
+                &prng_opts, &alloc_opts, VCCRYPT_PRNG_SOURCE_OPERATING_SYSTEM);
     }
 
     void TearDown() override
     {
-        dispose((disposable_t*)&prng_opts);
+        if (VCCRYPT_STATUS_SUCCESS == vccrypt_prng_options_init_status)
+        {
+            dispose((disposable_t*)&prng_opts);
+        }
         dispose((disposable_t*)&alloc_opts);
     }
 
+    int vccrypt_prng_options_init_status;
     allocator_options_t alloc_opts;
     vccrypt_prng_options_t prng_opts;
 };
+
+/**
+ * Verify that vccrypt_prng_options_init ran successfully.
+ */
+TEST_F(vccrypt_curve25519_sha512_ref_test, prng_options_init)
+{
+    ASSERT_EQ(VCCRYPT_STATUS_SUCCESS, vccrypt_prng_options_init_status);
+}
 
 /**
  * We should be able to get curve25519 options if it has been registered.
