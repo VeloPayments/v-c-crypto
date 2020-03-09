@@ -1,0 +1,17 @@
+BasedOnStyle: WebKit
+AlignAfterOpenBracket: DontAlign
+AlignEscapedNewlines: DontAlign
+BraceWrapping:
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeElse: true
+BreakBeforeBinaryOperators: None
+BreakBeforeBraces: Custom
+IndentCaseLabels: true
+IndentPPDirectives: None
+MaxEmptyLinesToKeep: 2
+SortIncludes: false
+SpacesBeforeTrailingComments: 2
