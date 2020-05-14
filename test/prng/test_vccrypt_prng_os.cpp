@@ -111,3 +111,31 @@ TEST_F(vccrypt_prng_os_test, read)
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
 }
+
+/**
+ * We should be able to read a uuid from the OS.
+ */
+TEST_F(vccrypt_prng_os_test, read_uuid)
+{
+    vccrypt_prng_options_t options;
+    vccrypt_prng_context_t context;
+    vpr_uuid uuid;
+
+    //options initialization should succeed
+    ASSERT_EQ(0,
+        vccrypt_prng_options_init(
+            &options, &alloc_opts, VCCRYPT_PRNG_SOURCE_OPERATING_SYSTEM));
+
+    //instance initialization should succeed
+    ASSERT_EQ(0,
+        vccrypt_prng_init(
+            &options, &context));
+
+    //prng read uuid should succeed
+    ASSERT_EQ(0,
+        vccrypt_prng_read_uuid(&context, &uuid));
+
+    //clean up
+    dispose((disposable_t*)&context);
+    dispose((disposable_t*)&options);
+}

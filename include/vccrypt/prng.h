@@ -20,6 +20,7 @@
 #include <vccrypt/interfaces.h>
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
+#include <vpr/uuid.h>
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
@@ -221,6 +222,23 @@ vccrypt_prng_read(
 int VCCRYPT_DECL_MUST_CHECK
 vccrypt_prng_read_c(
     vccrypt_prng_context_t* context, uint8_t* buffer, size_t length);
+
+/**
+ * \brief Read a cryptographically random UUID from the prng.
+ *
+ * Internally, the PRNG source may need to reseed, which may cause the current
+ * thread to block until the reseeding process is complete.
+ *
+ * \param context       The prng instance to initialize.
+ * \param uuid          The uuid to read.
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero error code indicating failure.
+ */
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_prng_read_uuid(
+    vccrypt_prng_context_t* context, vpr_uuid* uuid);
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
