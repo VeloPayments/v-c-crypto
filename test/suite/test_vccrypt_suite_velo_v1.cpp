@@ -761,3 +761,28 @@ TEST_F(vccrypt_suite_velo_v1, stream_cipher)
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&key);
 }
+
+/**
+ * Test that we can create a vccrypt buffer for holding UUID bytes.
+ */
+TEST_F(vccrypt_suite_velo_v1, vccrypt_suite_buffer_init_for_uuid)
+{
+    vccrypt_buffer_t uuidbuffer;
+
+    /* clear the buffer. */
+    memset(&uuidbuffer, 0, sizeof(uuidbuffer));
+
+    /* we should be able to create the buffer. */
+    ASSERT_EQ(
+        VCCRYPT_STATUS_SUCCESS,
+        vccrypt_suite_buffer_init_for_uuid(&options, &uuidbuffer));
+
+    /* the buffer size should be 16 bytes -- the size of a raw uuid. */
+    EXPECT_EQ(16U, uuidbuffer.size);
+
+    /* the data should not be NULL. */
+    EXPECT_NE(nullptr, uuidbuffer.data);
+
+    /* dispose of the buffer. */
+    dispose((disposable_t*)&uuidbuffer);
+}
