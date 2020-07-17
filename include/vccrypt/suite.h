@@ -693,6 +693,21 @@ vccrypt_suite_buffer_init_for_cipher_key_agreement_shared_secret(
     vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
 
 /**
+ * \brief Create a buffer sized appropriately for holding a UUID in raw byte
+ * form.
+ *
+ * \param options       The options structure for this crypto suite.
+ * \param buffer        The buffer instance to initialize.
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero return code on failure.
+ */
+int VCCRYPT_DECL_MUST_CHECK
+vccrypt_suite_buffer_init_for_uuid(
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
+
+/**
  * \brief Create an appropriate key derivation algorithm instance
  * for this crypto suite.
  *
