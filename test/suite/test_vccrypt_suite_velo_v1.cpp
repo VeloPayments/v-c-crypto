@@ -58,6 +58,14 @@ TEST_F(vccrypt_suite_velo_v1, init)
 }
 
 /**
+ * Verify that the suite ID is set.
+ */
+TEST_F(vccrypt_suite_velo_v1, suite_id)
+{
+    ASSERT_EQ(VCCRYPT_SUITE_VELO_V1, options.suite_id);
+}
+
+/**
  * Verify that the hash algorithm is SHA-512 by running an example test vector.
  */
 TEST_F(vccrypt_suite_velo_v1, hash_sha512)

@@ -70,9 +70,13 @@ void vccrypt_suite_register_velo_v1()
     vccrypt_block_register_AES_256_2X_CBC();
     vccrypt_stream_register_AES_256_2X_CTR();
 
+    /* clear the options structure. */
+    memset(&velo_v1_options, 0, sizeof(velo_v1_options));
+
     /* set up the options for velo V1 */
     velo_v1_options.hdr.dispose = 0; /* disposal handled by init */
     velo_v1_options.alloc_opts = 0; /* allocator handled by init */
+    velo_v1_options.suite_id = VCCRYPT_SUITE_VELO_V1;
     velo_v1_options.hash_alg = VCCRYPT_HASH_ALGORITHM_SHA_2_512;
     velo_v1_options.sign_alg = VCCRYPT_DIGITAL_SIGNATURE_ALGORITHM_ED25519;
     velo_v1_options.prng_src = VCCRYPT_PRNG_SOURCE_OPERATING_SYSTEM;
