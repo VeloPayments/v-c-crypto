@@ -93,6 +93,11 @@ struct vccrypt_suite_options
     disposable_t hdr;
 
     /**
+     * \brief The suite id (e.g. VCCRYPT_SUITE_VELO_V1).
+     */
+    uint32_t suite_id;
+
+    /**
      * \brief The hash algorithm to use for this suite -- see vccrypt/hash.h.
      */
     uint32_t hash_alg;
