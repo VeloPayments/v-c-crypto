@@ -74,6 +74,19 @@ vccrypt_buffer_init(
     vccrypt_buffer_t* buffer, allocator_options_t* alloc, size_t size);
 
 /**
+ * \brief Initialize a buffer by moving the contents of a second buffer into it.
+ *
+ * Note: the new buffer is owned by the caller and must be disposed by calling
+ * the \ref dispose() method when no longer needed. The old buffer is disposed
+ * as part of this process .
+ *
+ * \param newbuffer the new buffer, initialized from the old buffer.
+ * \param oldbuffer the old buffer, disposed by this method.
+ */
+void
+vccrypt_buffer_move(vccrypt_buffer_t* newbuffer, vccrypt_buffer_t* oldbuffer);
+
+/**
  * \brief Initialize a buffer sized to serialize data in hexadecimal.
  *
  * Note: the buffer is owned by the caller and must be disposed by calling the
