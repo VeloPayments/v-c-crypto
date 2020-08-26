@@ -25,9 +25,13 @@ void vccrypt_buffer_dispose(void* ptr)
     MODEL_ASSERT(buffer->size > 0);
     MODEL_ASSERT(buffer->data != NULL);
 
-    /* clear out buffer data. */
-    memset(buffer->data, 0, buffer->size);
+    /* verify that the buffer data pointer is valid. */
+    if (NULL != buffer->data)
+    {
+        /* clear out buffer data. */
+        memset(buffer->data, 0, buffer->size);
 
-    /* release buffer data */
-    release(buffer->alloc_opts, buffer->data);
+        /* release buffer data */
+        release(buffer->alloc_opts, buffer->data);
+    }
 }
