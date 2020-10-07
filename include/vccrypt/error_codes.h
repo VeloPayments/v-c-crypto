@@ -201,10 +201,20 @@ extern "C" {
 #define VCCRYPT_ERROR_BUFFER_WRITE_WOULD_OVERWRITE 0x2158
 
 /**
+ * \brief An argument was invalid.
+ */
+#define VCCRYPT_ERROR_BUFFER_INVALID_ARGUMENT 0x2159
+
+/**
  * \brief The requested vccrypt_buffer_copy() operation has mismatched buffer
  * sizes.
  */
 #define VCCRYPT_ERROR_BUFFER_COPY_MISMATCHED_BUFFER_SIZES 0x215C
+
+/**
+ * \brief The padding scheme for this buffer is invalid.
+ */
+#define VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID 0x215D
 
 /**
  * \brief An attempt was made to call vccrypt_mac_options_init() with an invalid
