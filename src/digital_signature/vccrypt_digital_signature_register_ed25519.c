@@ -4,7 +4,7 @@
  * Register ed25519 and force a link dependency so that this algorithm can be
  * used at runtime.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -22,6 +22,9 @@
 static int vccrypt_ed25519_init(
     void* options, void* context);
 static void vccrypt_ed25519_dispose(void* options, void* context);
+static int vccrypt_ed25519_options_init(
+    void* options, allocator_options_t* alloc_opts);
+static void vccrypt_ed25519_options_dispose(void* disp);
 static int vccrypt_ed25519_sign(
     void* context, vccrypt_buffer_t* sign_buffer,
     const vccrypt_buffer_t* priv, const uint8_t* data, size_t size);
@@ -53,7 +56,7 @@ void vccrypt_digital_signature_register_ed25519()
     vccrypt_hash_register_SHA_2_512();
 
     /* set up the options for ed25519 */
-    ed25519_options.hdr.dispose = 0; /* disposal handled by init */
+    ed25519_options.hdr.dispose = &vccrypt_ed25519_options_dispose;
     ed25519_options.alloc_opts = 0; /* allocator handled by init */
     ed25519_options.prng_opts = 0; /* prng options handled by init */
     ed25519_options.hash_algorithm = VCCRYPT_HASH_ALGORITHM_SHA_2_512;
@@ -73,6 +76,8 @@ void vccrypt_digital_signature_register_ed25519()
         &vccrypt_ed25519_verify;
     ed25519_options.vccrypt_digital_signature_alg_keypair_create =
         &vccrypt_ed25519_keypair_create;
+    ed25519_options.vccrypt_digital_signature_alg_options_init =
+        &vccrypt_ed25519_options_init;
 
     /* set up this registration for the abstract factory. */
     ed25519_impl.interface =
@@ -213,4 +218,31 @@ static int vccrypt_ed25519_keypair_create(
     dispose((disposable_t*)&prng_ctx);
 
     return retval;
+}
+
+/**
+ * \brief Implementation specific options init method.
+ *
+ * \param options       The options structure to initialize.
+ * \param alloc_opts    The allocator options structure for this method.
+ *
+ * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+ */
+static int vccrypt_ed25519_options_init(
+    void* UNUSED(options), allocator_options_t* UNUSED(alloc_opts))
+{
+    /* do nothing. */
+    return VCCRYPT_STATUS_SUCCESS;
+}
+
+/**
+ * Dispose of the options structure.
+ *
+ * \param disp      the options structure to dispose.
+ */
+static void vccrypt_ed25519_options_dispose(void* disp)
+{
+    MODEL_ASSERT(disp != NULL);
+
+    memset(disp, 0, sizeof(vccrypt_digital_signature_options_t));
 }
