@@ -4,7 +4,7 @@
  * Register pbkdf2 and force a link dependency so that this algorithm can be
  * used at runtime.
  *
- * \copyright 2019 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2019-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -27,6 +27,9 @@ static int vccrypt_pbkdf2_init(
 static void vccrypt_pbkdf2_dispose(
     vccrypt_key_derivation_context_t* context,
     vccrypt_key_derivation_options_t* options);
+static int vccrypt_pbkdf2_options_init(
+    void* options, allocator_options_t* alloc_opts);
+static void vccrypt_pbkdf2_options_dispose(void* disp);
 static int vccrypt_pbkdf2_derive_key(
     vccrypt_buffer_t* derived_key,
     vccrypt_key_derivation_context_t* context,
@@ -61,8 +64,11 @@ void vccrypt_key_derivation_register_pbkdf2()
     vccrypt_mac_register_SHA_2_512_HMAC();
     vccrypt_mac_register_SHA_2_512_256_HMAC();
 
+    /* clear the options structure. */
+    memset(&pbkdf2_options, 0, sizeof(pbkdf2_options));
+
     /* set up the options for pbkdf2 */
-    pbkdf2_options.hdr.dispose = 0; /* disposal handled by init */
+    pbkdf2_options.hdr.dispose = &vccrypt_pbkdf2_options_dispose;
     pbkdf2_options.alloc_opts = 0; /* allocator handled by init */
     pbkdf2_options.hmac_algorithm = 0; /* HMAC algorithm handled by init */
     pbkdf2_options.hmac_digest_length = 0; /* HMAC algorithm handled by init */
@@ -71,6 +77,8 @@ void vccrypt_key_derivation_register_pbkdf2()
     pbkdf2_options.vccrypt_key_derivation_alg_dispose = &vccrypt_pbkdf2_dispose;
     pbkdf2_options.vccrypt_key_derivation_alg_derive_key =
         &vccrypt_pbkdf2_derive_key;
+    pbkdf2_options.vccrypt_key_derivation_alg_options_init =
+        &vccrypt_pbkdf2_options_init;
 
     /* set up this registration for the abstract factory */
     pbkdf2_impl.interface = VCCRYPT_INTERFACE_KD;
@@ -82,7 +90,6 @@ void vccrypt_key_derivation_register_pbkdf2()
 
     /* register this instance */
     abstract_factory_register(&pbkdf2_impl);
-
 
     pbkdf2_impl_registered = true;
 }
@@ -216,7 +223,6 @@ static int hmac_prf(uint8_t* digest, size_t digest_len,
         goto cleanup_mac_context;
     }
 
-
     // finalize
     retval = vccrypt_mac_finalize(&mac_context, &outbuf);
     if (0 != retval)
@@ -241,6 +247,32 @@ cleanup_mac_options:
     dispose((disposable_t*)&mac_options);
 
 done:
-
     return retval;
+}
+
+/**
+ * \brief Implementation specific options init method.
+ *
+ * \param options       The options structure to initialize.
+ * \param alloc_opts    The allocator options structure for this method.
+ *
+ * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+ */
+static int vccrypt_pbkdf2_options_init(
+    void* UNUSED(options), allocator_options_t* UNUSED(alloc_opts))
+{
+    /* do nothing. */
+    return VCCRYPT_STATUS_SUCCESS;
+}
+
+/**
+ * Dispose of the options structure.
+ *
+ * \param options   the options structure to dispose.
+ */
+static void vccrypt_pbkdf2_options_dispose(void* disp)
+{
+    MODEL_ASSERT(NULL != disp);
+
+    memset(disp, 0, sizeof(vccrypt_key_derivation_options_t));
 }
