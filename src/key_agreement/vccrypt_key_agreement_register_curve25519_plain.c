@@ -4,7 +4,7 @@
  * Register plain curve25519 and force a link dependency so that this algorithm
  * can be used at runtime.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -22,6 +22,9 @@
 /* forward decls */
 static int vccrypt_curve25519_plain_init(void* options, void* context);
 static void vccrypt_curve25519_plain_dispose(void* options, void* context);
+static int vccrypt_curve25519_plain_options_init(
+    void* options, allocator_options_t* alloc_opts);
+static void vccrypt_curve25519_plain_options_dispose(void* disp);
 static int vccrypt_curve25519_plain_long_term_secret_create(
     void* context, const vccrypt_buffer_t* priv,
     const vccrypt_buffer_t* pub, vccrypt_buffer_t* shared);
@@ -50,7 +53,8 @@ void vccrypt_key_agreement_register_curve25519_plain()
     vccrypt_mac_register_SHA_2_512_256_HMAC();
 
     /* set up the options for curve25519_plain */
-    curve25519_plain_options.hdr.dispose = 0; /* disposal handled by init */
+    curve25519_plain_options.hdr.dispose =
+        &vccrypt_curve25519_plain_options_dispose;
     curve25519_plain_options.alloc_opts = 0; /* allocator handled by init */
     curve25519_plain_options.prng_opts = 0; /* prng options handled by init */
     curve25519_plain_options.hash_algorithm = 0; /* no hash for plain */
@@ -72,6 +76,8 @@ void vccrypt_key_agreement_register_curve25519_plain()
         &vccrypt_curve25519_plain_long_term_secret_create;
     curve25519_plain_options.vccrypt_key_agreement_alg_keypair_create =
         &vccrypt_curve25519_plain_keypair_create;
+    curve25519_plain_options.vccrypt_key_agreement_alg_options_init =
+        &vccrypt_curve25519_plain_options_init;
 
     /* set up this registration for the abstract factory */
     curve25519_plain_impl.interface = VCCRYPT_INTERFACE_KEY;
@@ -188,4 +194,31 @@ static int vccrypt_curve25519_plain_keypair_create(
     dispose((disposable_t*)&prng_ctx);
 
     return retval;
+}
+
+/**
+ * \brief Implementation specific options init method.
+ *
+ * \param options       The options structure to initialize.
+ * \param alloc_opts    The allocator options structure for this method.
+ *
+ * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+ */
+static int vccrypt_curve25519_plain_options_init(
+    void* UNUSED(options), allocator_options_t* UNUSED(alloc_opts))
+{
+    /* do nothing. */
+    return VCCRYPT_STATUS_SUCCESS;
+}
+
+/**
+ * Dispose of the options structure.
+ *
+ * \param options   the options structure to dispose.
+ */
+static void vccrypt_curve25519_plain_options_dispose(void* disp)
+{
+    MODEL_ASSERT(disp != NULL);
+
+    memset(disp, 0, sizeof(vccrypt_key_agreement_options_t));
 }

@@ -3,7 +3,7 @@
  *
  * Initialize a key agreement options structure.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -11,9 +11,6 @@
 #include <vccrypt/key_agreement.h>
 #include <vpr/abstract_factory.h>
 #include <vpr/parameters.h>
-
-/* forward decls */
-static void vccrypt_key_agreement_options_dispose(void* options);
 
 /**
  * \brief Initialize key agreement options, looking up an appropriate key
@@ -69,21 +66,14 @@ int vccrypt_key_agreement_options_init(
     /* set the prng. */
     options->prng_opts = prng_opts;
 
-    /* set the disposer */
-    options->hdr.dispose = &vccrypt_key_agreement_options_dispose;
+    /* Verify that the disposer and options_init methods are set. */
+    if (
+        0 == options->hdr.dispose
+     || 0 == options->vccrypt_key_agreement_alg_options_init)
+    {
+        return VCCRYPT_ERROR_KEY_AGREEMENT_OPTIONS_INIT_MISSING_IMPL;
+    }
 
-    /* success */
-    return VCCRYPT_STATUS_SUCCESS;
-}
-
-/**
- * Dispose of the options structure.
- *
- * \param options   the options structure to dispose.
- */
-static void vccrypt_key_agreement_options_dispose(void* options)
-{
-    MODEL_ASSERT(options != NULL);
-
-    memset(options, 0, sizeof(vccrypt_key_agreement_options_t));
+    /* call the implementation options init method. */
+    return options->vccrypt_key_agreement_alg_options_init(options, alloc_opts);
 }
