@@ -25,7 +25,16 @@ endif
 add_project_arguments('-Wall', '-Werror', '-Wextra', language : 'c')
 add_project_arguments('-Wall', '-Werror', '-Wextra', language : 'cpp')
 
-src = run_command('find', './src', '-name', '*.c', check : true).stdout().strip().split('\n')
+#non-mock source files
+src = run_command(
+  'find', './src', '-name', '*.c', '-and', '(', '-not', '-path',
+  '"*/src/mock/*"', ')',
+  check : true).stdout().strip().split('\n')
+#mock source files
+src_mock = run_command(
+  'find', './src/mock', '-name', '*.c', '-or', '-name', '*.cpp',
+  check : true).stdout().strip().split('\n')
+#test source files
 test_src = run_command('find', './test', '-name', '*.cpp', check : true).stdout().strip().split('\n')
 
 # GTest is currently only used on native x86 builds. Creating a disabler will disable the test exe and test target.
@@ -52,6 +61,13 @@ vccrypt_include = include_directories('include')
 vccrypt_lib = static_library(
   'vccrypt',
   src,
+  dependencies : [vcmodel, vpr],
+  include_directories : vccrypt_include
+)
+
+vccrypt_mock_lib = static_library(
+  'vccrypt_mock',
+  src_mock,
   dependencies : [vcmodel, vpr],
   include_directories : vccrypt_include
 )
