@@ -4,7 +4,7 @@
  * Register SHA-384 and force a link dependency so that this algorithm can be
  * used at runtime.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -20,6 +20,9 @@
 /* forward decls */
 static int vccrypt_sha_384_init(void* options, void* context);
 static void vccrypt_sha_384_dispose(void* options, void* context);
+static int vccrypt_sha_384_options_init(
+    void* options, allocator_options_t* alloc_opts);
+static void vccrypt_sha_384_options_dispose(void* disp);
 static int vccrypt_sha_384_digest(
     void* context, const uint8_t* data, size_t size);
 static int vccrypt_sha_384_finalize(
@@ -42,7 +45,7 @@ void vccrypt_hash_register_SHA_2_384()
     }
 
     /* set up the options for SHA-384 */
-    sha384_options.hdr.dispose = 0; /* disposal handled by init */
+    sha384_options.hdr.dispose = &vccrypt_sha_384_options_dispose;
     sha384_options.alloc_opts = 0; /* allocator handled by init */
     sha384_options.hash_size = VCCRYPT_HASH_SHA_512_384_DIGEST_SIZE;
     sha384_options.hash_block_size = VCCRYPT_HASH_SHA_512_384_BLOCK_SIZE;
@@ -50,6 +53,8 @@ void vccrypt_hash_register_SHA_2_384()
     sha384_options.vccrypt_hash_alg_dispose = &vccrypt_sha_384_dispose;
     sha384_options.vccrypt_hash_alg_digest = &vccrypt_sha_384_digest;
     sha384_options.vccrypt_hash_alg_finalize = &vccrypt_sha_384_finalize;
+    sha384_options.vccrypt_hash_alg_options_init =
+        &vccrypt_sha_384_options_init;
 
     /* set up this registration for the abstract factory. */
     sha384_impl.interface = VCCRYPT_INTERFACE_HASH;
@@ -148,4 +153,31 @@ static int vccrypt_sha_384_finalize(
     vccrypt_hash_context_t* ctx = (vccrypt_hash_context_t*)context;
 
     return SHA384_Final((SHA512_CTX*)ctx->hash_state, hash_buffer->data);
+}
+
+/**
+ * \brief Implementation specific options init method.
+ *
+ * \param options       The options structure to initialize.
+ * \param alloc_opts    The allocator options structure for this method.
+ *
+ * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+ */
+static int vccrypt_sha_384_options_init(
+    void* UNUSED(options), allocator_options_t* UNUSED(alloc_opts))
+{
+    /* do nothing. */
+    return VCCRYPT_STATUS_SUCCESS;
+}
+
+/**
+ * \brief Dispose of this options structure.
+ *
+ * \param disp          The options structure to dispose.
+ */
+static void vccrypt_sha_384_options_dispose(void* disp)
+{
+    MODEL_ASSERT(disp != NULL);
+
+    memset(disp, 0, sizeof(vccrypt_hash_options_t));
 }

@@ -3,7 +3,7 @@
  *
  * Initialize PRNG options for a cryptographic PRNG source.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -11,9 +11,6 @@
 #include <vccrypt/prng.h>
 #include <vpr/abstract_factory.h>
 #include <vpr/parameters.h>
-
-/* forward decls */
-static void vccrypt_prng_options_dispose(void* options);
 
 /**
  * \brief Initialize PRNG options, looking up an appropriate source registered
@@ -62,21 +59,14 @@ int vccrypt_prng_options_init(
     /* set the allocator. */
     options->alloc_opts = alloc_opts;
 
-    /* set the disposer */
-    options->hdr.dispose = &vccrypt_prng_options_dispose;
+    /* Verify that the disposer and options_init methods are set. */
+    if (
+        0 == options->hdr.dispose
+     || 0 == options->vccrypt_prng_alg_options_init)
+    {
+        return VCCRYPT_ERROR_PRNG_OPTIONS_INIT_MISSING_IMPL;
+    }
 
-    /* success */
-    return VCCRYPT_STATUS_SUCCESS;
-}
-
-/**
- * Dispose of the options structure.
- *
- * \param options   the options structure to dispose.
- */
-static void vccrypt_prng_options_dispose(void* options)
-{
-    MODEL_ASSERT(options != NULL);
-
-    memset(options, 0, sizeof(vccrypt_prng_options_t));
+    /* Call the implementation-specific options init. */
+    return options->vccrypt_prng_alg_options_init(options, alloc_opts);
 }

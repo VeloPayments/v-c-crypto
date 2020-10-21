@@ -6,7 +6,7 @@
  * high collision resistance, and in which a small change to the input value
  * results in a large and unpredictible change to the output value.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_HASH_HEADER_GUARD
@@ -220,6 +220,22 @@ typedef struct vccrypt_hash_options
      */
     int (*vccrypt_hash_alg_finalize)(
         void* context, vccrypt_buffer_t* hash_buffer);
+
+    /**
+     * \brief Implementation specific options init method.
+     *
+     * \param options       The options structure to initialize.
+     * \param alloc_opts    The allocator options structure for this method.
+     *
+     * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_hash_alg_options_init)(
+        void* options, allocator_options_t* alloc_opts);
+
+    /**
+     * \brief Options level context pointer.
+     */
+    void* options_context;
 
 } vccrypt_hash_options_t;
 

@@ -3,7 +3,7 @@
  *
  * Unit tests for the Velo V1 crypto suite.
  *
- * \copyright 2017 Velo-Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo-Payments, Inc.  All rights reserved.
  */
 
 #include <fstream>
@@ -54,6 +54,7 @@ protected:
  */
 TEST_F(vccrypt_suite_velo_v1, init)
 {
+    /* verify that the suite was properly initialized. */
     ASSERT_EQ(0, suite_init_result);
 }
 
@@ -62,6 +63,9 @@ TEST_F(vccrypt_suite_velo_v1, init)
  */
 TEST_F(vccrypt_suite_velo_v1, suite_id)
 {
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
+
     ASSERT_EQ(VCCRYPT_SUITE_VELO_V1, options.suite_id);
 }
 
@@ -79,6 +83,9 @@ TEST_F(vccrypt_suite_velo_v1, hash_sha512)
         "\xc9\x02\x09\x4c\x52\xde\x32\x78\xf3\x5a\x75\xeb\xc2\x5f\x09\x3a";
     vccrypt_hash_context_t hash_ctx;
     vccrypt_buffer_t md;
+
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
 
     /* test that we can build a hash buffer using the suite buffer routine */
     ASSERT_EQ(0,
@@ -119,6 +126,9 @@ TEST_F(vccrypt_suite_velo_v1, prng)
     vccrypt_prng_context_t prng;
     vccrypt_buffer_t buffer;
 
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
+
     //instantiate a prng from the suite
     ASSERT_EQ(0,
         vccrypt_suite_prng_init(
@@ -155,6 +165,9 @@ TEST_F(vccrypt_suite_velo_v1, keygen_sign)
 {
     const uint8_t message[] = "foo suite bar baz";
     vccrypt_digital_signature_context_t context;
+
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
 
     //create a buffer for the private key
     vccrypt_buffer_t priv;
@@ -229,6 +242,9 @@ TEST_F(vccrypt_suite_velo_v1, hmac_sha_512_256)
         0x05, 0x89, 0xfd, 0x0b, 0x9b, 0x0a, 0x2f, 0x4c
     };
 
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
+
     //create a buffer sized for the key
     vccrypt_buffer_t key;
     ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
@@ -287,6 +303,9 @@ TEST_F(vccrypt_suite_velo_v1, hmac_sha_512)
         0xab, 0xc9, 0x72, 0x39, 0xf5, 0xdc, 0xaa, 0x61
     };
 
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
+
     //create a buffer sized for the key
     vccrypt_buffer_t key;
     ASSERT_EQ(0, vccrypt_suite_buffer_init_for_mac_private_key(&options, &key));
@@ -323,6 +342,9 @@ TEST_F(vccrypt_suite_velo_v1, hmac_sha_512)
 TEST_F(vccrypt_suite_velo_v1, curve25519_auth)
 {
     vccrypt_key_agreement_context_t key;
+
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
 
     //we should be able to create an algorithm instance
     ASSERT_EQ(0, vccrypt_suite_auth_key_agreement_init(&options, &key));
@@ -443,6 +465,9 @@ TEST_F(vccrypt_suite_velo_v1, key_derivation)
 {
     vccrypt_key_derivation_context_t ctx;
 
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
+
     // ensure we have the right HMAC algorithm
     EXPECT_EQ((unsigned int)VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC,
         options.key_derivation_opts.hmac_algorithm);
@@ -495,6 +520,9 @@ TEST_F(vccrypt_suite_velo_v1, key_derivation)
 TEST_F(vccrypt_suite_velo_v1, curve25519_cipher)
 {
     vccrypt_key_agreement_context_t key;
+
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
 
     //we should be able to create an algorithm instance
     ASSERT_EQ(0, vccrypt_suite_cipher_key_agreement_init(&options, &key));
@@ -636,6 +664,9 @@ TEST_F(vccrypt_suite_velo_v1, block_cipher)
     uint8_t output[64];
     uint8_t poutput[64];
 
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
+
     // write junk to the output buffers
     memset(output, 0xFC, sizeof(output));
     memset(poutput, 0xFC, sizeof(poutput));
@@ -699,6 +730,8 @@ TEST_F(vccrypt_suite_velo_v1, stream_cipher)
         0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
     };
 
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
 
     // create a buffer for the key data
     ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
@@ -776,6 +809,9 @@ TEST_F(vccrypt_suite_velo_v1, stream_cipher)
 TEST_F(vccrypt_suite_velo_v1, vccrypt_suite_buffer_init_for_uuid)
 {
     vccrypt_buffer_t uuidbuffer;
+
+    /* verify that the suite was properly initialized. */
+    ASSERT_EQ(0, suite_init_result);
 
     /* clear the buffer. */
     memset(&uuidbuffer, 0, sizeof(uuidbuffer));
