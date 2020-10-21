@@ -14,7 +14,7 @@
  * but not all implementations of this interface will require a cryptographic
  * random number generator.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_DIGITAL_SIGNATURE_HEADER_GUARD
@@ -220,6 +220,22 @@ typedef struct vccrypt_digital_signature_options
      */
     int (*vccrypt_digital_signature_alg_keypair_create)(
         void* context, vccrypt_buffer_t* priv, vccrypt_buffer_t* pub);
+
+    /**
+     * \brief Implementation specific options init method.
+     *
+     * \param options       The options structure to initialize.
+     * \param alloc_opts    The allocator options structure for this method.
+     *
+     * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_digital_signature_alg_options_init)(
+        void* options, allocator_options_t* alloc_opts);
+
+    /**
+     * \brief Options level context pointer.
+     */
+    void* options_context;
 
 } vccrypt_digital_signature_options_t;
 

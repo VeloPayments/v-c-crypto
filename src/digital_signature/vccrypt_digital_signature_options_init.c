@@ -3,7 +3,7 @@
  *
  * Initialize a digital signature options structure.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -11,9 +11,6 @@
 #include <vccrypt/digital_signature.h>
 #include <vpr/abstract_factory.h>
 #include <vpr/parameters.h>
-
-/* forward decls */
-static void vccrypt_digital_signature_options_dispose(void* options);
 
 /**
  * \brief Initialize digital signature options, looking up an appropriate
@@ -69,21 +66,16 @@ int vccrypt_digital_signature_options_init(
     /* set the prng. */
     options->prng_opts = prng_opts;
 
-    /* set the disposer */
-    options->hdr.dispose = &vccrypt_digital_signature_options_dispose;
+    /* verify that the disposer and options init method are set. */
+    if (
+        0 == options->hdr.dispose
+     || 0 == options->vccrypt_digital_signature_alg_options_init)
+    {
+        return VCCRYPT_ERROR_DIGITAL_SIGNATURE_OPTIONS_INIT_MISSING_IMPL;
+    }
 
-    /* success */
-    return VCCRYPT_STATUS_SUCCESS;
-}
-
-/**
- * Dispose of the options structure.
- *
- * \param options   the options structure to dispose.
- */
-static void vccrypt_digital_signature_options_dispose(void* options)
-{
-    MODEL_ASSERT(options != NULL);
-
-    memset(options, 0, sizeof(vccrypt_digital_signature_options_t));
+    /* Call the implementation-specific options init method. */
+    return
+        options->vccrypt_digital_signature_alg_options_init(
+            options, alloc_opts);
 }
