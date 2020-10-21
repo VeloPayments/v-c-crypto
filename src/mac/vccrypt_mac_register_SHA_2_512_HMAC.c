@@ -3,7 +3,7 @@
  *
  * Register SHA-2-512-HMAC for use as a mac algorithm.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -18,6 +18,9 @@
 static int hmac512_alg_init(
     void* options, void* context, vccrypt_buffer_t* key);
 static void hmac512_alg_dispose(void* options, void* context);
+static int hmac512_alg_options_init(
+    void* options, allocator_options_t* alloc_opts);
+static void hmac512_alg_option_dispose(void* disp);
 static int hmac512_alg_digest(void* context, const uint8_t* data, size_t size);
 static int hmac512_alg_finalize(void* context, vccrypt_buffer_t* mac_buffer);
 
@@ -48,7 +51,7 @@ void vccrypt_mac_register_SHA_2_512_HMAC()
     vccrypt_hash_register_SHA_2_512();
 
     /* set up the options for HMAC-512 */
-    hmac512_options.hdr.dispose = 0; /* disposal handled by init */
+    hmac512_options.hdr.dispose = &hmac512_alg_option_dispose;
     hmac512_options.alloc_opts = 0; /* allocator handled by init */
     hmac512_options.key_size = VCCRYPT_MAC_SHA_512_KEY_SIZE;
     hmac512_options.key_expansion_supported = true;
@@ -58,6 +61,7 @@ void vccrypt_mac_register_SHA_2_512_HMAC()
     hmac512_options.vccrypt_mac_alg_dispose = &hmac512_alg_dispose;
     hmac512_options.vccrypt_mac_alg_digest = &hmac512_alg_digest;
     hmac512_options.vccrypt_mac_alg_finalize = &hmac512_alg_finalize;
+    hmac512_options.vccrypt_mac_alg_options_init = &hmac512_alg_options_init;
 
     /* set up this registration for the abstract factory. */
     hmac512_impl.interface = VCCRYPT_INTERFACE_MAC;
@@ -190,4 +194,31 @@ static int hmac512_alg_finalize(void* context, vccrypt_buffer_t* mac_buffer)
     MODEL_ASSERT(state != NULL);
 
     return vccrypt_hmac_finalize(&state->hmac_state, mac_buffer);
+}
+
+/**
+ * \brief Implementation specific options init method.
+ *
+ * \param options       The options structure to initialize.
+ * \param alloc_opts    The allocator options structure for this method.
+ *
+ * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+ */
+static int hmac512_alg_options_init(
+    void* UNUSED(options), allocator_options_t* UNUSED(alloc_opts))
+{
+    /* do nothing. */
+    return VCCRYPT_STATUS_SUCCESS;
+}
+
+/**
+ * Dispose of the options structure.
+ *
+ * \param disp      the options structure to dispose.
+ */
+static void hmac512_alg_option_dispose(void* disp)
+{
+    MODEL_ASSERT(disp != NULL);
+
+    memset(disp, 0, sizeof(vccrypt_mac_options_t));
 }

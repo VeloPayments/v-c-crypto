@@ -4,7 +4,7 @@
  * Initialize a mac options structure for a message authentication code
  * algorithm.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -12,9 +12,6 @@
 #include <vccrypt/mac.h>
 #include <vpr/abstract_factory.h>
 #include <vpr/parameters.h>
-
-/* forward decls */
-static void vccrypt_mac_options_dispose(void* options);
 
 /**
  * \brief Initialize MAC options, looking up an appropriate MAC algorithm
@@ -63,13 +60,19 @@ int vccrypt_mac_options_init(
     /* set the allocator */
     options->alloc_opts = alloc_opts;
 
-    /* set the disposer */
-    options->hdr.dispose = &vccrypt_mac_options_dispose;
-
-    /* success */
-    return VCCRYPT_STATUS_SUCCESS;
+    /* verify that the disposer and options init methods are set. */
+    if (
+        0 == options->hdr.dispose
+     || 0 == options->vccrypt_mac_alg_options_init)
+    {
+        return VCCRYPT_ERROR_MAC_OPTIONS_INIT_MISSING_IMPL;
+    }
+    
+    /* call the implementation specific options init method. */
+    return options->vccrypt_mac_alg_options_init(options, alloc_opts);
 }
 
+#if 0
 /**
  * Dispose of the options structure.
  *
@@ -81,3 +84,4 @@ static void vccrypt_mac_options_dispose(void* options)
 
     memset(options, 0, sizeof(vccrypt_mac_options_t));
 }
+#endif
