@@ -71,17 +71,3 @@ int vccrypt_mac_options_init(
     /* call the implementation specific options init method. */
     return options->vccrypt_mac_alg_options_init(options, alloc_opts);
 }
-
-#if 0
-/**
- * Dispose of the options structure.
- *
- * \param options   the options structure to dispose.
- */
-static void vccrypt_mac_options_dispose(void* options)
-{
-    MODEL_ASSERT(options != NULL);
-
-    memset(options, 0, sizeof(vccrypt_mac_options_t));
-}
-#endif
