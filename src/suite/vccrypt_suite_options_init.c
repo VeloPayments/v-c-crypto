@@ -132,7 +132,7 @@ int vccrypt_suite_options_init(
         options->key_derivation_hmac_alg);
     if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        goto cleanup_key_derivation_options;
+        goto cleanup_cipher_key_options;
     }
 
     /* initialize the block cipher options */
@@ -141,7 +141,7 @@ int vccrypt_suite_options_init(
         options->block_cipher_alg);
     if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        goto cleanup_block_cipher_options;
+        goto cleanup_key_derivation_options;
     }
 
 
@@ -151,13 +151,13 @@ int vccrypt_suite_options_init(
         options->stream_cipher_alg);
     if (VCCRYPT_STATUS_SUCCESS != retval)
     {
-        goto cleanup_stream_cipher_options;
+        goto cleanup_block_cipher_options;
     }
 
     /* success */
     return VCCRYPT_STATUS_SUCCESS;
 
-cleanup_stream_cipher_options:
+/*cleanup_stream_cipher_options:*/
     dispose((disposable_t*)&options->stream_cipher_opts);
 
 cleanup_block_cipher_options:
@@ -165,6 +165,9 @@ cleanup_block_cipher_options:
 
 cleanup_key_derivation_options:
     dispose((disposable_t*)&options->key_derivation_opts);
+
+cleanup_cipher_key_options:
+    dispose((disposable_t*)&options->key_cipher_opts);
 
 cleanup_auth_key_options:
     dispose((disposable_t*)&options->key_auth_opts);
