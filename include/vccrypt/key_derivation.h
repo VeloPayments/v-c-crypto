@@ -6,7 +6,7 @@
  * cryptographic hash such as HMAC.  A common use of KDFs is password
  * verification.
  *
- * \copyright 2019 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2019-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_KEY_DERIVATION_HEADER_GUARD
@@ -126,6 +126,22 @@ struct vccrypt_key_derivation_options
         vccrypt_key_derivation_context_t* context,
         const vccrypt_buffer_t* pass, const vccrypt_buffer_t* salt,
         unsigned int rounds);
+
+    /**
+     * \brief Implementation specific options init method.
+     *
+     * \param options       The options structure to initialize.
+     * \param alloc_opts    The allocator options structure for this method.
+     *
+     * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_key_derivation_alg_options_init)(
+        void* options, allocator_options_t* alloc_opts);
+
+    /**
+     * \brief Options level context pointer.
+     */
+    void* options_context;
 };
 
 /**

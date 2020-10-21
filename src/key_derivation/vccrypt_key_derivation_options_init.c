@@ -3,7 +3,7 @@
  *
  * Initialize a key derivation options structure.
  *
- * \copyright 2019 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2019-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -14,9 +14,6 @@
 #include <vpr/abstract_factory.h>
 #include <vpr/disposable.h>
 #include <vpr/parameters.h>
-
-/* forward decls */
-static void vccrypt_key_derivation_options_dispose(void* options);
 
 /**
  * \brief Initialize key derivation options, looking up an appropriate key
@@ -64,7 +61,6 @@ int vccrypt_key_derivation_options_init(
     /* the context structure is the options structure to copy. */
     memcpy(options, reg->context, sizeof(vccrypt_key_derivation_options_t));
 
-
     /* attempt to find an HMAC implementation */
     reg = abstract_factory_find(VCCRYPT_INTERFACE_MAC, hmac_algorithm);
     if (NULL == reg)
@@ -79,23 +75,15 @@ int vccrypt_key_derivation_options_init(
     /* set the allocator. */
     options->alloc_opts = alloc_opts;
 
-    /* set the disposer */
-    options->hdr.dispose = &vccrypt_key_derivation_options_dispose;
+    /* verify that the disposer and options_init methods are set. */
+    if (
+        0 == options->hdr.dispose
+     || 0 == options->vccrypt_key_derivation_alg_options_init)
+    {
+        return VCCRYPT_ERROR_KEY_DERIVATION_OPTIONS_INIT_MISSING_IMPL;
+    }
 
-
-    /* success */
-    return VCCRYPT_STATUS_SUCCESS;
-}
-
-
-/**
- * Dispose of the options structure.
- *
- * \param options   the options structure to dispose.
- */
-static void vccrypt_key_derivation_options_dispose(void* options)
-{
-    MODEL_ASSERT(NULL != options);
-
-    memset(options, 0, sizeof(vccrypt_key_derivation_options_t));
+    /* Call the implementation specific options init method. */
+    return
+        options->vccrypt_key_derivation_alg_options_init(options, alloc_opts);
 }
