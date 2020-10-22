@@ -4,7 +4,7 @@
  * This file contains the registration methods for the reference implementations
  * of the stream cipher interface for the FIPS version of AES 256 CTR MODE.
  *
- * \copyright 2018 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2018-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -38,7 +38,7 @@ void vccrypt_stream_register_AES_256_CTR_FIPS()
     /* set up options for aes-256-ctr-fips */
     aes_fips_options_data.round_multiplier =
         VCCRYPT_AES_CTR_ALG_ROUND_MULT_FIPS;
-    aes_fips_options.hdr.dispose = 0; /* dispose by init */
+    aes_fips_options.hdr.dispose = &vccrypt_aes_ctr_alg_options_dispose;
     aes_fips_options.alloc_opts = 0; /* alloc by init */
     aes_fips_options.key_size =
         VCCRYPT_AES_CTR_ALG_AES_256_KEY_SIZE;
@@ -58,6 +58,8 @@ void vccrypt_stream_register_AES_256_CTR_FIPS()
     aes_fips_options.vccrypt_stream_alg_decrypt =
         &vccrypt_aes_ctr_alg_encrypt; /* yes... both are the same. */
     aes_fips_options.data = &aes_fips_options_data;
+    aes_fips_options.vccrypt_stream_alg_options_init =
+        &vccrypt_aes_ctr_alg_options_init;
 
     /* set up this registration for the abstract factory. */
     aes_fips_impl.interface =
