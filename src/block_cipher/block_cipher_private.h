@@ -3,7 +3,7 @@
  *
  * Private implementation-specific data.
  *
- * \copyright 2018 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2018-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_BLOCK_CIPHER_PRIVATE_HEADER_GUARD
@@ -101,5 +101,24 @@ int vccrypt_aes_cbc_alg_encrypt(
 int vccrypt_aes_cbc_alg_decrypt(
     void* options, void* context, const void* iv, const void* input,
     void* output);
+
+/**
+ * \brief Implementation specific options init method.
+ *
+ * \param options       The options structure to initialize.
+ * \param alloc_opts    The allocator options structure for this method.
+ *
+ * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+ */
+int vccrypt_aes_cbc_alg_options_init(
+    void* options, allocator_options_t* alloc_opts);
+
+/**
+ * Dispose of the options structure.
+ *
+ * \param options   the options structure to dispose.
+ */
+void vccrypt_aes_cbc_alg_options_dispose(
+    void* disp);
 
 #endif /*VCCRYPT_BLOCK_CIPHER_PRIVATE_HEADER_GUARD*/

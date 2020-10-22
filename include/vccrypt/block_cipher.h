@@ -13,7 +13,7 @@
  * to encrypt the short-term secret used in the cipher assembly for each of the
  * recipients.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_BLOCK_CIPHER_HEADER_GUARD
@@ -201,6 +201,22 @@ typedef struct vccrypt_block_options
      * \brief Algorithm-specific data for a block cipher.
      */
     void* data;
+
+    /**
+     * \brief Implementation specific options init method.
+     *
+     * \param options       The options structure to initialize.
+     * \param alloc_opts    The allocator options structure for this method.
+     *
+     * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_block_alg_options_init)(
+        void* options, allocator_options_t* alloc_opts);
+
+    /**
+     * \brief Options level context pointer.
+     */
+    void* options_context;
 
 } vccrypt_block_options_t;
 
