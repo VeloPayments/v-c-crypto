@@ -5,7 +5,7 @@
  * of the block cipher interface for the quadruple-round version of
  * AES 256 CBC MODE.
  *
- * \copyright 2018 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2018-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -39,7 +39,7 @@ void vccrypt_block_register_AES_256_4X_CBC()
     /* set up options for aes-256-4x-cbc */
     aes_4x_options_data.round_multiplier =
         VCCRYPT_AES_CBC_ALG_ROUND_MULT_4X;
-    aes_4x_options.hdr.dispose = 0; /* dispose by init */
+    aes_4x_options.hdr.dispose = &vccrypt_aes_cbc_alg_options_dispose;
     aes_4x_options.alloc_opts = 0; /* alloc by init */
     aes_4x_options.key_size =
         VCCRYPT_AES_CBC_ALG_AES_256_KEY_SIZE;
@@ -49,6 +49,8 @@ void vccrypt_block_register_AES_256_4X_CBC()
     aes_4x_options.vccrypt_block_alg_encrypt = &vccrypt_aes_cbc_alg_encrypt;
     aes_4x_options.vccrypt_block_alg_decrypt = &vccrypt_aes_cbc_alg_decrypt;
     aes_4x_options.data = &aes_4x_options_data;
+    aes_4x_options.vccrypt_block_alg_options_init =
+        &vccrypt_aes_cbc_alg_options_init;
 
     /* set up this registration for the abstract factory. */
     aes_4x_impl.interface =
