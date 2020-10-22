@@ -3,7 +3,7 @@
  *
  * Private implementation-specific data.
  *
- * \copyright 2018 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2018-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_STREAM_CIPHER_PRIVATE_HEADER_GUARD
@@ -152,6 +152,24 @@ int vccrypt_aes_ctr_alg_continue_decryption(
 int vccrypt_aes_ctr_alg_encrypt(
     void* options, void* context, const void* input, size_t size,
     void* output, size_t* offset);
+
+/**
+ * \brief Implementation specific options init method.
+ *
+ * \param options       The options structure to initialize.
+ * \param alloc_opts    The allocator options structure for this method.
+ *
+ * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+ */
+int vccrypt_aes_ctr_alg_options_init(
+    void* options, allocator_options_t* alloc_opts);
+
+/**
+ * Dispose of the options structure.
+ *
+ * \param options   the options structure to dispose.
+ */
+void vccrypt_aes_ctr_alg_options_dispose(void* disp);
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus

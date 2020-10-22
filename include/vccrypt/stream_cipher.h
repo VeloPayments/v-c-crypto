@@ -7,7 +7,7 @@
  * Stream ciphers use a short-term secret and a 64-bit nonce to create a stream
  * that can be used to encrypt up to 2^64-1 bytes.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_STREAM_CIPHER_HEADER_GUARD
@@ -259,6 +259,22 @@ typedef struct vccrypt_stream_options
      * \brief Algorithm-specific data.
      */
     void* data;
+
+    /**
+     * \brief Implementation specific options init method.
+     *
+     * \param options       The options structure to initialize.
+     * \param alloc_opts    The allocator options structure for this method.
+     *
+     * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_stream_alg_options_init)(
+        void* options, allocator_options_t* alloc_opts);
+
+    /**
+     * \brief Options level context pointer.
+     */
+    void* options_context;
 
 } vccrypt_stream_options_t;
 

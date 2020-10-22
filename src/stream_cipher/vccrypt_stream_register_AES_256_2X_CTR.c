@@ -5,7 +5,7 @@
  * of the stream cipher interface for the double-round variant of AES 256 CTR
  * MODE.
  *
- * \copyright 2018 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2018-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -39,7 +39,7 @@ void vccrypt_stream_register_AES_256_2X_CTR()
     /* set up options for aes-256-ctr-2x */
     aes_2x_options_data.round_multiplier =
         VCCRYPT_AES_CTR_ALG_ROUND_MULT_2X;
-    aes_2x_options.hdr.dispose = 0; /* dispose by init */
+    aes_2x_options.hdr.dispose = &vccrypt_aes_ctr_alg_options_dispose;
     aes_2x_options.alloc_opts = 0; /* alloc by init */
     aes_2x_options.key_size =
         VCCRYPT_AES_CTR_ALG_AES_256_KEY_SIZE;
@@ -59,6 +59,8 @@ void vccrypt_stream_register_AES_256_2X_CTR()
     aes_2x_options.vccrypt_stream_alg_decrypt =
         &vccrypt_aes_ctr_alg_encrypt; /* yes... both are the same. */
     aes_2x_options.data = &aes_2x_options_data;
+    aes_2x_options.vccrypt_stream_alg_options_init =
+        &vccrypt_aes_ctr_alg_options_init;
 
     /* set up this registration for the abstract factory. */
     aes_2x_impl.interface =
