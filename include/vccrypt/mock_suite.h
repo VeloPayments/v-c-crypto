@@ -61,9 +61,26 @@ void vccrypt_suite_register_mock();
  * @}
  */
 
+/**
+ * \brief Initialize a mock crypto suite options structure.
+ *
+ * \param options       The options structure to initialize.
+ * \param alloc_opts    The allocator options to use for this suite.
+ *
+ * \returns a status indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success.
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_options_init(
+    vccrypt_suite_options_t* suite, allocator_options_t* alloc_opts);
+
 /* make this header C++ friendly. */
 #ifdef __cplusplus
 }
 #endif  //__cplusplus
+
+/* C++ mock methods for testing start here. */
+#if       defined(__cplusplus)
+#endif /* defined(__cplusplus) */
 
 #endif  //VCCRYPT_MOCK_SUITE_HEADER_GUARD
