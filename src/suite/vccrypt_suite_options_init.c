@@ -3,7 +3,7 @@
  *
  * Initialize a crypto suite options structure.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -154,10 +154,26 @@ int vccrypt_suite_options_init(
         goto cleanup_block_cipher_options;
     }
 
-    /* success */
+    /* verify that the impl dispose and init methods are set. */
+    if (
+        0 == options->vccrypt_suite_alg_options_dispose
+     || 0 == options->vccrypt_suite_alg_options_init)
+    {
+        retval = VCCRYPT_ERROR_SUITE_OPTIONS_INIT_MISSING_IMPL;
+        goto cleanup_stream_cipher_options;
+    }
+
+    /* call the implementation-specific options init method. */
+    retval = options->vccrypt_suite_alg_options_init(options, alloc_opts);
+    if (VCCRYPT_STATUS_SUCCESS != retval)
+    {
+        goto cleanup_stream_cipher_options;
+    }
+
+    /* success. */
     return VCCRYPT_STATUS_SUCCESS;
 
-/*cleanup_stream_cipher_options:*/
+cleanup_stream_cipher_options:
     dispose((disposable_t*)&options->stream_cipher_opts);
 
 cleanup_block_cipher_options:
@@ -199,6 +215,9 @@ static void vccrypt_suite_options_dispose(void* options)
 {
     vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
     MODEL_ASSERT(opts != NULL);
+
+    /* call custom dispose method. */
+    opts->vccrypt_suite_alg_options_dispose(opts);
 
     /* dispose of options structures */
     dispose((disposable_t*)&opts->key_auth_opts);

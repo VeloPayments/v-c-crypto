@@ -4,7 +4,7 @@
  * Register the V1 crypto suite used by Velo and force a link dependency so that
  * all required algorithms and primitives can be used at runtime.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -39,6 +39,10 @@ static int velo_v1_block_cipher_init(
 static int velo_v1_stream_cipher_init(
     void* options, vccrypt_stream_context_t* context,
     vccrypt_buffer_t* key);
+static int velo_v1_suite_options_init(
+    void* options, allocator_options_t* alloc_opts);
+static void velo_v1_suite_options_dispose(
+    void* disp);
 
 /* static data for this instance */
 static abstract_factory_registration_t velo_v1_impl;
@@ -115,6 +119,10 @@ void vccrypt_suite_register_velo_v1()
         &velo_v1_block_cipher_init;
     velo_v1_options.vccrypt_suite_stream_alg_init =
         &velo_v1_stream_cipher_init;
+    velo_v1_options.vccrypt_suite_alg_options_init =
+        &velo_v1_suite_options_init;
+    velo_v1_options.vccrypt_suite_alg_options_dispose =
+        &velo_v1_suite_options_dispose;
 
     /* set up this registration for the abstract factory. */
     velo_v1_impl.interface =
@@ -340,4 +348,30 @@ static int velo_v1_stream_cipher_init(
     MODEL_ASSERT(key != NULL);
 
     return vccrypt_stream_init(&opts->stream_cipher_opts, context, key);
+}
+
+/**
+ * \brief Implementation specific options init method.
+ *
+ * \param options       The options structure to initialize.
+ * \param alloc_opts    The allocator options structure for this method.
+ *
+ * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+ */
+static int velo_v1_suite_options_init(
+    void* UNUSED(options), allocator_options_t* UNUSED(alloc_opts))
+{
+    /* do nothing. */
+
+    return VCCRYPT_STATUS_SUCCESS;
+}
+
+/**
+ * \brief Implementation specific options dispose method.
+ *
+ * \param disp          The options structure to dispose.
+ */
+static void velo_v1_suite_options_dispose(void* UNUSED(disp))
+{
+    /* do nothing. */
 }
