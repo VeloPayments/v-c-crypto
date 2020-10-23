@@ -82,7 +82,7 @@ vccrypt_test = executable(
   test_src,
   include_directories : vccrypt_include,
   dependencies : [vpr, gtest],
-  link_with : vccrypt_lib
+  link_with : [vccrypt_lib, vccrypt_mock_lib]
 )
 
 test_env = environment()
