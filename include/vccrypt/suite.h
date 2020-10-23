@@ -7,7 +7,7 @@
  * These primitives should be used together to implement a particular set of
  * features for a specific application.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_SUITE_HEADER_GUARD
@@ -349,6 +349,30 @@ struct vccrypt_suite_options
      */
     int (*vccrypt_suite_stream_alg_init)(
         void* options, vccrypt_stream_context_t* context, vccrypt_buffer_t* key);
+
+    /**
+     * \brief Implementation specific options init method.
+     *
+     * \param options       The options structure to initialize.
+     * \param alloc_opts    The allocator options structure for this method.
+     *
+     * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
+     */
+    int (*vccrypt_suite_alg_options_init)(
+        void* options, allocator_options_t* alloc_opts);
+
+    /**
+     * \brief Implementation specific options dispose method.
+     *
+     * \param disp          The options structure to dispose.
+     */
+    void (*vccrypt_suite_alg_options_dispose)(void* disp);
+
+    /**
+     * \brief Options level context pointer.
+     */
+    void* options_context;
+
 };
 
 /**
