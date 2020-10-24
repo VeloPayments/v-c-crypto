@@ -13,6 +13,7 @@
 #define VCCRYPT_MOCK_SUITE_HEADER_GUARD
 
 #include <vccrypt/suite.h>
+#include <vccrypt/mock/digital_signature.h>
 #include <vccrypt/mock/hash.h>
 #include <vccrypt/mock/prng.h>
 
@@ -189,6 +190,93 @@ int vccrypt_mock_suite_add_mock_prng_dispose(
 int vccrypt_mock_suite_add_mock_prng_read(
     vccrypt_suite_options_t* suite,
     std::function<int (vccrypt_prng_context_t*, uint8_t*, size_t)> func);
+
+/**
+ * \brief Mock the digital signature algorithm init method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to initialize a digital signature
+ *                  algorithm instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_digital_signature_init(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_digital_signature_options_t*,
+            vccrypt_digital_signature_context_t*)> func);
+
+/**
+ * \brief Mock the digital signature algorithm dispose method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to dispose a digital signature
+ *                  algorithm instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_digital_signature_dispose(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        void (
+            vccrypt_digital_signature_options_t*,
+            vccrypt_digital_signature_context_t*)> func);
+
+/**
+ * \brief Mock the digital signature algorithm sign method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when sign is called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_digital_signature_sign(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_digital_signature_context_t*, vccrypt_buffer_t*,
+            const vccrypt_buffer_t*, const uint8_t*, size_t)> func);
+
+/**
+ * \brief Mock the digital signature algorithm verify method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when verify is called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_digital_signature_verify(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_digital_signature_context_t*, const vccrypt_buffer_t*,
+            const vccrypt_buffer_t*, const uint8_t*, size_t)> func);
+
+/**
+ * \brief Mock the digital signature algorithm keypair create method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when keypair_create is called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_digital_signature_keypair_create(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_digital_signature_context_t*, vccrypt_buffer_t*,
+            vccrypt_buffer_t*)> func);
 
 #endif /* defined(__cplusplus) */
 
