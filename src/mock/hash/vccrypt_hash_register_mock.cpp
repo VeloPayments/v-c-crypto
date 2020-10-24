@@ -184,7 +184,6 @@ static int vccrypt_hash_mock_options_init(
 
     hash_options->options_context = new hash_mock;
 
-    /* do nothing. */
     return VCCRYPT_STATUS_SUCCESS;
 }
 
