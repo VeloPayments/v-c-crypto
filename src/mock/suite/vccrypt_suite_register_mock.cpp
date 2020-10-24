@@ -65,6 +65,7 @@ void vccrypt_suite_register_mock()
     /* register all requisite algorithms and sources */
     /* TODO - fill out with all mocks. */
     vccrypt_hash_register_mock();
+    vccrypt_prng_register_source_mock();
     vccrypt_mac_register_SHA_2_512_HMAC();
     vccrypt_mac_register_SHA_2_512_256_HMAC();
     vccrypt_digital_signature_register_ed25519();
@@ -84,7 +85,7 @@ void vccrypt_suite_register_mock()
     velo_mock_options.suite_id = VCCRYPT_SUITE_MOCK;
     velo_mock_options.hash_alg = VCCRYPT_HASH_ALGORITHM_MOCK;
     velo_mock_options.sign_alg = VCCRYPT_DIGITAL_SIGNATURE_ALGORITHM_ED25519;
-    velo_mock_options.prng_src = VCCRYPT_PRNG_SOURCE_OPERATING_SYSTEM;
+    velo_mock_options.prng_src = VCCRYPT_PRNG_SOURCE_MOCK;
     velo_mock_options.mac_alg = VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC;
     velo_mock_options.mac_short_alg = VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC;
     velo_mock_options.key_auth_alg =
@@ -186,11 +187,14 @@ static int velo_mock_digital_signature_init(
  * \returns 0 on success and non-zero on failure.
  */
 static int velo_mock_prng_init(
-    void* UNUSED(options), vccrypt_prng_context_t* UNUSED(context))
+    void* options, vccrypt_prng_context_t* context)
 {
-    /* TODO - fill out. */
+    vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
 
-    return VCCRYPT_ERROR_SUITE_OPTIONS_INIT_MISSING_IMPL;
+    MODEL_ASSERT(opts != NULL);
+    MODEL_ASSERT(context != NULL);
+
+    return vccrypt_prng_init(&opts->prng_opts, context);
 }
 
 /**

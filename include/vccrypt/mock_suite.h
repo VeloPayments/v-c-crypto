@@ -14,6 +14,7 @@
 
 #include <vccrypt/suite.h>
 #include <vccrypt/mock/hash.h>
+#include <vccrypt/mock/prng.h>
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
@@ -143,6 +144,51 @@ int vccrypt_mock_suite_add_mock_hash_digest(
 int vccrypt_mock_suite_add_mock_hash_finalize(
     vccrypt_suite_options_t* suite,
     std::function<int (vccrypt_hash_context_t*, vccrypt_buffer_t*)> func);
+
+/**
+ * \brief Mock the prng init method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to initialize a prng algorithm
+ *                  instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_prng_init(
+    vccrypt_suite_options_t* suite,
+    std::function<int (vccrypt_prng_options_t*, vccrypt_prng_context_t*)> func);
+
+/**
+ * \brief Mock the prng dispose method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to dispose a prng algorithm
+ *                  instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_prng_dispose(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        void (vccrypt_prng_options_t*, vccrypt_prng_context_t*)> func);
+
+/**
+ * \brief Mock the prng read method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to read from the prng instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_prng_read(
+    vccrypt_suite_options_t* suite,
+    std::function<int (vccrypt_prng_context_t*, uint8_t*, size_t)> func);
 
 #endif /* defined(__cplusplus) */
 
