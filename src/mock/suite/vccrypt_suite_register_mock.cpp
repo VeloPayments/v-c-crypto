@@ -1,5 +1,5 @@
 /**
- * \file vccrypt_suite_register_mock.c
+ * \file vccrypt_suite_register_mock.cpp
  *
  * Register the mock crypto suite used by Velo and force a link dependency so
  * that all required algorithms and primitives can be used at runtime.
@@ -64,7 +64,7 @@ void vccrypt_suite_register_mock()
 
     /* register all requisite algorithms and sources */
     /* TODO - fill out with all mocks. */
-    vccrypt_hash_register_SHA_2_512();
+    vccrypt_hash_register_mock();
     vccrypt_mac_register_SHA_2_512_HMAC();
     vccrypt_mac_register_SHA_2_512_256_HMAC();
     vccrypt_digital_signature_register_ed25519();
@@ -82,7 +82,7 @@ void vccrypt_suite_register_mock()
     velo_mock_options.hdr.dispose = 0; /* disposal handled by init */
     velo_mock_options.alloc_opts = 0; /* allocator handled by init */
     velo_mock_options.suite_id = VCCRYPT_SUITE_MOCK;
-    velo_mock_options.hash_alg = VCCRYPT_HASH_ALGORITHM_SHA_2_512;
+    velo_mock_options.hash_alg = VCCRYPT_HASH_ALGORITHM_MOCK;
     velo_mock_options.sign_alg = VCCRYPT_DIGITAL_SIGNATURE_ALGORITHM_ED25519;
     velo_mock_options.prng_src = VCCRYPT_PRNG_SOURCE_OPERATING_SYSTEM;
     velo_mock_options.mac_alg = VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC;
@@ -151,11 +151,14 @@ void vccrypt_suite_register_mock()
  * \returns 0 on success and non-zero on failure.
  */
 static int velo_mock_hash_init(
-    void* UNUSED(options), vccrypt_hash_context_t* UNUSED(context))
+    void* options, vccrypt_hash_context_t* context)
 {
-    /* TODO - fill out. */
+    vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
 
-    return VCCRYPT_ERROR_SUITE_OPTIONS_INIT_MISSING_IMPL;
+    MODEL_ASSERT(opts != NULL);
+    MODEL_ASSERT(context != NULL);
+
+    return vccrypt_hash_init(&opts->hash_opts, context);
 }
 
 /**
