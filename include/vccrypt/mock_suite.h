@@ -13,6 +13,7 @@
 #define VCCRYPT_MOCK_SUITE_HEADER_GUARD
 
 #include <vccrypt/suite.h>
+#include <vccrypt/mock/hash.h>
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
@@ -81,6 +82,68 @@ int vccrypt_mock_suite_options_init(
 
 /* C++ mock methods for testing start here. */
 #if       defined(__cplusplus)
+
+#include <functional>
+
+/**
+ * \brief Mock the hash algorithm init method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to initialize a hash algorithm
+ *                  instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_hash_init(
+    vccrypt_suite_options_t* suite,
+    std::function<int (vccrypt_hash_options_t*, vccrypt_hash_context_t*)> func);
+
+/**
+ * \brief Mock the hash algorithm dispose method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when this algorithm is disposed.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_hash_dispose(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        void (vccrypt_hash_options_t*, vccrypt_hash_context_t*)> func);
+
+/**
+ * \brief Mock the hash algorithm digest method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when the digest method is called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_hash_digest(
+    vccrypt_suite_options_t* suite,
+    std::function<int (vccrypt_hash_context_t*, const uint8_t*, size_t)> func);
+
+/**
+ * \brief Mock the hash algorithm finalize method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when the finalize method is
+ *                  called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_hash_finalize(
+    vccrypt_suite_options_t* suite,
+    std::function<int (vccrypt_hash_context_t*, vccrypt_buffer_t*)> func);
+
 #endif /* defined(__cplusplus) */
 
 #endif  //VCCRYPT_MOCK_SUITE_HEADER_GUARD

@@ -3,7 +3,7 @@
  *
  * \brief Error codes for vccrypt.
  *
- * \copyright 2018 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2018-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_ERROR_CODES_HEADER_GUARD
@@ -285,6 +285,11 @@ extern "C" {
  * with a invalid argument.
  */
 #define VCCRYPT_ERROR_KEY_DERIVATION_DERIVE_KEY_INVALID_ARG 0x2180
+
+/**
+ * \brief A mock without a mocked function was called.
+ */
+#define VCCRYPT_ERROR_MOCK_NOT_ADDED 0x2190
 
 /**
  * @}
