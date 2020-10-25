@@ -42,6 +42,11 @@ extern "C" {
  * \brief Selector for mock.
  */
 #define VCCRYPT_MAC_ALGORITHM_MOCK 0x80000000
+
+/**
+ * \brief Selector for short mock.
+ */
+#define VCCRYPT_MAC_ALGORITHM_SHORT_MOCK 0x40000000
 /**
  * @}
  */
@@ -60,6 +65,12 @@ extern "C" {
  * \brief Register the mac mock.
  */
 void vccrypt_mac_register_mock();
+
+/**
+ * \brief Register the short mac mock.
+ */
+void vccrypt_mac_register_short_mock();
+
 /**
  * @}
  */
