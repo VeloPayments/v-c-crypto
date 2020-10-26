@@ -4,7 +4,7 @@
  * Create the short-term secret between two peers using the private key from
  * one, the public key from the other, and nonce values from both.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -52,8 +52,6 @@ int vccrypt_key_agreement_short_term_secret_create(
     const vccrypt_buffer_t* pub, const vccrypt_buffer_t* server_nonce,
     const vccrypt_buffer_t* client_nonce, vccrypt_buffer_t* shared)
 {
-    int retval = VCCRYPT_STATUS_SUCCESS;
-
     MODEL_ASSERT(context != NULL);
     MODEL_ASSERT(context->options != NULL);
     MODEL_ASSERT(priv != NULL);
@@ -67,84 +65,7 @@ int vccrypt_key_agreement_short_term_secret_create(
     MODEL_ASSERT(shared != NULL);
     MODEL_ASSERT(shared->size == context->options->shared_secret_size);
 
-    /* parameter sanity check */
-    if (context == NULL || context->options == NULL ||
-        context->options->vccrypt_key_agreement_alg_long_term_secret_create == NULL ||
-        priv == NULL || priv->size != context->options->private_key_size ||
-        pub == NULL || pub->size != context->options->public_key_size ||
-        server_nonce == NULL ||
-        server_nonce->size < context->options->minimum_nonce_size ||
-        client_nonce == NULL ||
-        client_nonce->size < context->options->minimum_nonce_size ||
-        shared == NULL ||
-        shared->size != context->options->shared_secret_size)
-    {
-        return VCCRYPT_ERROR_KEY_AGREEMENT_SHORT_TERM_CREATE_INVALID_ARG;
-    }
-
-    /* create buffer to hold long-term secret. */
-    vccrypt_buffer_t ltk;
-    retval = vccrypt_buffer_init(
-        &ltk, context->options->alloc_opts,
-        context->options->shared_secret_size);
-    if (VCCRYPT_STATUS_SUCCESS != retval)
-    {
-        return retval;
-    }
-
-    /* get long-term secret */
-    retval = vccrypt_key_agreement_long_term_secret_create(
-        context, priv, pub, &ltk);
-    if (VCCRYPT_STATUS_SUCCESS != retval)
-    {
-        goto dispose_ltk;
-    }
-
-    /* create hmac options */
-    vccrypt_mac_options_t mac_opts;
-    retval = vccrypt_mac_options_init(
-        &mac_opts, context->options->alloc_opts,
-        context->options->hmac_algorithm);
-    if (VCCRYPT_STATUS_SUCCESS != retval)
-    {
-        goto dispose_ltk;
-    }
-
-    /* create hmac instance */
-    vccrypt_mac_context_t mac;
-    retval = vccrypt_mac_init(&mac_opts, &mac, &ltk);
-    if (VCCRYPT_STATUS_SUCCESS != retval)
-    {
-        goto dispose_mac_opts;
-    }
-
-    /* digest server nonce */
-    retval = vccrypt_mac_digest(&mac, server_nonce->data, server_nonce->size);
-    if (VCCRYPT_STATUS_SUCCESS != retval)
-    {
-        goto dispose_mac;
-    }
-
-    /* digest client nonce */
-    retval = vccrypt_mac_digest(&mac, client_nonce->data, client_nonce->size);
-    if (VCCRYPT_STATUS_SUCCESS != retval)
-    {
-        goto dispose_mac;
-    }
-
-    /* finalize hmac */
-    retval = vccrypt_mac_finalize(&mac, shared);
-
-    /* fall-through */
-
-dispose_mac:
-    dispose((disposable_t*)&mac);
-
-dispose_mac_opts:
-    dispose((disposable_t*)&mac_opts);
-
-dispose_ltk:
-    dispose((disposable_t*)&ltk);
-
-    return retval;
+    return
+        context->options->vccrypt_key_agreement_alg_short_term_secret_create(
+            context, priv, pub, server_nonce, client_nonce, shared);
 }
