@@ -18,6 +18,7 @@
 #include <vpr/parameters.h>
 
 #include "../digital_signature/ref/curve25519.h"
+#include "key_agreement_common.h"
 
 /* forward decls */
 static int vccrypt_curve25519_sha512_init(void* options, void* context);
@@ -28,6 +29,10 @@ static void vccrypt_curve25519_sha512_options_dispose(void* disp);
 static int vccrypt_curve25519_sha512_long_term_secret_create(
     void* context, const vccrypt_buffer_t* priv,
     const vccrypt_buffer_t* pub, vccrypt_buffer_t* shared);
+static int vccrypt_curve25519_sha512_short_term_secret_create(
+    void* context, const vccrypt_buffer_t* priv,
+    const vccrypt_buffer_t* pub, const vccrypt_buffer_t* server_nonce,
+    const vccrypt_buffer_t* client_nonce, vccrypt_buffer_t* shared);
 static int vccrypt_curve25519_sha512_keypair_create(
     void* context, vccrypt_buffer_t* priv, vccrypt_buffer_t* pub);
 
@@ -75,6 +80,8 @@ void vccrypt_key_agreement_register_curve25519_sha512()
         &vccrypt_curve25519_sha512_dispose;
     curve25519_sha512_options.vccrypt_key_agreement_alg_long_term_secret_create =
         &vccrypt_curve25519_sha512_long_term_secret_create;
+    curve25519_sha512_options.vccrypt_key_agreement_alg_short_term_secret_create =
+        &vccrypt_curve25519_sha512_short_term_secret_create;
     curve25519_sha512_options.vccrypt_key_agreement_alg_keypair_create =
         &vccrypt_curve25519_sha512_keypair_create;
     curve25519_sha512_options.vccrypt_key_agreement_alg_options_init =
@@ -217,6 +224,33 @@ dispose_ltprime:
     dispose((disposable_t*)&ltprime);
 
     return retval;
+}
+
+/**
+ * \brief Generate the short-term secret, given a private key, a public
+ * key, a server nonce, and a client nonce.
+ *
+ * \param context       Opaque pointer to the
+ *                      vccrypt_key_agreement_context_t structure.
+ * \param priv          The private key to use for this operation.
+ * \param pub           The public key to use for this operation.
+ * \param server_nonce  The server nonce to use for this operation.
+ * \param client_nonce  The client nonce to use for this operation.
+ * \param shared        The buffer to receive the long-term secret.
+ *
+ * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on error.
+ */
+static int vccrypt_curve25519_sha512_short_term_secret_create(
+    void* context, const vccrypt_buffer_t* priv,
+    const vccrypt_buffer_t* pub, const vccrypt_buffer_t* server_nonce,
+    const vccrypt_buffer_t* client_nonce, vccrypt_buffer_t* shared)
+{
+    vccrypt_key_agreement_context_t* ctx =
+        (vccrypt_key_agreement_context_t*)context;
+
+    return
+        vccrypt_key_agreement_short_term_secret_create_common(
+            ctx, priv, pub, server_nonce, client_nonce, shared);
 }
 
 /**

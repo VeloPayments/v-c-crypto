@@ -253,6 +253,25 @@ typedef struct vccrypt_key_agreement_options
         const vccrypt_buffer_t* pub, vccrypt_buffer_t* shared);
 
     /**
+     * \brief Generate the short-term secret, given a private key, a public
+     * key, a server nonce, and a client nonce.
+     *
+     * \param context       Opaque pointer to the
+     *                      vccrypt_key_agreement_context_t structure.
+     * \param priv          The private key to use for this operation.
+     * \param pub           The public key to use for this operation.
+     * \param server_nonce  The server nonce to use for this operation.
+     * \param client_nonce  The client nonce to use for this operation.
+     * \param shared        The buffer to receive the long-term secret.
+     *
+     * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on error.
+     */
+    int (*vccrypt_key_agreement_alg_short_term_secret_create)(
+        void* context, const vccrypt_buffer_t* priv,
+        const vccrypt_buffer_t* pub, const vccrypt_buffer_t* server_nonce,
+        const vccrypt_buffer_t* client_nonce, vccrypt_buffer_t* shared);
+
+    /**
      * \brief Generate a keypair.
      *
      * \param context   Opaque pointer to the vccrypt_key_agreement_context_t
