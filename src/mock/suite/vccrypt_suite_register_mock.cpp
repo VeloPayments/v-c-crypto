@@ -70,7 +70,7 @@ void vccrypt_suite_register_mock()
     vccrypt_mac_register_short_mock();
     vccrypt_digital_signature_register_mock();
     vccrypt_prng_register_source_operating_system();
-    vccrypt_key_agreement_register_curve25519_sha512();
+    vccrypt_key_agreement_register_mock_auth();
     vccrypt_key_agreement_register_curve25519_sha512_256();
     vccrypt_key_derivation_register_pbkdf2();
     vccrypt_block_register_AES_256_2X_CBC();
@@ -89,7 +89,7 @@ void vccrypt_suite_register_mock()
     velo_mock_options.mac_alg = VCCRYPT_MAC_ALGORITHM_MOCK;
     velo_mock_options.mac_short_alg = VCCRYPT_MAC_ALGORITHM_SHORT_MOCK;
     velo_mock_options.key_auth_alg =
-        VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512;
+        VCCRYPT_KEY_AGREEMENT_ALGORITHM_MOCK_AUTH;
     velo_mock_options.key_cipher_alg =
         VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512_256;
     velo_mock_options.key_derivation_alg =
@@ -256,11 +256,14 @@ static int velo_mock_mac_short_init(
  * \returns 0 on success and non-zero on failure.
  */
 static int velo_mock_key_auth_init(
-    void* UNUSED(options), vccrypt_key_agreement_context_t* UNUSED(context))
+    void* options, vccrypt_key_agreement_context_t* context)
 {
-    /* TODO - fill out. */
+    vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
 
-    return VCCRYPT_ERROR_SUITE_OPTIONS_INIT_MISSING_IMPL;
+    MODEL_ASSERT(opts != NULL);
+    MODEL_ASSERT(context != NULL);
+
+    return vccrypt_key_agreement_init(&opts->key_auth_opts, context);
 }
 
 /**
