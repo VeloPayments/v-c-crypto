@@ -1,10 +1,10 @@
 /**
  * \file vccrypt_key_agreement_register_mock_auth.c
  *
- * Register sha512 curve25519 and force a link dependency so that this algorithm
- * can be used at runtime.
+ * Register mock cipher key agreement and force a link dependency so that this
+ * algorithm can be used at runtime.
  *
- * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
