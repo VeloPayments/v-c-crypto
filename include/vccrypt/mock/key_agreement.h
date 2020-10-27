@@ -14,7 +14,7 @@
  * This interface requires access to a cryptographic random number generator to
  * create keys.
  *
- * \copyright 2017-2020 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_MOCK_KEY_AGREEMENT_HEADER_GUARD
@@ -45,6 +45,12 @@ extern "C" {
  * \brief Selector for mock auth algorithm.
  */
 #define VCCRYPT_KEY_AGREEMENT_ALGORITHM_MOCK_AUTH 0x80000000
+
+/**
+ * \brief Selector for mock cipher algorithm.
+ */
+#define VCCRYPT_KEY_AGREEMENT_ALGORITHM_MOCK_CIPHER 0x40000000
+
 /**
  * @}
  */
@@ -64,6 +70,12 @@ extern "C" {
  * \brief Register the mock auth key agreement algroithm.
  */
 void vccrypt_key_agreement_register_mock_auth();
+
+/**
+ * \brief Register the mock cipher key agreement algroithm.
+ */
+void vccrypt_key_agreement_register_mock_cipher();
+
 /**
  * @}
  */
