@@ -499,6 +499,97 @@ int vccrypt_mock_suite_add_mock_auth_key_agreement_keypair_create(
             vccrypt_key_agreement_context_t*, vccrypt_buffer_t*,
             vccrypt_buffer_t*)> func);
 
+/**
+ * \brief Mock the cipher key agreement algorithm init method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to initialize an cipher key
+ *                  agreement algorithm instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_cipher_key_agreement_init(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_key_agreement_options_t*,
+            vccrypt_key_agreement_context_t*)> func);
+
+/**
+ * \brief Mock the cipher key agreement algorithm dispose method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to dispose an cipher key agreement
+ *                  algorithm instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_cipher_key_agreement_dispose(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        void (
+            vccrypt_key_agreement_options_t*,
+            vccrypt_key_agreement_context_t*)> func);
+
+/**
+ * \brief Mock the cipher key agreement algorithm long-term secret method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use when calling the long-term secret
+ *                  method.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_cipher_key_agreement_long_term_secret_create(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_key_agreement_context_t*, const vccrypt_buffer_t*,
+            const vccrypt_buffer_t*, vccrypt_buffer_t*)> func);
+
+/**
+ * \brief Mock the cipher key agreement algorithm short-term secret method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use when calling the short-term secret
+ *                  method.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_cipher_key_agreement_short_term_secret_create(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_key_agreement_context_t*, const vccrypt_buffer_t*,
+            const vccrypt_buffer_t*, const vccrypt_buffer_t*,
+            const vccrypt_buffer_t*, vccrypt_buffer_t*)> func);
+
+/**
+ * \brief Mock the cipher key agreement algorithm keypair create function.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use when calling the keypair create
+ *                  method.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_cipher_key_agreement_keypair_create(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_key_agreement_context_t*, vccrypt_buffer_t*,
+            vccrypt_buffer_t*)> func);
+
 #endif /* defined(__cplusplus) */
 
 #endif  //VCCRYPT_MOCK_SUITE_HEADER_GUARD
