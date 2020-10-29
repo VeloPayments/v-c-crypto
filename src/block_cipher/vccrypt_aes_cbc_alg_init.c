@@ -3,7 +3,7 @@
  *
  * Initialize the given AES CBC Mode block cipher context.
  *
- * \copyright 2018 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2018-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -11,9 +11,6 @@
 #include <vpr/parameters.h>
 
 #include "block_cipher_private.h"
-
-/* forward decls */
-static void vccrypt_aes_cbc_alg_ctx_dispose(void* context);
 
 /**
  * Algorithm-specific initialization for block cipher.
@@ -42,9 +39,6 @@ int vccrypt_aes_cbc_alg_init(
     aes_cbc_options_data_t* opt_data = (aes_cbc_options_data_t*)opt->data;
     aes_cbc_context_data_t* ctx_data = (aes_cbc_context_data_t*)
         allocate(opt->alloc_opts, sizeof(aes_cbc_context_data_t));
-
-    ctx->hdr.dispose = &vccrypt_aes_cbc_alg_ctx_dispose;
-    ctx->options = opt;
     ctx->block_state = ctx_data;
 
     memset(ctx_data, 0, sizeof(aes_cbc_context_data_t));
@@ -73,19 +67,4 @@ int vccrypt_aes_cbc_alg_init(
     }
 
     return VCCRYPT_STATUS_SUCCESS;
-}
-
-/**
- * Clean up this block cipher context.
- */
-static void vccrypt_aes_cbc_alg_ctx_dispose(void* context)
-{
-    vccrypt_block_context_t* ctx = (vccrypt_block_context_t*)context;
-    aes_cbc_context_data_t* ctx_data =
-        (aes_cbc_context_data_t*)ctx->block_state;
-
-    memset(ctx_data, 0, sizeof(aes_cbc_context_data_t));
-    release(ctx->options->alloc_opts, ctx_data);
-
-    memset(ctx, 0, sizeof(vccrypt_block_context_t));
 }

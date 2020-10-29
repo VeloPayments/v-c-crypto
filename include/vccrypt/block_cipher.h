@@ -153,6 +153,14 @@ typedef struct vccrypt_block_options
         void* options, void* context, vccrypt_buffer_t* key, bool encrypt);
 
     /**
+     * \brief Algorithm-specific disposal for block cipher.
+     *
+     * \param options   Opaque pointer to this options structure.
+     * \param context   Opaque pointer to vccrypt_block_context_t structure.
+     */
+    void (*vccrypt_block_alg_dispose)(void* options, void* context);
+
+    /**
      * \brief Encrypt a single block of data using the block cipher.
      *
      * \param options       Opaque pointer to this options structure.

@@ -58,6 +58,14 @@ int vccrypt_aes_cbc_alg_init(
     void* options, void* context, vccrypt_buffer_t* key, bool encrypt);
 
 /**
+ * Algorithm-specific disposal for block cipher.
+ *
+ * \param options   Opaque pointer to this options structure.
+ * \param context   Opaque pointer to vccrypt_block_context_t structure.
+ */
+void vccrypt_aes_cbc_alg_dispose(void* options, void* context);
+
+/**
  * Encrypt a single block of data using the block cipher.
  *
  * \param options       Opaque pointer to this options structure.
