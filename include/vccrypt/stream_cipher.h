@@ -145,6 +145,14 @@ typedef struct vccrypt_stream_options
         void* options, void* context, vccrypt_buffer_t* key);
 
     /**
+     * \brief Algorithm-specific disposal for stream cipher.
+     *
+     * \param options   Opaque pointer to this options structure.
+     * \param context   Opaque pointer to vccrypt_stream_context_t structure.
+     */
+    void (*vccrypt_stream_alg_dispose)(void* options, void* context);
+
+    /**
      * \brief Algorithm-specific start for the stream cipher encryption.
      * Initializes output buffer with IV.
      *
