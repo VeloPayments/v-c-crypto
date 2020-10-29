@@ -3,7 +3,7 @@
  *
  * Initialize an AES CTR mode stream cipher instance.
  *
- * \copyright 2018 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2018-2020 Velo Payments, Inc.  All rights reserved.
  */
 
 #include <cbmc/model_assert.h>
@@ -11,9 +11,6 @@
 #include <vpr/parameters.h>
 
 #include "stream_cipher_private.h"
-
-/* forward decls */
-static void vccrypt_aes_ctr_alg_ctx_dispose(void* context);
 
 /**
  * Algorithm-specific initialization for stream cipher.
@@ -38,9 +35,6 @@ int vccrypt_aes_ctr_alg_init(
     aes_ctr_options_data_t* opt_data = (aes_ctr_options_data_t*)opt->data;
     aes_ctr_context_data_t* ctx_data = (aes_ctr_context_data_t*)
         allocate(opt->alloc_opts, sizeof(aes_ctr_context_data_t));
-
-    ctx->hdr.dispose = &vccrypt_aes_ctr_alg_ctx_dispose;
-    ctx->options = opt;
     ctx->stream_state = ctx_data;
 
     memset(ctx_data, 0, sizeof(aes_ctr_context_data_t));
@@ -54,19 +48,4 @@ int vccrypt_aes_ctr_alg_init(
     }
 
     return VCCRYPT_STATUS_SUCCESS;
-}
-
-/**
- * Clean up this stream cipher context.
- */
-static void vccrypt_aes_ctr_alg_ctx_dispose(void* context)
-{
-    vccrypt_stream_context_t* ctx = (vccrypt_stream_context_t*)context;
-    aes_ctr_context_data_t* ctx_data =
-        (aes_ctr_context_data_t*)ctx->stream_state;
-
-    memset(ctx_data, 0, sizeof(aes_ctr_context_data_t));
-    release(ctx->options->alloc_opts, ctx_data);
-
-    memset(ctx, 0, sizeof(vccrypt_stream_context_t));
 }

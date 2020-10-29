@@ -46,6 +46,7 @@ void vccrypt_stream_register_AES_256_2X_CTR()
     aes_2x_options.IV_size = VCCRYPT_AES_CTR_ALG_IV_SIZE;
     aes_2x_options.maximum_message_size = UINT64_MAX;
     aes_2x_options.vccrypt_stream_alg_init = &vccrypt_aes_ctr_alg_init;
+    aes_2x_options.vccrypt_stream_alg_dispose = &vccrypt_aes_ctr_alg_dispose;
     aes_2x_options.vccrypt_stream_alg_start_encryption =
         &vccrypt_aes_ctr_alg_start_encryption;
     aes_2x_options.vccrypt_stream_alg_continue_encryption =

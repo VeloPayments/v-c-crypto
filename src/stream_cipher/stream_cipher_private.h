@@ -67,6 +67,14 @@ int vccrypt_aes_ctr_alg_init(
     void* options, void* context, vccrypt_buffer_t* key);
 
 /**
+ * Algorithm-specific disposal for stream cipher.
+ *
+ * \param options   Opaque pointer to this options structure.
+ * \param context   Opaque pointer to vccrypt_stream_context_t structure.
+ */
+void vccrypt_aes_ctr_alg_dispose(void* options, void* context);
+
+/**
  * Algorithm-specific start for the stream cipher encryption.  Initializes
  * output buffer with IV.
  *
