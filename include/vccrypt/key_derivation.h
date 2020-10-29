@@ -23,12 +23,28 @@
 extern "C" {
 #endif  //__cplusplus
 
+/**
+ * \defgroup KeyDerivationAlgorithms Key Derivation Algorithms.
+ *
+ * \brief Algorithms optionally supported by the key derivation subsystem.
+ *
+ * Note that the appropriate register method must be called during startup
+ * before using one of these algorithms to initialize a
+ * \ref vccrypt_key_derivation_options_t structure. Registration is a link-time
+ * optimization that ensures that only cryptographic primitives needed by the
+ * application are linked in the application or library.
+ *
+ * @{
+ */
 
 /**
  * \brief Selector for PBKDF2
  */
 #define VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2 0x00010000
 
+/**
+ * @}
+ */
 
 /**
  * \defgroup KeyDerivationRegistration Registration functions for Key
@@ -48,6 +64,9 @@ extern "C" {
  */
 void vccrypt_key_derivation_register_pbkdf2();
 
+/**
+ * @}
+ */
 
 /* forward decls */
 typedef struct vccrypt_key_derivation_options vccrypt_key_derivation_options_t;
