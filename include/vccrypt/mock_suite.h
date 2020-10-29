@@ -13,6 +13,7 @@
 #define VCCRYPT_MOCK_SUITE_HEADER_GUARD
 
 #include <vccrypt/suite.h>
+#include <vccrypt/mock/block_cipher.h>
 #include <vccrypt/mock/digital_signature.h>
 #include <vccrypt/mock/hash.h>
 #include <vccrypt/mock/key_agreement.h>
@@ -645,6 +646,76 @@ int vccrypt_mock_suite_add_mock_key_derivation_derive_key(
             vccrypt_buffer_t*, vccrypt_key_derivation_context_t*,
             const vccrypt_buffer_t*, const vccrypt_buffer_t*,
             unsigned int)> func);
+
+/**
+ * \brief Mock the block cipher algorithm init method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to initialize a block cipher
+ *                  algorithm instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_block_init(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_block_options_t*, vccrypt_block_context_t*,
+            vccrypt_buffer_t*, bool)> func);
+
+/**
+ * \brief Mock the block cipher algorithm dispose method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to dispose a block cipher
+ *                  algorithm instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_block_dispose(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        void (
+            vccrypt_block_options_t*,
+            vccrypt_block_context_t*)> func);
+
+/**
+ * \brief Mock the block cipher algorithm encrypt method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use when calling the block encrypt
+ *                  function.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_block_encrypt(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_block_context_t*, const void*, const void*, void*)> func);
+
+/**
+ * \brief Mock the block cipher algorithm decrypt method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use when calling the block decrypt
+ *                  function.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_block_decrypt(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_block_context_t*, const void*, const void*, void*)> func);
 
 #endif /* defined(__cplusplus) */
 
