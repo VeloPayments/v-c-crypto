@@ -46,6 +46,7 @@ void vccrypt_block_register_AES_256_4X_CBC()
     aes_4x_options.IV_size = VCCRYPT_AES_CBC_ALG_IV_SIZE;
     aes_4x_options.maximum_message_size = UINT64_MAX;
     aes_4x_options.vccrypt_block_alg_init = &vccrypt_aes_cbc_alg_init;
+    aes_4x_options.vccrypt_block_alg_dispose = &vccrypt_aes_cbc_alg_dispose;
     aes_4x_options.vccrypt_block_alg_encrypt = &vccrypt_aes_cbc_alg_encrypt;
     aes_4x_options.vccrypt_block_alg_decrypt = &vccrypt_aes_cbc_alg_decrypt;
     aes_4x_options.data = &aes_4x_options_data;

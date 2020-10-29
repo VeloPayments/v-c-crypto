@@ -45,6 +45,7 @@ void vccrypt_block_register_AES_256_CBC_FIPS()
     aes_fips_options.IV_size = VCCRYPT_AES_CBC_ALG_IV_SIZE;
     aes_fips_options.maximum_message_size = UINT64_MAX;
     aes_fips_options.vccrypt_block_alg_init = &vccrypt_aes_cbc_alg_init;
+    aes_fips_options.vccrypt_block_alg_dispose = &vccrypt_aes_cbc_alg_dispose;
     aes_fips_options.vccrypt_block_alg_encrypt = &vccrypt_aes_cbc_alg_encrypt;
     aes_fips_options.vccrypt_block_alg_decrypt = &vccrypt_aes_cbc_alg_decrypt;
     aes_fips_options.data = &aes_fips_options_data;
