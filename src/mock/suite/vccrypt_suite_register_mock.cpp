@@ -72,7 +72,7 @@ void vccrypt_suite_register_mock()
     vccrypt_prng_register_source_operating_system();
     vccrypt_key_agreement_register_mock_auth();
     vccrypt_key_agreement_register_mock_cipher();
-    vccrypt_key_derivation_register_pbkdf2();
+    vccrypt_key_derivation_register_mock();
     vccrypt_block_register_AES_256_2X_CBC();
     vccrypt_stream_register_AES_256_2X_CTR();
 
@@ -93,9 +93,9 @@ void vccrypt_suite_register_mock()
     velo_mock_options.key_cipher_alg =
         VCCRYPT_KEY_AGREEMENT_ALGORITHM_MOCK_CIPHER;
     velo_mock_options.key_derivation_alg =
-        VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2;
+        VCCRYPT_KEY_DERIVATION_ALGORITHM_MOCK;
     velo_mock_options.key_derivation_hmac_alg =
-        VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC;
+        VCCRYPT_MAC_ALGORITHM_SHORT_MOCK;
     velo_mock_options.block_cipher_alg =
         VCCRYPT_BLOCK_ALGORITHM_AES_256_2X_CBC;
     velo_mock_options.stream_cipher_alg =
@@ -296,14 +296,11 @@ static int velo_mock_key_cipher_init(
  * \returns 0 on success and non-zero on failure.
  */
 static int velo_mock_key_derivation_init(
-    vccrypt_key_derivation_context_t* UNUSED(context),
-    vccrypt_suite_options_t* UNUSED(options))
+    vccrypt_key_derivation_context_t* context,
+    vccrypt_suite_options_t* options)
 {
-    /* TODO - fill out. */
-
-    return VCCRYPT_ERROR_SUITE_OPTIONS_INIT_MISSING_IMPL;
+    return vccrypt_key_derivation_init(context, &options->key_derivation_opts);
 }
-
 
 /**
  * Suite-specific initialization for a stream cipher algorithm instance
