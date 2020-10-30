@@ -20,6 +20,7 @@
 #include <vccrypt/mock/key_derivation.h>
 #include <vccrypt/mock/mac.h>
 #include <vccrypt/mock/prng.h>
+#include <vccrypt/mock/stream_cipher.h>
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
@@ -716,6 +717,145 @@ int vccrypt_mock_suite_add_mock_block_decrypt(
     std::function<
         int (
             vccrypt_block_context_t*, const void*, const void*, void*)> func);
+
+/**
+ * \brief Mock the stream cipher algorithm init method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to initialize a stream cipher
+ *                  algorithm instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_stream_init(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_stream_options_t*, vccrypt_stream_context_t*,
+            vccrypt_buffer_t*)> func);
+
+/**
+ * \brief Mock the stream cipher algorithm dispose method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to use to dispose a stream cipher
+ *                  algorithm instance.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_stream_dispose(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        void (
+            vccrypt_stream_options_t*,
+            vccrypt_stream_context_t*)> func);
+
+/**
+ * \brief Mock the stream cipher algorithm start encryption method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when the start encryption method
+ *                  is called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_stream_start_encryption(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_stream_context_t*, const void*, size_t, void*,
+            size_t*)> func);
+
+/**
+ * \brief Mock the stream cipher algorithm continue encryption method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when the continue encryption
+ *                  method is called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_stream_continue_encryption(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_stream_context_t*, const void*, size_t, size_t)> func);
+
+/**
+ * \brief Mock the stream cipher algorithm start decryption method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when the start decryption method
+ *                  is called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_stream_start_decryption(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_stream_context_t*, const void*, size_t*)> func);
+
+/**
+ * \brief Mock the stream cipher algorithm continue decryption method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when the continue decryption
+ *                  method is called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_stream_continue_decryption(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_stream_context_t*, const void*, size_t, size_t)> func);
+
+/**
+ * \brief Mock the stream cipher algorithm encrypt method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when the encrypt method is called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_stream_encrypt(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_stream_context_t*, const void*, size_t, void*,
+            size_t*)> func);
+
+/**
+ * \brief Mock the stream cipher algorithm decrypt method.
+ *
+ * \param suite     The suite to which this mock function should be attached.
+ * \param func      The mock function to call when the decrypt method is called.
+ *
+ * \returns a status code indicating success or failure.
+ *      - \ref VCCRYPT_STATUS_SUCCESS on success
+ *      - a non-zero error code on failure.
+ */
+int vccrypt_mock_suite_add_mock_stream_decrypt(
+    vccrypt_suite_options_t* suite,
+    std::function<
+        int (
+            vccrypt_stream_context_t*, const void*, size_t, void*,
+            size_t*)> func);
 
 #endif /* defined(__cplusplus) */
 

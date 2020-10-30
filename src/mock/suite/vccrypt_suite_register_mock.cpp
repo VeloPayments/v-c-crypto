@@ -74,7 +74,7 @@ void vccrypt_suite_register_mock()
     vccrypt_key_agreement_register_mock_cipher();
     vccrypt_key_derivation_register_mock();
     vccrypt_block_register_mock();
-    vccrypt_stream_register_AES_256_2X_CTR();
+    vccrypt_stream_register_mock();
 
     /* clear the options structure. */
     memset(&velo_mock_options, 0, sizeof(velo_mock_options));
@@ -99,7 +99,7 @@ void vccrypt_suite_register_mock()
     velo_mock_options.block_cipher_alg =
         VCCRYPT_BLOCK_ALGORITHM_MOCK;
     velo_mock_options.stream_cipher_alg =
-        VCCRYPT_STREAM_ALGORITHM_AES_256_2X_CTR;
+        VCCRYPT_STREAM_ALGORITHM_MOCK;
 
     velo_mock_options.vccrypt_suite_hash_alg_init =
         &velo_mock_hash_init;
@@ -336,12 +336,15 @@ static int velo_mock_block_cipher_init(
  * \returns 0 on success and non-zero on failure.
  */
 static int velo_mock_stream_cipher_init(
-    void* UNUSED(options), vccrypt_stream_context_t* UNUSED(context),
-    vccrypt_buffer_t* UNUSED(key))
+    void* options, vccrypt_stream_context_t* context, vccrypt_buffer_t* key)
 {
-    /* TODO - fill out. */
+    vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
 
-    return VCCRYPT_ERROR_SUITE_OPTIONS_INIT_MISSING_IMPL;
+    MODEL_ASSERT(opts != NULL);
+    MODEL_ASSERT(context != NULL);
+    MODEL_ASSERT(key != NULL);
+
+    return vccrypt_stream_init(&opts->stream_cipher_opts, context, key);
 }
 
 /**
