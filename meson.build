@@ -27,7 +27,7 @@ add_project_arguments('-Wall', '-Werror', '-Wextra', language : 'cpp')
 
 #non-mock source files
 src = run_command(
-  'find', './src', '-name', '*.c', '-and', '(', '-not', '-path',
+  'find', './src', '-name', '*.c', '-and', '(', '!', '-path',
   '"*/src/mock/*"', ')',
   check : true).stdout().strip().split('\n')
 #mock source files
