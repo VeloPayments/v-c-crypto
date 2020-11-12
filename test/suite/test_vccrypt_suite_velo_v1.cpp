@@ -308,7 +308,9 @@ TEST_F(vccrypt_suite_velo_v1, hmac_sha_512)
 
     //create a buffer sized for the key
     vccrypt_buffer_t key;
-    ASSERT_EQ(0, vccrypt_suite_buffer_init_for_mac_private_key(&options, &key));
+    ASSERT_EQ(
+        0,
+        vccrypt_suite_buffer_init_for_mac_private_key(&options, &key, false));
     ASSERT_EQ(sizeof(KEY), key.size);
     memcpy(key.data, KEY, sizeof(KEY));
 
