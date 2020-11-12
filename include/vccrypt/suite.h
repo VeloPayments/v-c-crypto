@@ -576,6 +576,7 @@ vccrypt_suite_buffer_init_for_signature(
  *
  * \param options       The options structure for this crypto suite.
  * \param buffer        The buffer instance to initialize.
+ * \param short_mac     Whether the buffer is for a short or long MAC.
  *
  * \returns a status indicating success or failure.
  *      - \ref VCCRYPT_STATUS_SUCCESS on success.
@@ -583,7 +584,7 @@ vccrypt_suite_buffer_init_for_signature(
  */
 int VCCRYPT_DECL_MUST_CHECK
 vccrypt_suite_buffer_init_for_mac_private_key(
-    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer);
+    vccrypt_suite_options_t* options, vccrypt_buffer_t* buffer, bool short_mac);
 
 /**
  * \brief Create a buffer sized appropriately for the message authentication

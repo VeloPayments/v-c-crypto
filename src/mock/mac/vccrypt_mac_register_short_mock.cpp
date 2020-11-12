@@ -43,9 +43,9 @@ void vccrypt_mac_register_short_mock()
     /* set up the options for mock short mac. */
     mock_short_mac_options.hdr.dispose = &mock_short_mac_alg_option_dispose;
     mock_short_mac_options.alloc_opts = 0; /* allocator handled by init */
-    mock_short_mac_options.key_size = VCCRYPT_MAC_SHA_512_KEY_SIZE;
+    mock_short_mac_options.key_size = VCCRYPT_MAC_SHA_512_256_KEY_SIZE;
     mock_short_mac_options.key_expansion_supported = true;
-    mock_short_mac_options.mac_size = VCCRYPT_MAC_SHA_512_MAC_SIZE;
+    mock_short_mac_options.mac_size = VCCRYPT_MAC_SHA_512_256_MAC_SIZE;
     mock_short_mac_options.maximum_message_size =
         SIZE_MAX; /* actually, 2^128-1 */
     mock_short_mac_options.vccrypt_mac_alg_init = &mock_short_mac_alg_init;

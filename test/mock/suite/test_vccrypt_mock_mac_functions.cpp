@@ -34,7 +34,7 @@ TEST(vccrypt_mock_mac_functions, init_default)
     /* create a buffer for the mac key. */
     ASSERT_EQ(
         VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key));
+        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
 
     /* attempting to initiate a mock mac algorithm should fail. */
     EXPECT_EQ(
@@ -82,7 +82,7 @@ TEST(vccrypt_mock_mac_functions, init_mocked)
     /* create a buffer for the mac key. */
     ASSERT_EQ(
         VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key));
+        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
 
     /* We should now be able to init a mock mac context. */
     EXPECT_EQ(
@@ -146,7 +146,7 @@ TEST(vccrypt_mock_mac_functions, dispose_mocked)
     /* create a buffer for the mac key. */
     ASSERT_EQ(
         VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key));
+        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
 
     /* precondition: dispose_called is false. */
     EXPECT_EQ(nullptr, got_options);
@@ -209,7 +209,7 @@ TEST(vccrypt_mock_mac_functions, digest_default)
     /* create a buffer for the mac key. */
     ASSERT_EQ(
         VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key));
+        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
 
     /* We should be able to init a mock mac context. */
     ASSERT_EQ(
@@ -283,7 +283,7 @@ TEST(vccrypt_mock_mac_functions, digest_mocked)
     /* create a buffer for the mac key. */
     ASSERT_EQ(
         VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key));
+        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
 
     /* We should be able to init a mock mac context. */
     ASSERT_EQ(
@@ -347,7 +347,7 @@ TEST(vccrypt_mock_mac_functions, finalize_default)
     /* create a buffer for the mac key. */
     ASSERT_EQ(
         VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key));
+        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
 
     /* create a buffer for the mac buffer. */
     ASSERT_EQ(
@@ -425,7 +425,7 @@ TEST(vccrypt_mock_mac_functions, finalize_mocked)
     /* create a buffer for the mac key. */
     ASSERT_EQ(
         VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key));
+        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
 
     /* create a buffer for the mac buffer. */
     ASSERT_EQ(
