@@ -18,6 +18,7 @@
 extern "C" {
 #endif  //__cplusplus
 
+#include <cbmc/model_assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -239,6 +240,20 @@ int VCCRYPT_DECL_MUST_CHECK
 vccrypt_buffer_read_base64(
     vccrypt_buffer_t* dest, const vccrypt_buffer_t* source,
     size_t* decoded_bytes);
+
+/**
+ * \brief Get the disposable handle from a buffer instance.
+ *
+ * \param buffer        the buffer from which the disposable handle is read.
+ *
+ * \returns the disposable handle for this buffer.
+ */
+inline disposable_t* vccrypt_buffer_disposable_handle(vccrypt_buffer_t* buffer)
+{
+    MODEL_ASSERT(prop_vccrypt_buffer_valid(buffer));
+
+    return &(buffer->hdr);
+}
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus

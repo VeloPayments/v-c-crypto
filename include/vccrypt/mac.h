@@ -16,6 +16,7 @@
 extern "C" {
 #endif  //__cplusplus
 
+#include <cbmc/model_assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -377,6 +378,22 @@ vccrypt_mac_digest(
 int VCCRYPT_DECL_MUST_CHECK
 vccrypt_mac_finalize(
     vccrypt_mac_context_t* context, vccrypt_buffer_t* mac_buffer);
+
+/**
+ * \brief Get the disposable handle from a mac context.
+ *
+ * \param context       The mac context from which the disposable handle is
+ *                      read.
+ *
+ * \returns the disposable handle for this mac context.
+ */
+inline disposable_t* vccrypt_mac_disposable_handle(
+    vccrypt_mac_context_t* context)
+{
+    MODEL_ASSERT(prop_vccrypt_mac_context_valid(context));
+
+    return &(context->hdr);
+}
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
