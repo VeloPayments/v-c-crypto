@@ -27,6 +27,19 @@ extern "C" {
 #include <vpr/allocator.h>
 #include <vpr/disposable.h>
 
+/* define the following macro only if we are extracting concrete implementations
+ * for inline functions.
+ */
+#if defined(VCCRYPT_BUFFER_CONCRETE_IMPLEMENTATION)
+# define VCCRYPT_CONCRETE_IMPLEMENTATION
+#endif
+
+#include <vccrypt/inline_support.h>
+
+#if defined(VCCRYPT_BUFFER_CONCRETE_IMPLEMENTATION)
+# undef VCCRYPT_CONCRETE_IMPLEMENTATION
+#endif
+
 /**
  * \brief This structure contains details needed to implement a crypto buffer.
  */
@@ -248,12 +261,15 @@ vccrypt_buffer_read_base64(
  *
  * \returns the disposable handle for this buffer.
  */
-inline disposable_t* vccrypt_buffer_disposable_handle(vccrypt_buffer_t* buffer)
-{
-    MODEL_ASSERT(prop_vccrypt_buffer_valid(buffer));
+VCCRYPT_INLINE disposable_t* vccrypt_buffer_disposable_handle(
+    vccrypt_buffer_t* buffer)
+VCCRYPT_INLINE_DEFINITION(
+    {
+        MODEL_ASSERT(prop_vccrypt_buffer_valid(buffer));
 
-    return &(buffer->hdr);
-}
+        return &(buffer->hdr);
+    }
+)
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
