@@ -58,19 +58,20 @@ vpr = dependency(
 )
 
 vccrypt_include = include_directories('include')
+config_include = include_directories('.')
 
 vccrypt_lib = static_library(
   'vccrypt',
   src,
   dependencies : [vcmodel, vpr],
-  include_directories : vccrypt_include
+  include_directories : [vccrypt_include, config_include]
 )
 
 vccrypt_mock_lib = static_library(
   'vccrypt_mock',
   src_mock,
   dependencies : [vcmodel, vpr],
-  include_directories : vccrypt_include
+  include_directories : [vccrypt_include, config_include]
 )
 
 vccrypt_dep = declare_dependency(
@@ -81,7 +82,7 @@ vccrypt_dep = declare_dependency(
 vccrypt_test = executable(
   'testvccrypt',
   test_src,
-  include_directories : vccrypt_include,
+  include_directories : [vccrypt_include, config_include],
   dependencies : [vpr, gtest],
   link_with : [vccrypt_lib, vccrypt_mock_lib]
 )
@@ -96,6 +97,14 @@ test(
   'libvccrypt-test',
   vccrypt_test,
   env : test_env
+)
+
+conf_data = configuration_data()
+conf_data.set('VERSION', meson.project_version())
+configure_file(
+  input : 'config.h.in',
+  output : 'config.h',
+  configuration : conf_data
 )
 
 # vim: ts=2 sw=2 et colorcolumn=120
