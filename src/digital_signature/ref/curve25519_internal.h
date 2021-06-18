@@ -86,7 +86,7 @@ void x25519_ge_add(ge_p1p1* r, const ge_p3* p, const ge_cached* q);
 void x25519_ge_sub(ge_p1p1* r, const ge_p3* p, const ge_cached* q);
 void x25519_ge_scalarmult_small_precomp(ge_p3* h, const uint8_t a[32],
     const uint8_t precomp_table[15 * 2 * 32]);
-void x25519_ge_scalarmult_base(ge_p3* h, const uint8_t a[32]);
+void x25519_ge_scalarmult_base(ge_p3* h, const uint8_t* a);
 void x25519_ge_scalarmult(ge_p2* r, const uint8_t* scalar, const ge_p3* A);
 void x25519_sc_reduce(uint8_t* s);
 
