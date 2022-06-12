@@ -3,12 +3,13 @@
  *
  * \brief Timing attack resistant comparison routines.
  *
- * \copyright 2017 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2017-2022 Velo Payments, Inc.  All rights reserved.
  */
 
 #ifndef VCCRYPT_COMPARE_HEADER_GUARD
 #define VCCRYPT_COMPARE_HEADER_GUARD
 
+#include <stddef.h>
 #include <vccrypt/function_decl.h>
 
 /* make this header C++ friendly. */
