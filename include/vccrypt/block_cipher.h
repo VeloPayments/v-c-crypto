@@ -150,7 +150,8 @@ typedef struct vccrypt_block_options
      * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on error.
      */
     int (*vccrypt_block_alg_init)(
-        void* options, void* context, vccrypt_buffer_t* key, bool encrypt);
+        void* options, void* context, const vccrypt_buffer_t* key,
+        bool encrypt);
 
     /**
      * \brief Algorithm-specific disposal for block cipher.

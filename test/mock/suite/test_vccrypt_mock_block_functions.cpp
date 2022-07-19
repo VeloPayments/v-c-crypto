@@ -76,7 +76,7 @@ TEST(vccrypt_mock_block_functions, init_mocked)
             &suite,
             [&](
                 vccrypt_block_options_t*, vccrypt_block_context_t*,
-                vccrypt_buffer_t*, bool) -> int {
+                const vccrypt_buffer_t*, bool) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -125,7 +125,7 @@ TEST(vccrypt_mock_block_functions, dispose_mocked)
             &suite,
             [&](
                 vccrypt_block_options_t*, vccrypt_block_context_t*,
-                vccrypt_buffer_t*, bool) -> int {
+                const vccrypt_buffer_t*, bool) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -206,7 +206,7 @@ TEST(vccrypt_mock_block_functions, block_encrypt_default)
             &suite,
             [&](
                 vccrypt_block_options_t*, vccrypt_block_context_t*,
-                vccrypt_buffer_t*, bool) -> int {
+                const vccrypt_buffer_t*, bool) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -263,7 +263,7 @@ TEST(vccrypt_mock_block_functions, block_encrypt_mocked)
             &suite,
             [&](
                 vccrypt_block_options_t*, vccrypt_block_context_t*,
-                vccrypt_buffer_t*, bool) -> int {
+                const vccrypt_buffer_t*, bool) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -351,7 +351,7 @@ TEST(vccrypt_mock_block_functions, block_decrypt_default)
             &suite,
             [&](
                 vccrypt_block_options_t*, vccrypt_block_context_t*,
-                vccrypt_buffer_t*, bool) -> int {
+                const vccrypt_buffer_t*, bool) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -408,7 +408,7 @@ TEST(vccrypt_mock_block_functions, block_decrypt_mocked)
             &suite,
             [&](
                 vccrypt_block_options_t*, vccrypt_block_context_t*,
-                vccrypt_buffer_t*, bool) -> int {
+                const vccrypt_buffer_t*, bool) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
