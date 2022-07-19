@@ -360,7 +360,7 @@ vccrypt_stream_options_init(
 int VCCRYPT_DECL_MUST_CHECK
 vccrypt_stream_init(
     vccrypt_stream_options_t* options, vccrypt_stream_context_t* context,
-    vccrypt_buffer_t* key);
+    const vccrypt_buffer_t* key);
 
 /**
  * \brief Algorithm-specific start for the stream cipher encryption.
