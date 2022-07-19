@@ -23,7 +23,7 @@ static int velo_v1_digital_signature_init(
 static int velo_v1_prng_init(
     void* options, vccrypt_prng_context_t* context);
 static int velo_v1_mac_init(
-    void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key);
+    void* options, vccrypt_mac_context_t* context, const vccrypt_buffer_t* key);
 static int velo_v1_mac_short_init(
     void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key);
 static int velo_v1_key_auth_init(
@@ -210,7 +210,7 @@ static int velo_v1_prng_init(
  * \returns 0 on success and non-zero on failure.
  */
 static int velo_v1_mac_init(
-    void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key)
+    void* options, vccrypt_mac_context_t* context, const vccrypt_buffer_t* key)
 {
     vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
 

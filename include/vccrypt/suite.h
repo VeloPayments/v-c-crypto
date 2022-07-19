@@ -266,7 +266,8 @@ struct vccrypt_suite_options
      * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
      */
     int (*vccrypt_suite_mac_alg_init)(
-        void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key);
+        void* options, vccrypt_mac_context_t* context,
+        const vccrypt_buffer_t* key);
 
     /**
      * \brief Suite-specific initialization for a short message authentication
