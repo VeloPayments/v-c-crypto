@@ -39,7 +39,7 @@ static void vccrypt_block_dispose(void* disp);
  */
 int vccrypt_block_init(
     vccrypt_block_options_t* options, vccrypt_block_context_t* context,
-    vccrypt_buffer_t* key, bool encrypt)
+    const vccrypt_buffer_t* key, bool encrypt)
 {
     MODEL_ASSERT(NULL != options);
     MODEL_ASSERT(NULL != options->vccrypt_block_alg_init);

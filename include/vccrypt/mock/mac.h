@@ -98,7 +98,7 @@ struct mac_mock
         std::function<
             int (
                 vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                vccrypt_buffer_t*)>>
+                const vccrypt_buffer_t*)>>
     mac_init_mock;
 
     /**

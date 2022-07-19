@@ -14,7 +14,7 @@
 
 /* forward decls */
 static int mock_mac_alg_init(
-    void* options, void* context, vccrypt_buffer_t* key);
+    void* options, void* context, const vccrypt_buffer_t* key);
 static void mock_mac_alg_dispose(void* options, void* context);
 static int mock_mac_alg_options_init(
     void* options, allocator_options_t* alloc_opts);
@@ -75,7 +75,7 @@ void vccrypt_mac_register_mock()
  * \returns 0 on success and non-zero on error.
 */
 static int mock_mac_alg_init(
-    void* options, void* context, vccrypt_buffer_t* key)
+    void* options, void* context, const vccrypt_buffer_t* key)
 {
     vccrypt_mac_options_t* mac_options = (vccrypt_mac_options_t*)options;
     vccrypt_mac_context_t* mac_context = (vccrypt_mac_context_t*)context;

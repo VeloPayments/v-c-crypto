@@ -26,7 +26,7 @@ int vccrypt_mock_suite_add_mock_short_mac_init(
     std::function<
         int (
             vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-            vccrypt_buffer_t*)> func)
+            const vccrypt_buffer_t*)> func)
 {
     mac_mock* mock = (mac_mock*)suite->mac_short_opts.options_context;
 
