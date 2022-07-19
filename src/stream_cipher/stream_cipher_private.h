@@ -64,7 +64,7 @@ void vccrypt_aes_ctr_incr(
  * \returns 0 on success and non-zero on error.
  */
 int vccrypt_aes_ctr_alg_init(
-    void* options, void* context, vccrypt_buffer_t* key);
+    void* options, void* context, const vccrypt_buffer_t* key);
 
 /**
  * Algorithm-specific disposal for stream cipher.

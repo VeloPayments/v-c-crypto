@@ -76,7 +76,7 @@ TEST(vccrypt_mock_stream_functions, init_mocked)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -125,7 +125,7 @@ TEST(vccrypt_mock_stream_functions, dispose_mocked)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -207,7 +207,7 @@ TEST(vccrypt_mock_stream_functions, start_encryption_default)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -265,7 +265,7 @@ TEST(vccrypt_mock_stream_functions, start_encryption_mocked)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -358,7 +358,7 @@ TEST(vccrypt_mock_stream_functions, continue_encryption_default)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -416,7 +416,7 @@ TEST(vccrypt_mock_stream_functions, continue_encryption_mocked)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -503,7 +503,7 @@ TEST(vccrypt_mock_stream_functions, start_decryption_default)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -559,7 +559,7 @@ TEST(vccrypt_mock_stream_functions, start_decryption_mocked)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -643,7 +643,7 @@ TEST(vccrypt_mock_stream_functions, continue_decryption_default)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -701,7 +701,7 @@ TEST(vccrypt_mock_stream_functions, continue_decryption_mocked)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -790,7 +790,7 @@ TEST(vccrypt_mock_stream_functions, encrypt_default)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -848,7 +848,7 @@ TEST(vccrypt_mock_stream_functions, encrypt_mocked)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -942,7 +942,7 @@ TEST(vccrypt_mock_stream_functions, decrypt_default)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -1000,7 +1000,7 @@ TEST(vccrypt_mock_stream_functions, decrypt_mocked)
             &suite,
             [&](
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
