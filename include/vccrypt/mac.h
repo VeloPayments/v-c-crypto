@@ -355,7 +355,7 @@ vccrypt_mac_options_init(
 int VCCRYPT_DECL_MUST_CHECK
 vccrypt_mac_init(
     vccrypt_mac_options_t* options, vccrypt_mac_context_t* context,
-    vccrypt_buffer_t* key);
+    const vccrypt_buffer_t* key);
 
 /**
  * \brief Digest data for the given MAC instance.
