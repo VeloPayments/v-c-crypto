@@ -38,7 +38,7 @@ static int velo_mock_block_cipher_init(
     const vccrypt_buffer_t* key, bool encrypt);
 static int velo_mock_stream_cipher_init(
     void* options, vccrypt_stream_context_t* context,
-    vccrypt_buffer_t* key);
+    const vccrypt_buffer_t* key);
 static int velo_mock_suite_options_init(
     void* options, allocator_options_t* alloc_opts);
 static void velo_mock_suite_options_dispose(
@@ -336,7 +336,8 @@ static int velo_mock_block_cipher_init(
  * \returns 0 on success and non-zero on failure.
  */
 static int velo_mock_stream_cipher_init(
-    void* options, vccrypt_stream_context_t* context, vccrypt_buffer_t* key)
+    void* options, vccrypt_stream_context_t* context,
+    const vccrypt_buffer_t* key)
 {
     vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
 

@@ -350,7 +350,8 @@ struct vccrypt_suite_options
      * \return VCCRYPT_STATUS_SUCCESS on success and non-zero on failure.
      */
     int (*vccrypt_suite_stream_alg_init)(
-        void* options, vccrypt_stream_context_t* context, vccrypt_buffer_t* key);
+        void* options, vccrypt_stream_context_t* context,
+        const vccrypt_buffer_t* key);
 
     /**
      * \brief Implementation specific options init method.
