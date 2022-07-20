@@ -461,7 +461,7 @@ vccrypt_suite_digital_signature_init(
 int VCCRYPT_DECL_MUST_CHECK
 vccrypt_suite_mac_init(
     vccrypt_suite_options_t* options, vccrypt_mac_context_t* context,
-    vccrypt_buffer_t* key);
+    const vccrypt_buffer_t* key);
 
 /**
  * \brief Create an appropriate short message authentication code algorithm
