@@ -27,7 +27,7 @@
  */
 int vccrypt_suite_mac_init(
     vccrypt_suite_options_t* options, vccrypt_mac_context_t* context,
-    vccrypt_buffer_t* key)
+    const vccrypt_buffer_t* key)
 {
     MODEL_ASSERT(context != NULL);
     MODEL_ASSERT(options != NULL);
