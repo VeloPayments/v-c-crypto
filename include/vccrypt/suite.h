@@ -787,7 +787,7 @@ vccrypt_suite_block_init(
 int VCCRYPT_DECL_MUST_CHECK
 vccrypt_suite_stream_init(
     vccrypt_suite_options_t* options, vccrypt_stream_context_t* context,
-    vccrypt_buffer_t* key);
+    const vccrypt_buffer_t* key);
 
 /* make this header C++ friendly. */
 #ifdef __cplusplus
