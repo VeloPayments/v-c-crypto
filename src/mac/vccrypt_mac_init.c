@@ -37,7 +37,7 @@ static void vccrypt_mac_dispose(void* context);
  */
 int vccrypt_mac_init(
     vccrypt_mac_options_t* options, vccrypt_mac_context_t* context,
-    vccrypt_buffer_t* key)
+    const vccrypt_buffer_t* key)
 {
     MODEL_ASSERT(options != NULL);
     MODEL_ASSERT(options->alloc_opts != NULL);
