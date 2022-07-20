@@ -37,7 +37,7 @@ static void vccrypt_stream_dispose(void* disp);
  */
 int vccrypt_stream_init(
     vccrypt_stream_options_t* options, vccrypt_stream_context_t* context,
-    vccrypt_buffer_t* key)
+    const vccrypt_buffer_t* key)
 {
     MODEL_ASSERT(NULL != options);
     MODEL_ASSERT(NULL != options->vccrypt_stream_alg_init);
