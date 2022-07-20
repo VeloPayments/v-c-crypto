@@ -16,7 +16,7 @@
 
 /* forward decls. */
 static int vccrypt_block_mock_init(
-    void* options, void* context, vccrypt_buffer_t* key, bool encrypt);
+    void* options, void* context, const vccrypt_buffer_t* key, bool encrypt);
 static void vccrypt_block_mock_dispose(void* options, void* context);
 static int vccrypt_block_mock_encrypt(
     void* options, void* context, const void* iv, const void* input,
@@ -89,7 +89,7 @@ void vccrypt_block_register_mock()
  * \returns 0 on success and non-zero on error.
  */
 static int vccrypt_block_mock_init(
-    void* options, void* context, vccrypt_buffer_t* key, bool encrypt)
+    void* options, void* context, const vccrypt_buffer_t* key, bool encrypt)
 {
     vccrypt_block_options_t* block_opts = (vccrypt_block_options_t*)options;
     vccrypt_block_context_t* block_ctx = (vccrypt_block_context_t*)context;

@@ -55,7 +55,7 @@ typedef struct aes_cbc_context_data
  * \returns 0 on success and non-zero on error.
  */
 int vccrypt_aes_cbc_alg_init(
-    void* options, void* context, vccrypt_buffer_t* key, bool encrypt);
+    void* options, void* context, const vccrypt_buffer_t* key, bool encrypt);
 
 /**
  * Algorithm-specific disposal for block cipher.

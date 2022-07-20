@@ -80,7 +80,7 @@ struct block_mock
         std::function<
             int (
                 vccrypt_block_options_t*, vccrypt_block_context_t*,
-                vccrypt_buffer_t*, bool)>>
+                const vccrypt_buffer_t*, bool)>>
     block_init_mock;
 
     /**

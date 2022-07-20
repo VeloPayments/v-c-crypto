@@ -26,7 +26,7 @@ int vccrypt_mock_suite_add_mock_block_init(
     std::function<
         int (
             vccrypt_block_options_t*, vccrypt_block_context_t*,
-            vccrypt_buffer_t*, bool)> func)
+            const vccrypt_buffer_t*, bool)> func)
 {
     block_mock* mock = (block_mock*)suite->block_cipher_opts.options_context;
 
