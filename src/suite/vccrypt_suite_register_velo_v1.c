@@ -35,7 +35,7 @@ static int velo_v1_key_derivation_init(
     vccrypt_suite_options_t* options);
 static int velo_v1_block_cipher_init(
     void* options, vccrypt_block_context_t* context,
-    vccrypt_buffer_t* key, bool encrypt);
+    const vccrypt_buffer_t* key, bool encrypt);
 static int velo_v1_stream_cipher_init(
     void* options, vccrypt_stream_context_t* context,
     vccrypt_buffer_t* key);
@@ -317,7 +317,7 @@ static int velo_v1_key_derivation_init(
  */
 static int velo_v1_block_cipher_init(
     void* options, vccrypt_block_context_t* context,
-    vccrypt_buffer_t* key, bool encrypt)
+    const vccrypt_buffer_t* key, bool encrypt)
 {
     vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
 
