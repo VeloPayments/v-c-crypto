@@ -770,7 +770,7 @@ vccrypt_suite_key_derivation_init(
 int VCCRYPT_DECL_MUST_CHECK
 vccrypt_suite_block_init(
     vccrypt_suite_options_t* options, vccrypt_block_context_t* context,
-    vccrypt_buffer_t* key, bool encrypt);
+    const vccrypt_buffer_t* key, bool encrypt);
 
 /**
  * \brief
