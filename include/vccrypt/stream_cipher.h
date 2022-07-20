@@ -142,7 +142,7 @@ typedef struct vccrypt_stream_options
      * \returns VCCRYPT_STATUS_SUCCESS on success and non-zero on error.
      */
     int (*vccrypt_stream_alg_init)(
-        void* options, void* context, vccrypt_buffer_t* key);
+        void* options, void* context, const vccrypt_buffer_t* key);
 
     /**
      * \brief Algorithm-specific disposal for stream cipher.

@@ -734,7 +734,7 @@ int vccrypt_mock_suite_add_mock_stream_init(
     std::function<
         int (
             vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-            vccrypt_buffer_t*)> func);
+            const vccrypt_buffer_t*)> func);
 
 /**
  * \brief Mock the stream cipher algorithm dispose method.

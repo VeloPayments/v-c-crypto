@@ -80,7 +80,7 @@ struct stream_mock
         std::function<
             int (
                 vccrypt_stream_options_t*, vccrypt_stream_context_t*,
-                vccrypt_buffer_t*)>>
+                const vccrypt_buffer_t*)>>
     stream_init_mock;
 
     /**

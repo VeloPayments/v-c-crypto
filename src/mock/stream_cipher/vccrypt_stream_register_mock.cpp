@@ -16,7 +16,7 @@
 
 /* forward decls. */
 static int vccrypt_stream_mock_init(
-    void* options, void* context, vccrypt_buffer_t* key);
+    void* options, void* context, const vccrypt_buffer_t* key);
 static void vccrypt_stream_mock_dispose(void* options, void* context);
 static int vccrypt_stream_mock_start_encryption(
     void* options, void* context, const void* iv, size_t ivSize,
@@ -108,7 +108,7 @@ void vccrypt_stream_register_mock()
  * \returns 0 on success and non-zero on error.
  */
 static int vccrypt_stream_mock_init(
-    void* options, void* context, vccrypt_buffer_t* key)
+    void* options, void* context, const vccrypt_buffer_t* key)
 {
     vccrypt_stream_options_t* stream_opts = (vccrypt_stream_options_t*)options;
     vccrypt_stream_context_t* stream_ctx = (vccrypt_stream_context_t*)context;
