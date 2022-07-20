@@ -25,7 +25,7 @@ static int velo_mock_prng_init(
 static int velo_mock_mac_init(
     void* options, vccrypt_mac_context_t* context, const vccrypt_buffer_t* key);
 static int velo_mock_mac_short_init(
-    void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key);
+    void* options, vccrypt_mac_context_t* context, const vccrypt_buffer_t* key);
 static int velo_mock_key_auth_init(
     void* options, vccrypt_key_agreement_context_t* context);
 static int velo_mock_key_cipher_init(
@@ -235,7 +235,7 @@ static int velo_mock_mac_init(
  * \returns 0 on success and non-zero on failure.
  */
 static int velo_mock_mac_short_init(
-    void* options, vccrypt_mac_context_t* context, vccrypt_buffer_t* key)
+    void* options, vccrypt_mac_context_t* context, const vccrypt_buffer_t* key)
 {
     vccrypt_suite_options_t* opts = (vccrypt_suite_options_t*)options;
 
