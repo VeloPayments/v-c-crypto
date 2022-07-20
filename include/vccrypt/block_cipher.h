@@ -303,7 +303,7 @@ int VCCRYPT_DECL_MUST_CHECK vccrypt_block_options_init(
  */
 int VCCRYPT_DECL_MUST_CHECK vccrypt_block_init(
     vccrypt_block_options_t* options, vccrypt_block_context_t* context,
-    vccrypt_buffer_t* key, bool encrypt);
+    const vccrypt_buffer_t* key, bool encrypt);
 
 /**
  * \brief Encrypt a single block of data using the block cipher.

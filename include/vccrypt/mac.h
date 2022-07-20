@@ -225,7 +225,7 @@ typedef struct vccrypt_mac_options
      * \returns \ref VCCRYPT_STATUS_SUCCESS on success and non-zero on error.
      */
     int (*vccrypt_mac_alg_init)(
-        void* options, void* context, vccrypt_buffer_t* key);
+        void* options, void* context, const vccrypt_buffer_t* key);
 
     /**
      * \brief Algorithm-specific disposal for MAC.

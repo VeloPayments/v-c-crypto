@@ -299,7 +299,7 @@ int vccrypt_mock_suite_add_mock_mac_init(
     std::function<
         int (
             vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-            vccrypt_buffer_t*)> func);
+            const vccrypt_buffer_t*)> func);
 
 /**
  * \brief Mock the mac algorithm dispose method.
@@ -363,7 +363,7 @@ int vccrypt_mock_suite_add_mock_short_mac_init(
     std::function<
         int (
             vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-            vccrypt_buffer_t*)> func);
+            const vccrypt_buffer_t*)> func);
 
 /**
  * \brief Mock the short mac algorithm dispose method.

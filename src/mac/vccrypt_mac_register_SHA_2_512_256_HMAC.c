@@ -16,7 +16,7 @@
 
 /* forward decls */
 static int hmac512_256_alg_init(
-    void* options, void* context, vccrypt_buffer_t* key);
+    void* options, void* context, const vccrypt_buffer_t* key);
 static void hmac512_256_alg_dispose(void* options, void* context);
 static int hmac512_256_alg_options_init(
     void* options, allocator_options_t* alloc_opts);
@@ -91,7 +91,7 @@ void vccrypt_mac_register_SHA_2_512_256_HMAC()
  * \returns 0 on success and non-zero on error.
 */
 static int hmac512_256_alg_init(
-    void* options, void* context, vccrypt_buffer_t* key)
+    void* options, void* context, const vccrypt_buffer_t* key)
 {
     vccrypt_mac_options_t* opts = (vccrypt_mac_options_t*)options;
     vccrypt_mac_context_t* ctx = (vccrypt_mac_context_t*)context;

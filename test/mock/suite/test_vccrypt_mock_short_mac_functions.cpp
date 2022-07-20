@@ -75,7 +75,7 @@ TEST(vccrypt_mock_short_mac_functions, init_mocked)
             &suite,
             [&](
                 vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -123,7 +123,7 @@ TEST(vccrypt_mock_short_mac_functions, dispose_mocked)
             &suite,
             [&](
                 vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -202,7 +202,7 @@ TEST(vccrypt_mock_short_mac_functions, digest_default)
             &suite,
             [&](
                 vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -257,7 +257,7 @@ TEST(vccrypt_mock_short_mac_functions, digest_mocked)
             &suite,
             [&](
                 vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -341,7 +341,7 @@ TEST(vccrypt_mock_short_mac_functions, finalize_default)
             &suite,
             [&](
                 vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
@@ -402,7 +402,7 @@ TEST(vccrypt_mock_short_mac_functions, finalize_mocked)
             &suite,
             [&](
                 vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                vccrypt_buffer_t*) -> int {
+                const vccrypt_buffer_t*) -> int {
                     return VCCRYPT_STATUS_SUCCESS;
             }));
 
