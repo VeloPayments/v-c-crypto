@@ -337,7 +337,7 @@ struct vccrypt_suite_options
      */
     int (*vccrypt_suite_block_alg_init)(
         void* options, vccrypt_block_context_t* context,
-        vccrypt_buffer_t* key, bool encrypt);
+        const vccrypt_buffer_t* key, bool encrypt);
 
     /**
      * \brief Suite-specific initialization for stream cipher algorithm
