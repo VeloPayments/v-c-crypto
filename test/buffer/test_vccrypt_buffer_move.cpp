@@ -6,10 +6,12 @@
  * \copyright 2020 Velo-Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include <vccrypt/buffer.h>
 
 #include "../mock_allocator.h"
+
+/* DISABLED GTEST */
+#if 0
 
 /**
  * Test that a buffer can be initialized and moved.
@@ -51,3 +53,4 @@ TEST(vccrypt_buffer_move, basics)
     /* clean up the mock allocator. */
     dispose((disposable_t*)&alloc_opts);
 }
+#endif

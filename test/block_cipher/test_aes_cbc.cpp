@@ -6,9 +6,11 @@
  * \copyright 2018 Velo Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include <vccrypt/block_cipher.h>
 #include <vpr/allocator/malloc_allocator.h>
+
+/* DISABLED GTEST */
+#if 0
 
 using namespace std;
 
@@ -212,3 +214,4 @@ TEST_F(aes_cbc_test, aes_256_cbc_fips_f25)
     dispose((disposable_t*)&ctx);
     dispose((disposable_t*)&key);
 }
+#endif

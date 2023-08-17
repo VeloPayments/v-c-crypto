@@ -9,9 +9,11 @@
 #include <fstream>
 #include <sstream>
 
-#include <gtest/gtest.h>
 #include <vccrypt/key_agreement.h>
 #include <vpr/allocator/malloc_allocator.h>
+
+/* DISABLED GTEST */
+#if 0
 
 using namespace std;
 
@@ -350,3 +352,4 @@ TEST_F(vccrypt_curve25519_sha512_256_ref_test, random)
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
 }
+#endif

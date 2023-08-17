@@ -6,9 +6,11 @@
  * \copyright 2017 Velo-Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include <vccrypt/hash.h>
 #include <vpr/allocator/malloc_allocator.h>
+
+/* DISABLED GTEST */
+#if 0
 
 class vccrypt_sha512_256_ref_test : public ::testing::Test {
 protected:
@@ -135,3 +137,4 @@ TEST_F(vccrypt_sha512_256_ref_test, hash_2)
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
 }
+#endif

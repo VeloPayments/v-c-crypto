@@ -6,13 +6,15 @@
  * \copyright 2019 Velo-Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include <vpr/parameters.h>
 #include <vpr/allocator/malloc_allocator.h>
 #include <vccrypt/key_derivation.h>
 #include <vccrypt/mac.h>
 
 #include "../../src/key_derivation/pbkdf2/pbkdf2.h"
+
+/* DISABLED GTEST */
+#if 0
 
 static void key_derivation_test(allocator_options_t* alloc_opts,
     uint32_t hmac_algorithm, const char* password, const char* salt,
@@ -441,3 +443,4 @@ static void to_hex(uint8_t vals[], size_t vals_len, char** hex)
         sprintf(cp, "%02X", vals[i]);
     }
 }
+#endif

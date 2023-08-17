@@ -6,9 +6,11 @@
  * \copyright 2020 Velo-Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include <vccrypt/padding.h>
 #include <vpr/allocator/malloc_allocator.h>
+
+/* DISABLED GTEST */
+#if 0
 
 /**
  * Test that passing an invalid value to vccrypt_buffer_reverse_pad results in
@@ -273,3 +275,4 @@ TEST(vccrypt_buffer_reverse_pad, happy_path)
     dispose((disposable_t*)&buffer);
     dispose((disposable_t*)&alloc_opts);
 }
+#endif

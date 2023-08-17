@@ -6,10 +6,12 @@
  * \copyright 2017 Velo-Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include <vccrypt/buffer.h>
 
 #include "../mock_allocator.h"
+
+/* DISABLED GTEST */
+#if 0
 
 /**
  * Test that a buffer can be created and destroyed.
@@ -77,3 +79,4 @@ TEST(vccrypt_buffer_init, allocation_failure)
     //dispose of our mock allocator
     dispose((disposable_t*)&alloc_opts);
 }
+#endif

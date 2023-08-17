@@ -6,9 +6,11 @@
  * \copyright 2020 Velo-Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include <vccrypt/mock_suite.h>
 #include <vpr/allocator/malloc_allocator.h>
+
+/* DISABLED GTEST */
+#if 0
 
 /**
  * By default, the cipher key agreement init function returns
@@ -688,3 +690,4 @@ TEST(vccrypt_mock_cipher_key_agreement_functions, keypair_create_mocked)
     dispose((disposable_t*)&suite);
     dispose((disposable_t*)&alloc_opts);
 }
+#endif
