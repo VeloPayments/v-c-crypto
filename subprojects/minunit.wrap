@@ -1,0 +1,4 @@
+[wrap-git]
+directory = minunit
+revision = 24a35638e9acd820aae1715943e1e21d5f209760
+url = https://github.com/nanolith/minunit
