@@ -3,20 +3,19 @@
  *
  * Unit tests for AES CBC Mode.
  *
- * \copyright 2018 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2018-2023 Velo Payments, Inc.  All rights reserved.
  */
 
+#include <minunit/minunit.h>
+#include <string.h>
 #include <vccrypt/block_cipher.h>
 #include <vpr/allocator/malloc_allocator.h>
 
-/* DISABLED GTEST */
-#if 0
-
 using namespace std;
 
-class aes_cbc_test : public ::testing::Test {
-protected:
-    void SetUp() override
+class aes_cbc_test {
+public:
+    void setUp()
     {
         /* register all AES block ciphers. */
         vccrypt_block_register_AES_256_CBC_FIPS();
@@ -46,7 +45,7 @@ protected:
                 VCCRYPT_BLOCK_ALGORITHM_AES_256_4X_CBC);
     }
 
-    void TearDown() override
+    void tearDown()
     {
         /* tear down options for each variant. */
         if (0 == fips_options_init_result)
@@ -81,63 +80,73 @@ protected:
     int x4_options_init_result;
 };
 
+TEST_SUITE(aes_cbc_test);
+
+#define BEGIN_TEST_F(name) \
+TEST(name) \
+{ \
+    aes_cbc_test fixture; \
+    fixture.setUp();
+
+#define END_TEST_F() \
+    fixture.tearDown(); \
+}
+
 /**
  * We should be able to create an options structure for each of the supported
  * CBC mode ciphers.
  */
-TEST_F(aes_cbc_test, register_options)
-{
+BEGIN_TEST_F(register_options)
     /* Test FIPS AES-256-CBC options init. */
-    ASSERT_EQ(0, fips_options_init_result);
-    EXPECT_NE(nullptr, fips_options.hdr.dispose);
-    EXPECT_EQ(&alloc_opts, fips_options.alloc_opts);
-    EXPECT_EQ(32U, fips_options.key_size);
-    EXPECT_EQ(16U, fips_options.IV_size);
-    EXPECT_EQ(UINT64_MAX, fips_options.maximum_message_size);
-    EXPECT_NE(nullptr, fips_options.vccrypt_block_alg_init);
-    EXPECT_NE(nullptr, fips_options.vccrypt_block_alg_encrypt);
-    EXPECT_NE(nullptr, fips_options.vccrypt_block_alg_decrypt);
+    TEST_ASSERT(0 == fixture.fips_options_init_result);
+    TEST_EXPECT(nullptr != fixture.fips_options.hdr.dispose);
+    TEST_EXPECT(&fixture.alloc_opts == fixture.fips_options.alloc_opts);
+    TEST_EXPECT(32U == fixture.fips_options.key_size);
+    TEST_EXPECT(16U == fixture.fips_options.IV_size);
+    TEST_EXPECT(UINT64_MAX == fixture.fips_options.maximum_message_size);
+    TEST_EXPECT(nullptr != fixture.fips_options.vccrypt_block_alg_init);
+    TEST_EXPECT(nullptr != fixture.fips_options.vccrypt_block_alg_encrypt);
+    TEST_EXPECT(nullptr != fixture.fips_options.vccrypt_block_alg_decrypt);
 
     /* Test AES-256-2X-CBC options init. */
-    ASSERT_EQ(0, x2_options_init_result);
-    EXPECT_NE(nullptr, x2_options.hdr.dispose);
-    EXPECT_EQ(&alloc_opts, x2_options.alloc_opts);
-    EXPECT_EQ(32U, x2_options.key_size);
-    EXPECT_EQ(16U, x2_options.IV_size);
-    EXPECT_EQ(UINT64_MAX, x2_options.maximum_message_size);
-    EXPECT_NE(nullptr, x2_options.vccrypt_block_alg_init);
-    EXPECT_NE(nullptr, x2_options.vccrypt_block_alg_encrypt);
-    EXPECT_NE(nullptr, x2_options.vccrypt_block_alg_decrypt);
+    TEST_ASSERT(0 == fixture.x2_options_init_result);
+    TEST_EXPECT(nullptr != fixture.x2_options.hdr.dispose);
+    TEST_EXPECT(&fixture.alloc_opts == fixture.x2_options.alloc_opts);
+    TEST_EXPECT(32U == fixture.x2_options.key_size);
+    TEST_EXPECT(16U == fixture.x2_options.IV_size);
+    TEST_EXPECT(UINT64_MAX == fixture.x2_options.maximum_message_size);
+    TEST_EXPECT(nullptr != fixture.x2_options.vccrypt_block_alg_init);
+    TEST_EXPECT(nullptr != fixture.x2_options.vccrypt_block_alg_encrypt);
+    TEST_EXPECT(nullptr != fixture.x2_options.vccrypt_block_alg_decrypt);
 
     /* Test AES-256-3X-CBC options init. */
-    ASSERT_EQ(0, x3_options_init_result);
-    EXPECT_NE(nullptr, x3_options.hdr.dispose);
-    EXPECT_EQ(&alloc_opts, x3_options.alloc_opts);
-    EXPECT_EQ(32U, x3_options.key_size);
-    EXPECT_EQ(16U, x3_options.IV_size);
-    EXPECT_EQ(UINT64_MAX, x3_options.maximum_message_size);
-    EXPECT_NE(nullptr, x3_options.vccrypt_block_alg_init);
-    EXPECT_NE(nullptr, x3_options.vccrypt_block_alg_encrypt);
-    EXPECT_NE(nullptr, x3_options.vccrypt_block_alg_decrypt);
+    TEST_ASSERT(0 == fixture.x3_options_init_result);
+    TEST_EXPECT(nullptr != fixture.x3_options.hdr.dispose);
+    TEST_EXPECT(&fixture.alloc_opts == fixture.x3_options.alloc_opts);
+    TEST_EXPECT(32U == fixture.x3_options.key_size);
+    TEST_EXPECT(16U == fixture.x3_options.IV_size);
+    TEST_EXPECT(UINT64_MAX == fixture.x3_options.maximum_message_size);
+    TEST_EXPECT(nullptr != fixture.x3_options.vccrypt_block_alg_init);
+    TEST_EXPECT(nullptr != fixture.x3_options.vccrypt_block_alg_encrypt);
+    TEST_EXPECT(nullptr != fixture.x3_options.vccrypt_block_alg_decrypt);
 
     /* Test AES-256-4X-CBC options init. */
-    ASSERT_EQ(0, x4_options_init_result);
-    EXPECT_NE(nullptr, x4_options.hdr.dispose);
-    EXPECT_EQ(&alloc_opts, x4_options.alloc_opts);
-    EXPECT_EQ(32U, x4_options.key_size);
-    EXPECT_EQ(16U, x4_options.IV_size);
-    EXPECT_EQ(UINT64_MAX, x4_options.maximum_message_size);
-    EXPECT_NE(nullptr, x4_options.vccrypt_block_alg_init);
-    EXPECT_NE(nullptr, x4_options.vccrypt_block_alg_encrypt);
-    EXPECT_NE(nullptr, x4_options.vccrypt_block_alg_decrypt);
-}
+    TEST_ASSERT(0 == fixture.x4_options_init_result);
+    TEST_EXPECT(nullptr != fixture.x4_options.hdr.dispose);
+    TEST_EXPECT(&fixture.alloc_opts == fixture.x4_options.alloc_opts);
+    TEST_EXPECT(32U == fixture.x4_options.key_size);
+    TEST_EXPECT(16U == fixture.x4_options.IV_size);
+    TEST_EXPECT(UINT64_MAX == fixture.x4_options.maximum_message_size);
+    TEST_EXPECT(nullptr != fixture.x4_options.vccrypt_block_alg_init);
+    TEST_EXPECT(nullptr != fixture.x4_options.vccrypt_block_alg_encrypt);
+    TEST_EXPECT(nullptr != fixture.x4_options.vccrypt_block_alg_decrypt);
+END_TEST_F()
 
 /**
  * We should be able to initialize, encrypt, and decrypt using a FIPS compatible
  * block cipher.  TEST from FIPS-800-38a (F.2.5).
  */
-TEST_F(aes_cbc_test, aes_256_cbc_fips_f25)
-{
+BEGIN_TEST_F(aes_256_cbc_fips_f25)
     vccrypt_block_context_t ctx;
     vccrypt_buffer_t key;
 
@@ -179,39 +188,57 @@ TEST_F(aes_cbc_test, aes_256_cbc_fips_f25)
     memset(poutput, 0xFC, sizeof(poutput));
 
     /* create a buffer for the key data. */
-    ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&key, &fixture.alloc_opts, sizeof(KEY)));
 
     /* read the key into the buffer. */
-    ASSERT_EQ(0, vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
+    TEST_ASSERT(0 == vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
 
     /* create a new block cipher with the given key. */
-    ASSERT_EQ(0, vccrypt_block_init(&fips_options, &ctx, &key, true));
+    TEST_ASSERT(
+        0 == vccrypt_block_init(&fixture.fips_options, &ctx, &key, true));
 
     /* encrypt each plaintext block, writing to output. */
-    ASSERT_EQ(0, vccrypt_block_encrypt(&ctx, IV, PLAINTEXT, output));
-    ASSERT_EQ(0, vccrypt_block_encrypt(&ctx, output, PLAINTEXT + 16, output + 16));
-    ASSERT_EQ(0, vccrypt_block_encrypt(&ctx, output + 16, PLAINTEXT + 32, output + 32));
-    ASSERT_EQ(0, vccrypt_block_encrypt(&ctx, output + 32, PLAINTEXT + 48, output + 48));
+    TEST_ASSERT(0 == vccrypt_block_encrypt(&ctx, IV, PLAINTEXT, output));
+    TEST_ASSERT(
+        0 == vccrypt_block_encrypt(&ctx, output, PLAINTEXT + 16, output + 16));
+    TEST_ASSERT(
+        0
+            == vccrypt_block_encrypt(
+                    &ctx, output + 16, PLAINTEXT + 32, output + 32));
+    TEST_ASSERT(
+        0
+            == vccrypt_block_encrypt(
+                    &ctx, output + 32, PLAINTEXT + 48, output + 48));
 
     /* the encrypted data should match our ciphertext */
-    ASSERT_EQ(0, memcmp(output, CIPHERTEXT, sizeof(output)));
+    TEST_ASSERT(0 == memcmp(output, CIPHERTEXT, sizeof(output)));
 
     /* clean up encryption context */
     dispose((disposable_t*)&ctx);
 
     /* create a new block cipher with the given key. */
-    ASSERT_EQ(0, vccrypt_block_init(&fips_options, &ctx, &key, false));
+    TEST_ASSERT(
+        0 == vccrypt_block_init(&fixture.fips_options, &ctx, &key, false));
 
     /* decrypt each ciphertext block, writing it to poutput. */
-    ASSERT_EQ(0, vccrypt_block_decrypt(&ctx, IV, CIPHERTEXT, poutput));
-    ASSERT_EQ(0, vccrypt_block_decrypt(&ctx, CIPHERTEXT, CIPHERTEXT + 16, poutput + 16));
-    ASSERT_EQ(0, vccrypt_block_decrypt(&ctx, CIPHERTEXT + 16, CIPHERTEXT + 32, poutput + 32));
-    ASSERT_EQ(0, vccrypt_block_decrypt(&ctx, CIPHERTEXT + 32, CIPHERTEXT + 48, poutput + 48));
+    TEST_ASSERT(0 == vccrypt_block_decrypt(&ctx, IV, CIPHERTEXT, poutput));
+    TEST_ASSERT(
+        0
+            == vccrypt_block_decrypt(
+                    &ctx, CIPHERTEXT, CIPHERTEXT + 16, poutput + 16));
+    TEST_ASSERT(
+        0
+            == vccrypt_block_decrypt(
+                    &ctx, CIPHERTEXT + 16, CIPHERTEXT + 32, poutput + 32));
+    TEST_ASSERT(
+        0
+            == vccrypt_block_decrypt(
+                    &ctx, CIPHERTEXT + 32, CIPHERTEXT + 48, poutput + 48));
 
     /* the decrypted data should match our plaintext */
-    ASSERT_EQ(0, memcmp(poutput, PLAINTEXT, sizeof(poutput)));
+    TEST_ASSERT(0 == memcmp(poutput, PLAINTEXT, sizeof(poutput)));
 
     dispose((disposable_t*)&ctx);
     dispose((disposable_t*)&key);
-}
-#endif
+END_TEST_F()
