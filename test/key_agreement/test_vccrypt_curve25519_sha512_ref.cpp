@@ -3,23 +3,21 @@
  *
  * Unit tests for the reference curve25519 "sha512" implementation.
  *
- * \copyright 2017 Velo-Payments, Inc.  All rights reserved.
+ * \copyright 2017-2023 Velo-Payments, Inc.  All rights reserved.
  */
 
+#include <cstring>
 #include <fstream>
+#include <minunit/minunit.h>
 #include <sstream>
-
 #include <vccrypt/key_agreement.h>
 #include <vpr/allocator/malloc_allocator.h>
 
-/* DISABLED GTEST */
-#if 0
-
 using namespace std;
 
-class vccrypt_curve25519_sha512_ref_test : public ::testing::Test {
-protected:
-    void SetUp() override
+class vccrypt_curve25519_sha512_ref_test {
+public:
+    void setUp()
     {
         //make sure our key agreement algorithm has been registered
         vccrypt_key_agreement_register_curve25519_sha512();
@@ -33,7 +31,7 @@ protected:
                 &prng_opts, &alloc_opts, VCCRYPT_PRNG_SOURCE_OPERATING_SYSTEM);
     }
 
-    void TearDown() override
+    void tearDown()
     {
         if (VCCRYPT_STATUS_SUCCESS == vccrypt_prng_options_init_status)
         {
@@ -47,56 +45,67 @@ protected:
     vccrypt_prng_options_t prng_opts;
 };
 
+TEST_SUITE(vccrypt_curve25519_sha512_ref_test);
+
+#define BEGIN_TEST_F(name) \
+TEST(name) \
+{ \
+    vccrypt_curve25519_sha512_ref_test fixture; \
+    fixture.setUp();
+
+#define END_TEST_F() \
+    fixture.tearDown(); \
+}
+
 /**
  * Verify that vccrypt_prng_options_init ran successfully.
  */
-TEST_F(vccrypt_curve25519_sha512_ref_test, prng_options_init)
-{
-    ASSERT_EQ(VCCRYPT_STATUS_SUCCESS, vccrypt_prng_options_init_status);
-}
+BEGIN_TEST_F(prng_options_init)
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS == fixture.vccrypt_prng_options_init_status);
+END_TEST_F()
 
 /**
  * We should be able to get curve25519 options if it has been registered.
  */
-TEST_F(vccrypt_curve25519_sha512_ref_test, options_init)
-{
+BEGIN_TEST_F(options_init)
     vccrypt_key_agreement_options_t options;
 
     //we should be able to initialize options for this algorithm
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_options_init(
-            &options, &alloc_opts, &prng_opts,
-            VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_options_init(
+                    &options, &fixture.alloc_opts, &fixture.prng_opts,
+                    VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512));
 
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to create a curve25519 instance.
  */
-TEST_F(vccrypt_curve25519_sha512_ref_test, init)
-{
+BEGIN_TEST_F(init)
     vccrypt_key_agreement_options_t options;
     vccrypt_key_agreement_context_t context;
 
     //we should be able to initialize options for this algorithm
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_options_init(
-            &options, &alloc_opts, &prng_opts,
-            VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_options_init(
+                    &options, &fixture.alloc_opts, &fixture.prng_opts,
+                    VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512));
 
     //we should be able to create an algorithm instance
-    ASSERT_EQ(0, vccrypt_key_agreement_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_key_agreement_init(&options, &context));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * Simple test case from NaCl distribution
  */
-TEST_F(vccrypt_curve25519_sha512_ref_test, alice_bob)
-{
+BEGIN_TEST_F(alice_bob)
     const uint8_t ALICE_PRIVATE[] = {
         0x77, 0x07, 0x6d, 0x0a, 0x73, 0x18, 0xa5, 0x7d,
         0x3c, 0x16, 0xc1, 0x72, 0x51, 0xb2, 0x66, 0x45,
@@ -136,42 +145,50 @@ TEST_F(vccrypt_curve25519_sha512_ref_test, alice_bob)
     vccrypt_key_agreement_context_t context;
 
     //we should be able to initialize options for this algorithm
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_options_init(
-            &options, &alloc_opts, &prng_opts,
-            VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_options_init(
+                    &options, &fixture.alloc_opts, &fixture.prng_opts,
+                    VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512));
 
     //we should be able to create an algorithm instance
-    ASSERT_EQ(0, vccrypt_key_agreement_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_key_agreement_init(&options, &context));
 
     //create buffers for public and private keys
     vccrypt_buffer_t alice_private, alice_public, bob_private, bob_public;
     vccrypt_buffer_t shared;
-    ASSERT_EQ(0, vccrypt_buffer_init(&alice_private, &alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&alice_private, &fixture.alloc_opts, 32));
     memcpy(alice_private.data, ALICE_PRIVATE, 32);
-    ASSERT_EQ(0, vccrypt_buffer_init(&alice_public, &alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&alice_public, &fixture.alloc_opts, 32));
     memcpy(alice_public.data, ALICE_PUBLIC, 32);
-    ASSERT_EQ(0, vccrypt_buffer_init(&bob_private, &alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&bob_private, &fixture.alloc_opts, 32));
     memcpy(bob_private.data, BOB_PRIVATE, 32);
-    ASSERT_EQ(0, vccrypt_buffer_init(&bob_public, &alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&bob_public, &fixture.alloc_opts, 32));
     memcpy(bob_public.data, BOB_PUBLIC, 32);
-    ASSERT_EQ(0, vccrypt_buffer_init(&shared, &alloc_opts, 64));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&shared, &fixture.alloc_opts, 64));
 
     //generate the alice-bob shared secret
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_long_term_secret_create(
-            &context, &alice_private, &bob_public, &shared));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_long_term_secret_create(
+                    &context, &alice_private, &bob_public, &shared));
 
     //this should match our precomputed secret
-    ASSERT_EQ(0, memcmp(shared.data, SHARED_SECRET, 64));
+    TEST_ASSERT(0 == memcmp(shared.data, SHARED_SECRET, 64));
 
     //generate the bob-alice shared secret
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_long_term_secret_create(
-            &context, &bob_private, &alice_public, &shared));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_long_term_secret_create(
+                    &context, &bob_private, &alice_public, &shared));
 
     //this should match our precomputed secret
-    ASSERT_EQ(0, memcmp(shared.data, SHARED_SECRET, 64));
+    TEST_ASSERT(0 == memcmp(shared.data, SHARED_SECRET, 64));
 
     dispose((disposable_t*)&alice_private);
     dispose((disposable_t*)&alice_public);
@@ -180,13 +197,12 @@ TEST_F(vccrypt_curve25519_sha512_ref_test, alice_bob)
     dispose((disposable_t*)&shared);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * Test of the long-term key derivation.
  */
-TEST_F(vccrypt_curve25519_sha512_ref_test, alice_bob_short_term)
-{
+BEGIN_TEST_F(alice_bob_short_term)
     const uint8_t ALICE_PRIVATE[] = {
         0x77, 0x07, 0x6d, 0x0a, 0x73, 0x18, 0xa5, 0x7d,
         0x3c, 0x16, 0xc1, 0x72, 0x51, 0xb2, 0x66, 0x45,
@@ -246,49 +262,59 @@ TEST_F(vccrypt_curve25519_sha512_ref_test, alice_bob_short_term)
     vccrypt_key_agreement_context_t context;
 
     //we should be able to initialize options for this algorithm
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_options_init(
-            &options, &alloc_opts, &prng_opts,
-            VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_options_init(
+                    &options, &fixture.alloc_opts, &fixture.prng_opts,
+                    VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512));
 
     //we should be able to create an algorithm instance
-    ASSERT_EQ(0, vccrypt_key_agreement_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_key_agreement_init(&options, &context));
 
     //create buffers for public and private keys
     vccrypt_buffer_t alice_private, alice_public, alice_nonce;
     vccrypt_buffer_t bob_private, bob_public, bob_nonce;
     vccrypt_buffer_t shared;
-    ASSERT_EQ(0, vccrypt_buffer_init(&alice_private, &alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&alice_private, &fixture.alloc_opts, 32));
     memcpy(alice_private.data, ALICE_PRIVATE, 32);
-    ASSERT_EQ(0, vccrypt_buffer_init(&alice_public, &alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&alice_public, &fixture.alloc_opts, 32));
     memcpy(alice_public.data, ALICE_PUBLIC, 32);
-    ASSERT_EQ(0, vccrypt_buffer_init(&alice_nonce, &alloc_opts, 64));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&alice_nonce, &fixture.alloc_opts, 64));
     memcpy(alice_nonce.data, ALICE_NONCE, 64);
-    ASSERT_EQ(0, vccrypt_buffer_init(&bob_private, &alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&bob_private, &fixture.alloc_opts, 32));
     memcpy(bob_private.data, BOB_PRIVATE, 32);
-    ASSERT_EQ(0, vccrypt_buffer_init(&bob_public, &alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&bob_public, &fixture.alloc_opts, 32));
     memcpy(bob_public.data, BOB_PUBLIC, 32);
-    ASSERT_EQ(0, vccrypt_buffer_init(&bob_nonce, &alloc_opts, 64));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&bob_nonce, &fixture.alloc_opts, 64));
     memcpy(bob_nonce.data, BOB_NONCE, 64);
-    ASSERT_EQ(0, vccrypt_buffer_init(&shared, &alloc_opts, 64));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&shared, &fixture.alloc_opts, 64));
 
     //generate the alice-bob shared secret
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_short_term_secret_create(
-            &context, &alice_private, &bob_public, &alice_nonce, &bob_nonce,
-            &shared));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_short_term_secret_create(
+                    &context, &alice_private, &bob_public, &alice_nonce,
+                    &bob_nonce, &shared));
 
     //this should match our precomputed secret
-    ASSERT_EQ(0, memcmp(shared.data, SHARED_SECRET, 64));
+    TEST_ASSERT(0 == memcmp(shared.data, SHARED_SECRET, 64));
 
     //generate the bob-alice shared secret
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_short_term_secret_create(
-            &context, &bob_private, &alice_public, &alice_nonce, &bob_nonce,
-            &shared));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_short_term_secret_create(
+                    &context, &bob_private, &alice_public, &alice_nonce,
+                    &bob_nonce, &shared));
 
     //this should match our precomputed secret
-    ASSERT_EQ(0, memcmp(shared.data, SHARED_SECRET, 64));
+    TEST_ASSERT(0 == memcmp(shared.data, SHARED_SECRET, 64));
 
     dispose((disposable_t*)&alice_private);
     dispose((disposable_t*)&alice_public);
@@ -299,57 +325,67 @@ TEST_F(vccrypt_curve25519_sha512_ref_test, alice_bob_short_term)
     dispose((disposable_t*)&shared);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * Test that two randomly generated keypairs produce the same key.
  */
-TEST_F(vccrypt_curve25519_sha512_ref_test, random)
-{
+BEGIN_TEST_F(random)
     vccrypt_key_agreement_options_t options;
     vccrypt_key_agreement_context_t context;
 
     //we should be able to initialize options for this algorithm
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_options_init(
-            &options, &alloc_opts, &prng_opts,
-            VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_options_init(
+                    &options, &fixture.alloc_opts, &fixture.prng_opts,
+                    VCCRYPT_KEY_AGREEMENT_ALGORITHM_CURVE25519_SHA512));
 
     //we should be able to create an algorithm instance
-    ASSERT_EQ(0, vccrypt_key_agreement_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_key_agreement_init(&options, &context));
 
     //create buffers for public and private keys
     vccrypt_buffer_t alice_private, alice_public, bob_private, bob_public;
     vccrypt_buffer_t ab_shared, ba_shared;
-    ASSERT_EQ(0, vccrypt_buffer_init(&alice_private, &alloc_opts, 32));
-    ASSERT_EQ(0, vccrypt_buffer_init(&alice_public, &alloc_opts, 32));
-    ASSERT_EQ(0, vccrypt_buffer_init(&bob_private, &alloc_opts, 32));
-    ASSERT_EQ(0, vccrypt_buffer_init(&bob_public, &alloc_opts, 32));
-    ASSERT_EQ(0, vccrypt_buffer_init(&ab_shared, &alloc_opts, 64));
-    ASSERT_EQ(0, vccrypt_buffer_init(&ba_shared, &alloc_opts, 64));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&alice_private, &fixture.alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&alice_public, &fixture.alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&bob_private, &fixture.alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&bob_public, &fixture.alloc_opts, 32));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&ab_shared, &fixture.alloc_opts, 64));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&ba_shared, &fixture.alloc_opts, 64));
 
     //generate alice's keypair
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_keypair_create(
-            &context, &alice_private, &alice_public));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_keypair_create(
+                    &context, &alice_private, &alice_public));
 
     //generate bob's keypair
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_keypair_create(
-            &context, &bob_private, &bob_public));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_keypair_create(
+                    &context, &bob_private, &bob_public));
 
     //generate the alice-bob shared secret
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_long_term_secret_create(
-            &context, &alice_private, &bob_public, &ab_shared));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_long_term_secret_create(
+                    &context, &alice_private, &bob_public, &ab_shared));
 
     //generate the bob-alice shared secret
-    ASSERT_EQ(0,
-        vccrypt_key_agreement_long_term_secret_create(
-            &context, &bob_private, &alice_public, &ba_shared));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_agreement_long_term_secret_create(
+                    &context, &bob_private, &alice_public, &ba_shared));
 
     //the two shared secrets should match
-    ASSERT_EQ(0, memcmp(ab_shared.data, ba_shared.data, 64));
+    TEST_ASSERT(0 == memcmp(ab_shared.data, ba_shared.data, 64));
 
     dispose((disposable_t*)&alice_private);
     dispose((disposable_t*)&alice_public);
@@ -359,5 +395,4 @@ TEST_F(vccrypt_curve25519_sha512_ref_test, random)
     dispose((disposable_t*)&ba_shared);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
-}
-#endif
+END_TEST_F()
