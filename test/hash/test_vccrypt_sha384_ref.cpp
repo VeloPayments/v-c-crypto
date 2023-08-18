@@ -3,18 +3,17 @@
  *
  * Unit tests for the reference SHA-384 implementation.
  *
- * \copyright 2017 Velo-Payments, Inc.  All rights reserved.
+ * \copyright 2017-2023 Velo-Payments, Inc.  All rights reserved.
  */
 
+#include <minunit/minunit.h>
+#include <string.h>
 #include <vccrypt/hash.h>
 #include <vpr/allocator/malloc_allocator.h>
 
-/* DISABLED GTEST */
-#if 0
-
-class vccrypt_sha384_ref_test : public ::testing::Test {
-protected:
-    void SetUp() override
+class vccrypt_sha384_ref_test {
+public:
+    void setUp()
     {
         //make sure SHA-384 has been registered
         vccrypt_hash_register_SHA_2_384();
@@ -22,7 +21,7 @@ protected:
         malloc_allocator_options_init(&alloc_opts);
     }
 
-    void TearDown() override
+    void tearDown()
     {
         dispose((disposable_t*)&alloc_opts);
     }
@@ -30,44 +29,56 @@ protected:
     allocator_options_t alloc_opts;
 };
 
+TEST_SUITE(vccrypt_sha384_ref_test);
+
+#define BEGIN_TEST_F(name) \
+TEST(name) \
+{ \
+    vccrypt_sha384_ref_test fixture; \
+    fixture.setUp();
+
+#define END_TEST_F() \
+    fixture.tearDown(); \
+}
+
 /**
  * We should be able to get SHA-384 options if it has been registered.
  */
-TEST_F(vccrypt_sha384_ref_test, init)
-{
+BEGIN_TEST_F(init)
     vccrypt_hash_options_t options;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to create a hash context.
  */
-TEST_F(vccrypt_sha384_ref_test, context_init)
-{
+BEGIN_TEST_F(context_init)
     vccrypt_hash_options_t options;
     vccrypt_hash_context_t context;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash an empty buffer.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_empty)
-{
+BEGIN_TEST_F(hash_empty)
     const char EXPECTED_HASH[] =
         "\x38\xb0\x60\xa7\x51\xac\x96\x38\x4c\xd9\x32\x7e"
         "\xb1\xb1\xe3\x6a\x21\xfd\xb7\x11\x14\xbe\x07\x43"
@@ -77,31 +88,30 @@ TEST_F(vccrypt_sha384_ref_test, hash_empty)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 1.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_1)
-{
+BEGIN_TEST_F(hash_1)
     const char INPUT[] =
         "\xc5";
     const char EXPECTED_HASH[] =
@@ -113,34 +123,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_1)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 2.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_2)
-{
+BEGIN_TEST_F(hash_2)
     const char INPUT[] =
         "\x6e\xce";
     const char EXPECTED_HASH[] =
@@ -152,34 +163,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_2)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 3.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_3)
-{
+BEGIN_TEST_F(hash_3)
     const char INPUT[] =
         "\x1f\xa4\xd5";
     const char EXPECTED_HASH[] =
@@ -191,34 +203,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_3)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 4.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_4)
-{
+BEGIN_TEST_F(hash_4)
     const char INPUT[] =
         "\x50\xe3\x85\x3d";
     const char EXPECTED_HASH[] =
@@ -230,34 +243,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_4)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 5.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_5)
-{
+BEGIN_TEST_F(hash_5)
     const char INPUT[] =
         "\x4b\x5f\xab\x61\xe0";
     const char EXPECTED_HASH[] =
@@ -269,34 +283,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_5)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 6.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_6)
-{
+BEGIN_TEST_F(hash_6)
     const char INPUT[] =
         "\xda\xd9\x5a\x4b\x4d\x37";
     const char EXPECTED_HASH[] =
@@ -308,34 +323,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_6)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 7.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_7)
-{
+BEGIN_TEST_F(hash_7)
     const char INPUT[] =
         "\x12\x18\x35\xfe\x37\x00\xb7";
     const char EXPECTED_HASH[] =
@@ -347,34 +363,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_7)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 8.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_8)
-{
+BEGIN_TEST_F(hash_8)
     const char INPUT[] =
         "\xde\x60\x27\x5b\xda\xfc\xe4\xb1";
     const char EXPECTED_HASH[] =
@@ -386,34 +403,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_8)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 9.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_9)
-{
+BEGIN_TEST_F(hash_9)
     const char INPUT[] =
         "\x8d\x45\xa5\x5d\x5c\xe1\xf9\x28\xe6";
     const char EXPECTED_HASH[] =
@@ -425,34 +443,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_9)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 10.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_10)
-{
+BEGIN_TEST_F(hash_10)
     const char INPUT[] =
         "\x5c\x7d\xde\x9b\x38\x94\xd7\x3c\xef\xe1";
     const char EXPECTED_HASH[] =
@@ -464,34 +483,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_10)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 11.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_11)
-{
+BEGIN_TEST_F(hash_11)
     const char INPUT[] =
         "\x96\x7f\xa3\x4c\x07\xe4\x94\x5a\x77\x05\x1a";
     const char EXPECTED_HASH[] =
@@ -503,34 +523,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_11)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 12.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_12)
-{
+BEGIN_TEST_F(hash_12)
     const char INPUT[] =
         "\x22\x09\x11\x2e\xe7\x79\xbf\x6d\x95\x71\x11\x05";
     const char EXPECTED_HASH[] =
@@ -542,34 +563,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_12)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 13.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_13)
-{
+BEGIN_TEST_F(hash_13)
     const char INPUT[] =
         "\x20\x44\x2e\x1c\x3f\x3c\x88\x91\x9c\x39\x97\x8b"
         "\x78";
@@ -582,34 +604,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_13)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 14.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_14)
-{
+BEGIN_TEST_F(hash_14)
     const char INPUT[] =
         "\x4d\x43\x70\x2b\xe4\xf0\x53\x03\x19\x55\x5d\x7f"
         "\x1a\x33";
@@ -622,34 +645,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_14)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 15.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_15)
-{
+BEGIN_TEST_F(hash_15)
     const char INPUT[] =
         "\x5e\x2a\x79\xa5\x44\xaf\x85\xf1\x50\xf7\xa9\xd2"
         "\x09\xfd\x44";
@@ -662,34 +686,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_15)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 16.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_16)
-{
+BEGIN_TEST_F(hash_16)
     const char INPUT[] =
         "\xe1\xbb\x96\x7b\x5d\x37\x9a\x4a\xa3\x90\x50\x27"
         "\x4d\x09\xbd\x93";
@@ -702,34 +727,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_16)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 17.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_17)
-{
+BEGIN_TEST_F(hash_17)
     const char INPUT[] =
         "\xbb\x84\xa0\x14\xcd\x17\xcc\x23\x2c\x98\xae\x8b"
         "\x07\x09\x91\x7e\x9d";
@@ -742,34 +768,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_17)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 18.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_18)
-{
+BEGIN_TEST_F(hash_18)
     const char INPUT[] =
         "\xc3\x41\x1a\x05\x92\xf1\xf4\xfa\x69\x88\x15\x23"
         "\x89\x97\xdb\x35\x64\x18";
@@ -782,34 +809,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_18)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 19.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_19)
-{
+BEGIN_TEST_F(hash_19)
     const char INPUT[] =
         "\xe8\x31\xb7\x39\xe8\xeb\x9f\x78\x7f\x63\xc0\xbb"
         "\x07\x1d\xdc\xc9\xf4\x4c\xab";
@@ -822,34 +850,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_19)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 20.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_20)
-{
+BEGIN_TEST_F(hash_20)
     const char INPUT[] =
         "\xb8\xa7\xbb\xcc\xde\x46\xe8\x5f\x12\x23\x23\x7d"
         "\x93\x53\xb7\x8c\x3b\x19\x72\x7b";
@@ -862,34 +891,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_20)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 21.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_21)
-{
+BEGIN_TEST_F(hash_21)
     const char INPUT[] =
         "\xcf\x39\x1b\x8a\xab\xec\x6f\x81\x28\x8c\x8b\x7b"
         "\x92\x84\x3b\xe2\x3d\x2e\x84\x75\x74";
@@ -902,34 +932,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_21)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 22.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_22)
-{
+BEGIN_TEST_F(hash_22)
     const char INPUT[] =
         "\x9d\x65\xd8\x8b\xff\xed\x76\x4c\x28\x6f\x34\x89"
         "\x4f\x99\x16\x00\xd1\xa6\x7d\x62\x23\x82";
@@ -942,34 +973,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_22)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 23.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_23)
-{
+BEGIN_TEST_F(hash_23)
     const char INPUT[] =
         "\xba\xb6\xea\x46\xfb\x71\x7f\x73\xf0\x62\x81\x32"
         "\xa2\xb9\x6b\xe3\x83\x77\x4f\x1e\x5d\x8b\x6d";
@@ -982,34 +1014,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_23)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 24.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_24)
-{
+BEGIN_TEST_F(hash_24)
     const char INPUT[] =
         "\x88\x53\xb0\x0e\x86\x97\x64\xad\xb5\x27\xa0\x7b"
         "\x07\x3c\x85\xa2\x4e\x6c\x20\x8b\xa4\x7e\xef\x4e";
@@ -1022,34 +1055,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_24)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 25.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_25)
-{
+BEGIN_TEST_F(hash_25)
     const char INPUT[] =
         "\x71\xfe\x1b\xa5\xd2\x99\x49\x5d\x2a\x56\x03\x9c"
         "\x64\x03\x2e\xc6\x26\x3d\x43\x7f\x55\xe3\xf5\xbe"
@@ -1063,34 +1097,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_25)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 26.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_26)
-{
+BEGIN_TEST_F(hash_26)
     const char INPUT[] =
         "\x4e\xbe\x07\xd0\x3c\x93\xe8\x49\xb4\xbb\xfe\x9f"
         "\x2d\x22\x94\xbf\x6c\xca\xb4\x57\xf7\x6d\x3f\x99"
@@ -1104,34 +1139,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_26)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 27.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_27)
-{
+BEGIN_TEST_F(hash_27)
     const char INPUT[] =
         "\x91\x8a\xc0\xa9\x7e\xc1\x63\x29\x08\x48\x9e\x52"
         "\x42\xba\x28\x4b\xc8\x11\xaa\x71\x97\x24\x2c\xf7"
@@ -1145,34 +1181,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_27)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 28.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_28)
-{
+BEGIN_TEST_F(hash_28)
     const char INPUT[] =
         "\x97\x47\x7f\x72\x72\xd8\xa8\x9e\x38\xe7\x96\xc5"
         "\x33\xe9\xf8\xa8\xae\x4c\x92\xcc\xaa\x5d\x90\x7e"
@@ -1186,34 +1223,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_28)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 29.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_29)
-{
+BEGIN_TEST_F(hash_29)
     const char INPUT[] =
         "\x71\x8e\x0c\xfe\x13\x86\xcb\x14\x21\xb4\x79\x9b"
         "\x15\x78\x8b\x86\x2b\xf0\x3a\x80\x72\xbb\x30\xd0"
@@ -1227,34 +1265,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_29)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 30.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_30)
-{
+BEGIN_TEST_F(hash_30)
     const char INPUT[] =
         "\xd3\xb0\x7f\x0f\xd5\xd4\xcd\x31\x88\xae\xad\x8d"
         "\xc8\x33\x8d\xe4\x20\x56\xe2\xe8\x48\x7e\xca\x51"
@@ -1268,34 +1307,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_30)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 31.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_31)
-{
+BEGIN_TEST_F(hash_31)
     const char INPUT[] =
         "\x69\x5b\x9e\xfe\x18\x09\xab\xd5\xd4\x4e\xae\x95"
         "\x7d\xdf\x9c\x2c\xd3\xc7\x5f\xae\x2f\x52\x28\x55"
@@ -1309,34 +1349,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_31)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 32.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_32)
-{
+BEGIN_TEST_F(hash_32)
     const char INPUT[] =
         "\xbe\x01\xe5\x20\xe6\x9f\x04\x17\x4c\xcf\x95\x45"
         "\x5b\x1c\x81\x44\x52\x98\x26\x4d\x9a\xdc\x49\x58"
@@ -1350,34 +1391,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_32)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 33.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_33)
-{
+BEGIN_TEST_F(hash_33)
     const char INPUT[] =
         "\x98\xef\x73\x01\xf9\x57\xd7\x3d\x4e\x82\x1d\x58"
         "\x73\xe8\xa9\xb5\x97\x0f\xbd\x21\x9d\x5c\xf7\x4e"
@@ -1391,34 +1433,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_33)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 34.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_34)
-{
+BEGIN_TEST_F(hash_34)
     const char INPUT[] =
         "\x87\x3b\xa7\xf8\xb7\x15\x17\xec\x50\x29\x7b\x21"
         "\xcf\x94\xcd\xb7\xa5\x8a\xbb\xb8\x82\x92\x06\xf0"
@@ -1432,34 +1475,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_34)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 35.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_35)
-{
+BEGIN_TEST_F(hash_35)
     const char INPUT[] =
         "\xe3\xbd\x4b\xc3\xa6\x0c\xdd\xd2\x6c\x20\xaa\x86"
         "\x36\x4b\xd4\x4f\x4a\x07\xf3\x30\x28\x25\xad\x0a"
@@ -1473,34 +1517,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_35)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 36.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_36)
-{
+BEGIN_TEST_F(hash_36)
     const char INPUT[] =
         "\x87\x16\xe4\xb8\x6d\xef\xf9\xda\x2a\x8e\xd5\x5b"
         "\xaa\x43\x58\x2a\x75\x86\xec\x9c\xd3\x8a\xc3\xa9"
@@ -1514,34 +1559,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_36)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 37.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_37)
-{
+BEGIN_TEST_F(hash_37)
     const char INPUT[] =
         "\xf8\xa5\x03\xaa\xa2\x5e\xf2\xce\xa2\x5e\x31\x93"
         "\x0c\x3a\x90\xdb\x46\x8c\xd3\xa8\x62\xf4\xa9\x3a"
@@ -1556,34 +1602,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_37)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 38.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_38)
-{
+BEGIN_TEST_F(hash_38)
     const char INPUT[] =
         "\x66\x90\x25\x17\x5e\xa9\x17\xcd\xd7\xa7\x1f\xf4"
         "\xec\x0c\x45\xbf\x12\x46\xd2\xa6\xf0\x31\xc0\x0b"
@@ -1598,34 +1645,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_38)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 39.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_39)
-{
+BEGIN_TEST_F(hash_39)
     const char INPUT[] =
         "\xb3\x5f\xb2\x26\x2e\xdf\xa1\x49\x38\xa0\xfb\xa0"
         "\x3e\xb2\xa2\x5d\x37\x79\x74\xb1\x1f\x55\x64\x91"
@@ -1640,34 +1688,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_39)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 40.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_40)
-{
+BEGIN_TEST_F(hash_40)
     const char INPUT[] =
         "\x9d\x86\xb4\x5d\xf8\xd7\xda\xe0\xcf\x6b\x0b\xc2"
         "\x08\x66\x6e\xe1\x16\x3a\x39\xe6\x11\x6d\x6d\x24"
@@ -1682,34 +1731,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_40)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 41.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_41)
-{
+BEGIN_TEST_F(hash_41)
     const char INPUT[] =
         "\x41\x4f\x56\x19\xf6\xdf\xd4\x58\x53\xbb\xab\xd2"
         "\x24\xcc\x30\x5d\x77\x35\x0a\xd2\x53\x35\x89\x10"
@@ -1724,34 +1774,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_41)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 42.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_42)
-{
+BEGIN_TEST_F(hash_42)
     const char INPUT[] =
         "\xe2\x65\x83\x24\x82\x1a\xe7\xb0\xfa\xa0\xcd\xd6"
         "\x3e\xe9\xef\xb9\xfc\xbe\x82\x09\x2d\x04\x69\x6f"
@@ -1766,34 +1817,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_42)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 43.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_43)
-{
+BEGIN_TEST_F(hash_43)
     const char INPUT[] =
         "\x7e\x80\x27\x1b\xb5\xf2\xcc\x7d\xda\xe4\x15\x86"
         "\x58\xe4\xe8\xd0\x6e\x04\xa3\x93\x85\xda\x0e\xca"
@@ -1808,34 +1860,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_43)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 44.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_44)
-{
+BEGIN_TEST_F(hash_44)
     const char INPUT[] =
         "\x43\xd2\x82\x8e\x86\xf7\x85\x6b\x78\xc6\x6c\xfa"
         "\x3d\x60\x23\x87\xc2\x90\x97\x5a\xfd\x02\x1a\x8b"
@@ -1850,34 +1903,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_44)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 45.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_45)
-{
+BEGIN_TEST_F(hash_45)
     const char INPUT[] =
         "\x3f\x49\xbb\x64\x5c\xce\xd7\x53\x0b\x8b\x82\xe6"
         "\xcf\x07\xfb\xf6\x70\xf7\xef\x0b\xa0\x58\x3d\x16"
@@ -1892,34 +1946,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_45)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 46.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_46)
-{
+BEGIN_TEST_F(hash_46)
     const char INPUT[] =
         "\x31\xaa\xc0\x6a\x59\xb7\x4b\xf4\x78\x61\x7c\x16"
         "\x37\xfa\x6c\x55\x93\xdf\x16\x8b\x8d\x58\xb1\xe9"
@@ -1934,34 +1989,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_46)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 47.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_47)
-{
+BEGIN_TEST_F(hash_47)
     const char INPUT[] =
         "\xc1\x0b\x28\x52\x05\x4d\x80\x34\xe0\x79\x06\xc7"
         "\xfc\xe3\xce\x99\x40\x23\x21\xa6\x48\xbb\x88\x1f"
@@ -1976,34 +2032,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_47)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 48.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_48)
-{
+BEGIN_TEST_F(hash_48)
     const char INPUT[] =
         "\xb1\xee\xef\x32\x4b\x49\x9f\x19\xeb\xa3\x22\x21"
         "\x5f\xe3\xce\x19\xc9\xf0\x00\xb6\x98\xd2\xb2\xda"
@@ -2018,34 +2075,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_48)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 49.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_49)
-{
+BEGIN_TEST_F(hash_49)
     const char INPUT[] =
         "\x79\x0d\xbb\xa0\x99\x65\xc9\x77\x4d\xd6\x0a\x32"
         "\xe0\x10\xc5\x0d\x6d\x51\x89\x68\xa2\x20\x14\x1d"
@@ -2061,34 +2119,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_49)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 50.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_50)
-{
+BEGIN_TEST_F(hash_50)
     const char INPUT[] =
         "\xf7\xb5\x77\xf1\x39\x6b\x23\xc2\x7e\xb6\x37\xe5"
         "\x3d\x3d\x92\x46\x02\x70\xb0\x01\xcc\x61\x2f\xd3"
@@ -2104,34 +2163,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_50)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 51.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_51)
-{
+BEGIN_TEST_F(hash_51)
     const char INPUT[] =
         "\x73\x70\xd9\xb4\x53\x93\x69\x55\xb9\xc9\xd3\x36"
         "\xf4\xb2\x83\x23\x79\x86\x23\x2d\xe0\x07\xbf\x41"
@@ -2147,34 +2207,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_51)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 52.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_52)
-{
+BEGIN_TEST_F(hash_52)
     const char INPUT[] =
         "\xe8\x62\x01\x70\xf0\xf3\x93\x28\xbd\xf8\x88\x81"
         "\x48\xcf\xd1\x77\x30\xf3\x14\xea\x68\xd8\xfe\xa0"
@@ -2190,34 +2251,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_52)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 53.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_53)
-{
+BEGIN_TEST_F(hash_53)
     const char INPUT[] =
         "\x75\xd4\x21\x6b\xad\x77\x94\x3b\xfe\x82\xbe\x21"
         "\x61\x57\x84\x3b\x0d\xa0\xfd\x16\xee\xee\x84\x71"
@@ -2233,34 +2295,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_53)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 54.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_54)
-{
+BEGIN_TEST_F(hash_54)
     const char INPUT[] =
         "\x2f\xa9\x0c\x22\x10\xe3\x09\x6c\xae\xd1\x22\xb7"
         "\x4e\xb9\x55\x99\x77\x12\x0e\x5d\x9a\x97\xee\xb3"
@@ -2276,34 +2339,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_54)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 55.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_55)
-{
+BEGIN_TEST_F(hash_55)
     const char INPUT[] =
         "\xa8\xde\x55\x17\x0c\x6d\xc0\xd8\x0d\xe3\x2f\x50"
         "\x8b\xf4\x9b\x70\x46\xae\xea\x4b\x97\x5a\x51\x1b"
@@ -2319,34 +2383,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_55)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 56.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_56)
-{
+BEGIN_TEST_F(hash_56)
     const char INPUT[] =
         "\xac\xcd\x9d\x05\xfb\x7e\xf3\x04\x34\x70\x83\x61"
         "\x37\x55\x4a\xf1\x17\x44\x0b\x3c\xcc\xa7\xa2\x80"
@@ -2362,34 +2427,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_56)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 57.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_57)
-{
+BEGIN_TEST_F(hash_57)
     const char INPUT[] =
         "\x32\xb8\x35\xc1\x80\xcc\x40\x06\xc1\x1a\x61\xc6"
         "\x5b\x03\xc0\x99\x51\x0e\x1d\x4f\x0a\x94\xb6\x3d"
@@ -2405,34 +2471,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_57)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 58.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_58)
-{
+BEGIN_TEST_F(hash_58)
     const char INPUT[] =
         "\x94\x09\xf9\xef\xad\xbf\x19\x0b\x25\x33\x67\x62"
         "\x9f\x8f\x36\x8c\x9d\x5a\xc2\x62\xe9\x4a\xb8\x6f"
@@ -2448,34 +2515,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_58)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 59.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_59)
-{
+BEGIN_TEST_F(hash_59)
     const char INPUT[] =
         "\x28\x95\x86\xba\xf8\xda\xce\xd5\x0d\xb1\x4c\x93"
         "\x65\x29\xa0\xa6\x43\x8e\xb5\xda\x8d\x3d\x46\x91"
@@ -2491,34 +2559,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_59)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 60.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_60)
-{
+BEGIN_TEST_F(hash_60)
     const char INPUT[] =
         "\x15\x65\x30\xcd\x6e\xd3\xba\xf1\xfd\x72\x32\xc7"
         "\xff\x20\x4f\x3c\x7d\x4d\x10\x60\x16\xaf\xa3\xbd"
@@ -2534,34 +2603,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_60)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 61.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_61)
-{
+BEGIN_TEST_F(hash_61)
     const char INPUT[] =
         "\x30\x65\x5a\x6b\x5a\x59\x65\xdb\x99\x2e\x72\x48"
         "\xd2\x41\x41\x05\x5e\x98\x8d\x72\x6a\xbb\x8e\x72"
@@ -2578,34 +2648,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_61)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 62.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_62)
-{
+BEGIN_TEST_F(hash_62)
     const char INPUT[] =
         "\x34\x5c\x3c\x02\x2e\x20\x14\x4e\x13\x56\x04\x07"
         "\x87\x62\xef\x5c\x8a\x8f\x03\x8c\xf1\xb1\xd6\xa9"
@@ -2622,34 +2693,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_62)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 63.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_63)
-{
+BEGIN_TEST_F(hash_63)
     const char INPUT[] =
         "\x0b\x94\xa0\xf4\x3a\x92\x40\x89\x63\xa5\x9d\xed"
         "\x01\xa9\x33\x82\x83\xa6\xff\x1b\xfb\xac\xd9\x05"
@@ -2666,34 +2738,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_63)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 64.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_64)
-{
+BEGIN_TEST_F(hash_64)
     const char INPUT[] =
         "\x93\x03\x5d\x3a\x13\xae\x1b\x06\xdd\x03\x3e\x76"
         "\x4a\xca\x01\x24\x96\x1d\xa7\x9c\x36\x6c\x6c\x75"
@@ -2710,34 +2783,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_64)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 65.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_65)
-{
+BEGIN_TEST_F(hash_65)
     const char INPUT[] =
         "\xbf\xb9\x4d\xfb\xe0\xd9\xa5\x09\xb7\x8d\x16\x4a"
         "\x72\x20\x50\x05\x4d\xad\x91\xc9\xa8\xe2\x60\x54"
@@ -2754,34 +2828,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_65)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 66.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_66)
-{
+BEGIN_TEST_F(hash_66)
     const char INPUT[] =
         "\x1c\x89\x24\xa1\x6f\xa7\xc6\x02\xaf\xf5\xee\x96"
         "\x17\x98\xbd\x44\xfe\x53\x79\x8b\xf4\x4c\x3d\x6b"
@@ -2798,34 +2873,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_66)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 67.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_67)
-{
+BEGIN_TEST_F(hash_67)
     const char INPUT[] =
         "\x18\x42\x15\x14\x5d\xa4\x9d\xb4\x17\xe8\xbd\xd5"
         "\x73\xd6\x28\x2d\xe0\x73\xe6\x74\xc3\xde\xa8\x6b"
@@ -2842,34 +2918,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_67)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 68.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_68)
-{
+BEGIN_TEST_F(hash_68)
     const char INPUT[] =
         "\xca\x7a\x63\xad\xf4\x1f\x4d\xa3\x31\x42\x91\x0c"
         "\x96\x77\x06\xb5\xc8\xa0\x93\x35\x0e\xb3\xe6\xd3"
@@ -2886,34 +2963,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_68)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 69.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_69)
-{
+BEGIN_TEST_F(hash_69)
     const char INPUT[] =
         "\x1d\xa4\x1a\x0a\xf2\x02\xb0\x79\x52\x1d\xeb\x61"
         "\x09\xe3\x12\xc2\xad\xe4\x85\x44\xd2\xb4\x98\xc0"
@@ -2930,34 +3008,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_69)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 70.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_70)
-{
+BEGIN_TEST_F(hash_70)
     const char INPUT[] =
         "\xde\xce\x42\xc8\x84\x9b\xe4\x0c\x78\xb8\xde\x6d"
         "\xa9\x6c\x2a\x8d\x7e\x94\x05\x45\xb9\xf3\xf3\x9a"
@@ -2974,34 +3053,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_70)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 71.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_71)
-{
+BEGIN_TEST_F(hash_71)
     const char INPUT[] =
         "\x95\x20\x08\xeb\xde\xdd\x48\x04\x49\xbb\x96\xa0"
         "\x25\x57\x6c\x5f\x61\x7b\xbb\x83\x07\x95\x8a\x01"
@@ -3018,34 +3098,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_71)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 72.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_72)
-{
+BEGIN_TEST_F(hash_72)
     const char INPUT[] =
         "\x10\x01\x32\xc3\x15\xbf\xc9\xc4\xfb\x93\x02\x3f"
         "\x5d\x35\x00\xd7\x20\x8a\x68\xac\xb4\xd2\xc6\x30"
@@ -3062,34 +3143,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_72)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 73.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_73)
-{
+BEGIN_TEST_F(hash_73)
     const char INPUT[] =
         "\x99\xcb\xa4\x01\x9f\x54\x78\x78\x9e\x67\x4e\x08"
         "\xfe\x5d\x6c\xea\xdd\x69\x8b\x07\x57\xca\x39\xc6"
@@ -3107,34 +3189,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_73)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 74.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_74)
-{
+BEGIN_TEST_F(hash_74)
     const char INPUT[] =
         "\xbb\x32\x7a\x0b\xcb\x25\x74\xdf\x47\x08\x0e\x8c"
         "\x0d\x8a\x45\xee\x1c\x04\x24\xae\x04\x14\xdc\x0a"
@@ -3152,34 +3235,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_74)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 75.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_75)
-{
+BEGIN_TEST_F(hash_75)
     const char INPUT[] =
         "\x7f\xd9\xee\xb5\xff\x36\x80\x40\xd2\x99\xfd\x17"
         "\xa9\x43\xb2\x1d\x65\xde\xb2\xec\xcf\x61\x28\xd1"
@@ -3197,34 +3281,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_75)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 76.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_76)
-{
+BEGIN_TEST_F(hash_76)
     const char INPUT[] =
         "\x7c\xa9\xe3\x69\xe8\x21\x86\x98\x4d\x5f\xc7\x29"
         "\xe1\x11\xa7\xe5\xd8\xec\x19\xc5\xd7\x4e\x13\xb5"
@@ -3242,34 +3327,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_76)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 77.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_77)
-{
+BEGIN_TEST_F(hash_77)
     const char INPUT[] =
         "\x5b\x4d\x94\x5d\x55\xde\xa2\x2e\x37\x82\x1e\xc3"
         "\x96\x47\x6a\x4b\xfb\x61\x7d\x2f\x39\x2a\xd9\x3a"
@@ -3287,34 +3373,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_77)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 78.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_78)
-{
+BEGIN_TEST_F(hash_78)
     const char INPUT[] =
         "\xe8\x65\xf4\xa4\x2b\xbb\xd0\xb7\x3f\xe2\x75\xb8"
         "\xab\x90\xd3\xa9\xfb\x74\xec\x50\x70\x19\x2d\x38"
@@ -3332,34 +3419,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_78)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 79.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_79)
-{
+BEGIN_TEST_F(hash_79)
     const char INPUT[] =
         "\x1d\x40\x8c\x7b\x68\xe1\x68\xf4\x1b\xb4\x6f\x9b"
         "\x2e\x9c\x8b\x04\xf9\x68\xe4\x08\x02\x52\x54\x68"
@@ -3377,34 +3465,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_79)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 80.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_80)
-{
+BEGIN_TEST_F(hash_80)
     const char INPUT[] =
         "\x54\xae\x03\x0a\x4e\x27\xa0\x5c\x1e\xa4\xa1\x2e"
         "\x69\xc6\x75\x44\xaf\x9b\x40\x44\xcf\x15\x7d\xc8"
@@ -3422,34 +3511,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_80)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 81.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_81)
-{
+BEGIN_TEST_F(hash_81)
     const char INPUT[] =
         "\xf7\x3c\xd3\x86\xf7\x3d\x0c\x6a\xde\x05\x77\x1b"
         "\x33\x11\x71\x17\xc6\x02\xe5\x26\x93\xf0\x5b\x47"
@@ -3467,34 +3557,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_81)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 82.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_82)
-{
+BEGIN_TEST_F(hash_82)
     const char INPUT[] =
         "\x1d\x25\x96\x12\xe6\x86\x7e\x7d\x78\x8c\x71\xd0"
         "\x3c\x51\x36\x86\x4a\xd6\xd8\x4f\x24\xea\xf9\x13"
@@ -3512,34 +3603,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_82)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 83.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_83)
-{
+BEGIN_TEST_F(hash_83)
     const char INPUT[] =
         "\xda\x87\x34\x41\x4c\x45\xfc\x1d\x5a\x75\xa3\xcb"
         "\xac\xad\xb1\xbf\xb5\x23\xd6\xfc\x39\x1f\x88\x2d"
@@ -3557,34 +3649,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_83)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 84.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_84)
-{
+BEGIN_TEST_F(hash_84)
     const char INPUT[] =
         "\xb2\x28\xc7\x59\x03\xd8\x0f\xbc\x6d\x1c\xf6\x29"
         "\xff\x1d\x14\xa9\x2e\xc4\xbf\x0e\x12\x1f\xd9\x7b"
@@ -3602,34 +3695,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_84)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 85.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_85)
-{
+BEGIN_TEST_F(hash_85)
     const char INPUT[] =
         "\xc9\x0d\x47\x3a\x6f\xd3\x0b\xe9\xa9\x8b\xf4\x42"
         "\xa9\xad\x65\xa6\x97\xd4\x62\x9c\x33\xcd\x51\x7d"
@@ -3648,34 +3742,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_85)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 86.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_86)
-{
+BEGIN_TEST_F(hash_86)
     const char INPUT[] =
         "\x6d\xf8\xc5\xc2\x8d\x17\x28\x97\x5a\x0b\x76\x6c"
         "\xd7\xde\x63\xbb\xe7\xf4\x8c\x3d\xb3\xe6\xfd\x5a"
@@ -3694,34 +3789,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_86)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 87.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_87)
-{
+BEGIN_TEST_F(hash_87)
     const char INPUT[] =
         "\x2c\xfc\x76\xf8\x8c\xb6\xfb\x90\x92\x7b\x69\x52"
         "\x6a\xd5\xf0\x3d\x6b\xd3\x35\xf4\xf7\x5b\x52\xb6"
@@ -3740,34 +3836,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_87)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 88.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_88)
-{
+BEGIN_TEST_F(hash_88)
     const char INPUT[] =
         "\x3f\x05\x10\x8c\x2f\x33\xd3\x9b\x3a\xa9\xe7\x3e"
         "\xfb\xad\x4b\x01\x1b\x4e\x9e\x9f\xba\x40\x9b\x76"
@@ -3786,34 +3883,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_88)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 89.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_89)
-{
+BEGIN_TEST_F(hash_89)
     const char INPUT[] =
         "\x1f\xfb\xe1\xaf\xf0\xa1\xe7\xfa\x3e\x68\xbe\x31"
         "\xa7\x46\x12\xa1\x51\x9b\x59\x39\x7e\x70\x07\xef"
@@ -3832,34 +3930,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_89)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 90.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_90)
-{
+BEGIN_TEST_F(hash_90)
     const char INPUT[] =
         "\xf7\x55\xd6\xb5\x64\x23\x78\xf2\x84\x78\x93\x90"
         "\x1d\x9a\xa9\x1c\x54\xa4\xb7\xab\xb9\x7c\x5c\x71"
@@ -3878,34 +3977,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_90)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 91.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_91)
-{
+BEGIN_TEST_F(hash_91)
     const char INPUT[] =
         "\x77\x35\x77\xf3\xa6\x42\xc4\xf1\x3b\x1c\xb1\xf4"
         "\x10\x3e\x9f\x6b\x2d\xa8\x62\x68\xa5\x2f\x44\x9c"
@@ -3924,34 +4024,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_91)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 92.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_92)
-{
+BEGIN_TEST_F(hash_92)
     const char INPUT[] =
         "\x65\x15\x89\x92\x7e\x17\xe1\xae\xf7\x80\x69\x0f"
         "\x31\x00\xa3\x77\xf0\x17\x9b\x18\xb3\x1f\xd5\xb4"
@@ -3970,34 +4071,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_92)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 93.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_93)
-{
+BEGIN_TEST_F(hash_93)
     const char INPUT[] =
         "\x67\x86\x52\x60\x0e\xee\x42\x58\x0f\x73\x62\x34"
         "\x12\xe9\xc0\x11\xcc\x02\xde\xc4\xd4\xcc\x1b\x79"
@@ -4016,34 +4118,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_93)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 94.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_94)
-{
+BEGIN_TEST_F(hash_94)
     const char INPUT[] =
         "\x41\x6d\x3f\xb7\xb4\x01\xfa\x5e\x78\xcd\x96\xd4"
         "\x79\xd8\x86\x0d\xf1\x47\xee\xf0\x3a\xdf\x13\xfc"
@@ -4062,34 +4165,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_94)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 95.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_95)
-{
+BEGIN_TEST_F(hash_95)
     const char INPUT[] =
         "\x6f\x09\xe8\x76\xc0\xb8\x3c\x99\x34\xff\xb7\x77"
         "\xf0\x06\x33\x8c\x51\x42\xa3\x13\x75\xe9\xb2\x1c"
@@ -4108,34 +4212,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_95)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 96.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_96)
-{
+BEGIN_TEST_F(hash_96)
     const char INPUT[] =
         "\x0d\xc2\xb2\x26\xb3\x43\x1c\x69\xa7\x6a\xdd\xc0"
         "\x18\xfc\xbd\xa2\x2b\xd7\x2c\x8f\xf0\x1e\xd6\x54"
@@ -4154,34 +4259,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_96)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 97.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_97)
-{
+BEGIN_TEST_F(hash_97)
     const char INPUT[] =
         "\x8d\xc7\x1c\x84\xc8\x77\x27\x53\xc8\x6a\xb6\xaf"
         "\xd8\x0e\x8d\x1d\xf9\xb0\xd7\xe8\xd6\x9e\xbe\x67"
@@ -4201,34 +4307,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_97)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 98.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_98)
-{
+BEGIN_TEST_F(hash_98)
     const char INPUT[] =
         "\x3d\xf3\xed\xd9\xfc\x93\xbe\x99\x60\xb5\xa6\x32"
         "\xe2\x84\x7b\x30\xb1\x01\x87\xc8\xf8\x3d\xe5\xb4"
@@ -4248,34 +4355,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_98)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 99.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_99)
-{
+BEGIN_TEST_F(hash_99)
     const char INPUT[] =
         "\xce\xd0\xec\x65\x00\xcb\x89\x1e\x64\x33\xd1\x04"
         "\xba\x5b\x1c\x1e\xbc\xa3\x97\xf3\xa5\xee\xea\xa0"
@@ -4295,34 +4403,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_99)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 100.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_100)
-{
+BEGIN_TEST_F(hash_100)
     const char INPUT[] =
         "\xaf\xa4\xa2\xc4\xfb\xaf\xfe\x83\x8d\xd1\x49\xc7"
         "\x8e\xa7\x85\x1e\xa9\x39\x63\x04\xb4\x18\x06\xa0"
@@ -4342,34 +4451,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_100)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 101.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_101)
-{
+BEGIN_TEST_F(hash_101)
     const char INPUT[] =
         "\x00\xf6\x5a\x48\x5b\xfd\x38\x11\x13\xd6\xe7\x9b"
         "\xf9\xe0\xd5\xe5\x18\xc8\x91\x98\x8c\x07\x3b\xa1"
@@ -4389,34 +4499,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_101)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 102.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_102)
-{
+BEGIN_TEST_F(hash_102)
     const char INPUT[] =
         "\xb9\xce\x38\x2e\x1e\x82\xa8\x73\xcc\x44\x42\x48"
         "\xa3\x00\x8c\x2c\xf6\x4d\x18\x75\x90\x57\xab\xe8"
@@ -4436,34 +4547,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_102)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 103.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_103)
-{
+BEGIN_TEST_F(hash_103)
     const char INPUT[] =
         "\x67\x78\xd8\x2f\x3a\x98\xee\xcd\xfa\xc5\x5d\xde"
         "\xeb\xc5\x24\x76\xa0\x70\x09\x4f\xbd\x65\x83\x18"
@@ -4483,34 +4595,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_103)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 104.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_104)
-{
+BEGIN_TEST_F(hash_104)
     const char INPUT[] =
         "\xba\x3a\x54\xa7\x7d\x7c\x2b\x8c\xce\xc6\xd5\x31"
         "\x36\xcd\x48\x82\x7c\x87\xac\xdd\x1c\xd8\x6a\xd1"
@@ -4530,34 +4643,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_104)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 105.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_105)
-{
+BEGIN_TEST_F(hash_105)
     const char INPUT[] =
         "\x7e\xec\x4f\x4f\x49\x1b\x4e\xea\xeb\x1c\xdb\xdb"
         "\x95\xe9\x51\x1c\x28\x72\x37\x2b\xf6\x4a\x1f\x61"
@@ -4577,34 +4691,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_105)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 106.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_106)
-{
+BEGIN_TEST_F(hash_106)
     const char INPUT[] =
         "\xf3\x71\x5b\x9e\x3d\xdd\x78\x62\xe1\x5e\xe8\x7a"
         "\xa2\x3f\x1a\xaa\x05\x80\x59\x1e\x55\xcf\xf3\xfe"
@@ -4624,34 +4739,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_106)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 107.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_107)
-{
+BEGIN_TEST_F(hash_107)
     const char INPUT[] =
         "\xdf\xd7\xd7\x92\xe1\x62\xbf\x7a\x88\x91\x09\x55"
         "\x0a\x0f\xc4\xc4\x15\x23\x2a\xf0\xc0\xd7\x2d\xcb"
@@ -4671,34 +4787,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_107)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 108.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_108)
-{
+BEGIN_TEST_F(hash_108)
     const char INPUT[] =
         "\xff\xbc\x7c\x47\xf5\x2e\x69\xf5\xc6\x67\xf4\xed"
         "\x57\x8b\x46\xff\x45\x92\x04\x8f\x78\x90\x81\xf3"
@@ -4718,34 +4835,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_108)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 109.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_109)
-{
+BEGIN_TEST_F(hash_109)
     const char INPUT[] =
         "\xa3\x9f\x20\x2d\x86\x6e\x8e\x96\x76\x5f\xbb\x53"
         "\xb6\x77\x25\x37\xde\xc0\x43\x32\x2f\x4a\x74\x75"
@@ -4766,34 +4884,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_109)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 110.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_110)
-{
+BEGIN_TEST_F(hash_110)
     const char INPUT[] =
         "\xb2\xc8\x26\x18\x53\xe2\x21\x8d\xfa\x13\x5c\xb5"
         "\x38\x78\x10\x35\x2b\x89\x62\xe9\x4e\x9f\xdc\x86"
@@ -4814,34 +4933,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_110)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 111.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_111)
-{
+BEGIN_TEST_F(hash_111)
     const char INPUT[] =
         "\xa0\x4f\x39\x0a\x9c\xc2\xef\xfa\xd0\x5d\xb8\x0d"
         "\x90\x76\xa8\xd4\xb6\xcc\x8b\xba\x97\xb2\x7b\x42"
@@ -4862,34 +4982,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_111)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 112.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_112)
-{
+BEGIN_TEST_F(hash_112)
     const char INPUT[] =
         "\xf4\x19\x49\x4c\x3c\x6d\x07\x27\xb3\x39\x5a\x48"
         "\x3a\x21\x67\x18\x2a\x72\x52\xf4\xfd\x09\x9c\x2d"
@@ -4910,34 +5031,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_112)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 113.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_113)
-{
+BEGIN_TEST_F(hash_113)
     const char INPUT[] =
         "\xaa\xf7\x58\x4d\x53\x00\x6c\xbf\x2d\x20\x40\xe5"
         "\x1b\x7f\xee\xbd\x2b\xbf\x1e\x9f\x6d\x81\x7c\xd8"
@@ -4958,34 +5080,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_113)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 114.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_114)
-{
+BEGIN_TEST_F(hash_114)
     const char INPUT[] =
         "\xa4\x67\xf7\x73\x69\x73\x02\x01\xf2\x81\x22\x04"
         "\xfd\x63\xad\x0d\x27\x57\xbe\x58\x0d\x93\x7d\xfe"
@@ -5006,34 +5129,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_114)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 115.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_115)
-{
+BEGIN_TEST_F(hash_115)
     const char INPUT[] =
         "\x01\xab\xc9\x0e\x91\x80\xfc\x9b\xb8\xea\x67\xa4"
         "\x05\x07\x3e\xd6\x84\x8b\xf3\x30\x48\x07\x65\x66"
@@ -5054,34 +5178,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_115)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 116.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_116)
-{
+BEGIN_TEST_F(hash_116)
     const char INPUT[] =
         "\xb5\x55\xd9\x90\x56\x36\x2b\xfc\x2b\xac\x2a\x1b"
         "\xbb\x71\xba\x11\x2d\x64\x4e\x50\xb8\x2b\x01\x5e"
@@ -5102,34 +5227,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_116)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 117.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_117)
-{
+BEGIN_TEST_F(hash_117)
     const char INPUT[] =
         "\x14\xfb\x01\xae\x9d\x60\x15\xec\xb3\xe5\x6d\x6e"
         "\xcd\xfa\x4b\xc0\x53\x31\x86\xad\xf8\x45\x7f\x5e"
@@ -5150,34 +5276,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_117)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 118.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_118)
-{
+BEGIN_TEST_F(hash_118)
     const char INPUT[] =
         "\x11\xae\x0c\xbf\xee\x7b\xb3\xdf\x90\xce\x58\x5f"
         "\x09\xb9\xcf\x8f\xf5\xbe\xa6\x9a\x68\xee\xb6\xc2"
@@ -5198,34 +5325,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_118)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 119.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_119)
-{
+BEGIN_TEST_F(hash_119)
     const char INPUT[] =
         "\xa5\xc4\xa4\x7a\x04\xf4\x71\x42\x69\xd5\xd9\x22"
         "\xba\x46\x94\x06\x0a\xa2\xdf\x49\x19\x37\x20\xc8"
@@ -5246,34 +5374,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_119)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init( &md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 120.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_120)
-{
+BEGIN_TEST_F(hash_120)
     const char INPUT[] =
         "\x75\x26\x47\x74\xaf\x69\xec\x7e\xe3\x12\x5e\x20"
         "\x5b\xd6\xd1\xcb\x8f\xdb\x22\xf7\xea\x6d\xbe\x72"
@@ -5294,34 +5423,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_120)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 121.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_121)
-{
+BEGIN_TEST_F(hash_121)
     const char INPUT[] =
         "\x79\x1a\x36\xd7\x48\x69\x5e\x62\xdb\x50\x03\xa8"
         "\xad\x36\x7d\xf1\xf0\x51\xc1\xac\x6a\x21\xd7\x11"
@@ -5343,34 +5473,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_121)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+        == vccrypt_hash_digest(
+                &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 122.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_122)
-{
+BEGIN_TEST_F(hash_122)
     const char INPUT[] =
         "\x74\xcd\x86\xbb\xed\x14\xd8\x95\x30\x1d\x8a\x54"
         "\xb2\x95\x6b\x1c\x5c\xd1\x45\x1e\xeb\xab\x62\x0b"
@@ -5392,34 +5523,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_122)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 123.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_123)
-{
+BEGIN_TEST_F(hash_123)
     const char INPUT[] =
         "\x46\x61\x2e\x1a\x4d\x01\x6c\x41\x70\x0a\x3b\x5c"
         "\xcb\x38\x32\x33\x53\xbd\x8d\xa5\xb9\x94\x2c\x9c"
@@ -5441,34 +5573,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_123)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 124.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_124)
-{
+BEGIN_TEST_F(hash_124)
     const char INPUT[] =
         "\x1a\x85\x7c\x1f\x10\x5d\x06\x8c\xea\xb0\xb1\xe1"
         "\x24\x94\x89\x0e\xc1\x96\x36\x2a\x48\xb0\x20\x0a"
@@ -5490,34 +5623,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_124)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 125.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_125)
-{
+BEGIN_TEST_F(hash_125)
     const char INPUT[] =
         "\x9d\x36\x81\x8d\x0c\x5a\x00\x8b\xe7\x90\x4d\x19"
         "\x17\xaa\x3e\xcc\xb5\xef\x4f\x38\xce\xcb\x8c\x4e"
@@ -5539,34 +5673,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_125)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 126.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_126)
-{
+BEGIN_TEST_F(hash_126)
     const char INPUT[] =
         "\x4a\xe5\x0e\xd6\x26\xee\x60\xdc\x5e\xa5\x56\xe3"
         "\xce\x0d\x3c\x18\xb9\xe6\x22\x5b\x56\x20\x81\x4e"
@@ -5588,34 +5723,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_126)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 127.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_127)
-{
+BEGIN_TEST_F(hash_127)
     const char INPUT[] =
         "\xdb\xed\x76\x12\x44\x8d\x46\xcb\xe0\xa3\x84\xd1"
         "\xc9\x32\x33\xf0\x2f\xfd\x1c\x98\x4b\xa7\x65\x29"
@@ -5637,34 +5773,35 @@ TEST_F(vccrypt_sha384_ref_test, hash_127)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 128.
  */
-TEST_F(vccrypt_sha384_ref_test, hash_128)
-{
+BEGIN_TEST_F(hash_128)
     const char INPUT[] =
         "\x3b\xf5\x2c\xc5\xee\x86\xb9\xa0\x19\x0f\x39\x0a"
         "\x5c\x03\x66\xa5\x60\xb5\x57\x00\x0d\xbe\x51\x15"
@@ -5686,26 +5823,27 @@ TEST_F(vccrypt_sha384_ref_test, hash_128)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_384));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_384));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 48));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 48));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
-#endif
+END_TEST_F()
