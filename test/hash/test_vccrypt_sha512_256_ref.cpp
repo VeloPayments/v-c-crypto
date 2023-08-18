@@ -3,18 +3,17 @@
  *
  * Unit tests for the reference SHA-512/256 implementation.
  *
- * \copyright 2017 Velo-Payments, Inc.  All rights reserved.
+ * \copyright 2017-2023 Velo-Payments, Inc.  All rights reserved.
  */
 
+#include <minunit/minunit.h>
+#include <string.h>
 #include <vccrypt/hash.h>
 #include <vpr/allocator/malloc_allocator.h>
 
-/* DISABLED GTEST */
-#if 0
-
-class vccrypt_sha512_256_ref_test : public ::testing::Test {
-protected:
-    void SetUp() override
+class vccrypt_sha512_256_ref_test {
+public:
+    void setUp()
     {
         //make sure SHA-512/256 has been registered
         vccrypt_hash_register_SHA_2_512_256();
@@ -22,7 +21,7 @@ protected:
         malloc_allocator_options_init(&alloc_opts);
     }
 
-    void TearDown() override
+    void tearDown()
     {
         dispose((disposable_t*)&alloc_opts);
     }
@@ -30,44 +29,56 @@ protected:
     allocator_options_t alloc_opts;
 };
 
+TEST_SUITE(vccrypt_sha512_256_ref_test);
+
+#define BEGIN_TEST_F(name) \
+TEST(name) \
+{ \
+    vccrypt_sha512_256_ref_test fixture; \
+    fixture.setUp();
+
+#define END_TEST_F() \
+    fixture.tearDown(); \
+}
+
 /**
  * We should be able to get SHA-512/256 options if it has been registered.
  */
-TEST_F(vccrypt_sha512_256_ref_test, init)
-{
+BEGIN_TEST_F(init)
     vccrypt_hash_options_t options;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_512_256));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_512_256));
 
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to create a hash context.
  */
-TEST_F(vccrypt_sha512_256_ref_test, context_init)
-{
+BEGIN_TEST_F(context_init)
     vccrypt_hash_options_t options;
     vccrypt_hash_context_t context;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_512_256));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_512_256));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 1.
  */
-TEST_F(vccrypt_sha512_256_ref_test, hash_1)
-{
+BEGIN_TEST_F(hash_1)
     const char INPUT[] =
         "abc";
     const char EXPECTED_HASH[] =
@@ -77,34 +88,37 @@ TEST_F(vccrypt_sha512_256_ref_test, hash_1)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_512_256));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_512_256));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 32));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 32));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to hash test vector 2.
  */
-TEST_F(vccrypt_sha512_256_ref_test, hash_2)
-{
+BEGIN_TEST_F(hash_2)
     const char INPUT[] =
         "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn"
         "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu";
@@ -115,26 +129,29 @@ TEST_F(vccrypt_sha512_256_ref_test, hash_2)
     vccrypt_hash_context_t context;
     vccrypt_buffer_t md;
 
-    ASSERT_EQ(0,
-        vccrypt_hash_options_init(&options, &alloc_opts,
-            VCCRYPT_HASH_ALGORITHM_SHA_2_512_256));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_HASH_ALGORITHM_SHA_2_512_256));
 
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(&md, &alloc_opts, options.hash_size));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &md, &fixture.alloc_opts, options.hash_size));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_init(&options, &context));
+    TEST_ASSERT(0 == vccrypt_hash_init(&options, &context));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_digest(&context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
+    TEST_ASSERT(
+        0
+            == vccrypt_hash_digest(
+                    &context, (const uint8_t*)INPUT, sizeof(INPUT) - 1));
 
-    ASSERT_EQ(0,
-        vccrypt_hash_finalize(&context, &md));
+    TEST_ASSERT(0 == vccrypt_hash_finalize(&context, &md));
 
-    ASSERT_EQ(0, memcmp(md.data, EXPECTED_HASH, 32));
+    TEST_ASSERT(0 == memcmp(md.data, EXPECTED_HASH, 32));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&md);
     dispose((disposable_t*)&options);
-}
-#endif
+END_TEST_F()
