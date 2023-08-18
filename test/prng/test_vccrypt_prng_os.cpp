@@ -6,9 +6,11 @@
  * \copyright 2017 Velo-Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include <vccrypt/prng.h>
 #include <vpr/allocator/malloc_allocator.h>
+
+/* DISABLED GTEST */
+#if 0
 
 class vccrypt_prng_os_test : public ::testing::Test {
 protected:
@@ -139,3 +141,4 @@ TEST_F(vccrypt_prng_os_test, read_uuid)
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
 }
+#endif

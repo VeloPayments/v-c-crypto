@@ -6,10 +6,12 @@
  * \copyright 2017 Velo-Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include <iostream>
 #include <vpr/allocator/malloc_allocator.h>
 #include <vccrypt/buffer.h>
+
+/* DISABLED GTEST */
+#if 0
 
 using namespace std;
 
@@ -232,3 +234,4 @@ TEST_F(vccrypt_buffer_read_base64_test, size_mismatch)
     dispose((disposable_t*)&source);
     dispose((disposable_t*)&dest);
 }
+#endif

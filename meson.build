@@ -40,9 +40,9 @@ test_src = run_command('find', './test', '-name', '*.cpp', check : true).stdout(
 
 # GTest is currently only used on native x86 builds. Creating a disabler will disable the test exe and test target.
 if meson.is_cross_build()
-  gtest = disabler()
+  minunit = disabler()
 else
-  gtest = dependency('gtest', main : true, required : true, fallback : ['gtest','gtest_dep'])
+  minunit = dependency('minunit', main : true, required : true, fallback : ['minunit', 'minunit_dep'])
 endif
 
 vcmodel = dependency(
@@ -83,7 +83,7 @@ vccrypt_test = executable(
   'testvccrypt',
   test_src,
   include_directories : [vccrypt_include, config_include],
-  dependencies : [vpr, gtest],
+  dependencies : [vpr, minunit],
   link_with : [vccrypt_lib, vccrypt_mock_lib]
 )
 

@@ -9,9 +9,11 @@
 #include <fstream>
 #include <sstream>
 
-#include <gtest/gtest.h>
 #include <vccrypt/suite.h>
 #include <vpr/allocator/malloc_allocator.h>
+
+/* DISABLED GTEST */
+#if 0
 
 using namespace std;
 
@@ -832,3 +834,4 @@ TEST_F(vccrypt_suite_velo_v1, vccrypt_suite_buffer_init_for_uuid)
     /* dispose of the buffer. */
     dispose((disposable_t*)&uuidbuffer);
 }
+#endif

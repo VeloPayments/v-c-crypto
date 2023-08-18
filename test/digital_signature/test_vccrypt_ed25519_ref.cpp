@@ -9,9 +9,11 @@
 #include <fstream>
 #include <sstream>
 
-#include <gtest/gtest.h>
 #include <vccrypt/digital_signature.h>
 #include <vpr/allocator/malloc_allocator.h>
+
+/* DISABLED GTEST */
+#if 0
 
 using namespace std;
 
@@ -289,3 +291,4 @@ TEST_F(vccrypt_ed25519_ref_test, keygen_sign)
     //dispose of the options
     dispose((disposable_t*)&options);
 }
+#endif

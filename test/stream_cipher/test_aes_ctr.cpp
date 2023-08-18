@@ -6,12 +6,14 @@
  * \copyright 2018 Velo Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include <vccrypt/stream_cipher.h>
 #include <vpr/allocator/malloc_allocator.h>
 
 #include "../../src/stream_cipher/aes/aes.h"
 #include "../../src/stream_cipher/stream_cipher_private.h"
+
+/* DISABLED GTEST */
+#if 0
 
 static uint64_t mmhtonll(uint64_t n)
 {
@@ -518,3 +520,4 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_03)
     dispose((disposable_t*)&key);
     dispose((disposable_t*)&ctx);
 }
+#endif

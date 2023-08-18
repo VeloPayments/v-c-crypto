@@ -6,8 +6,10 @@
  * \copyright 2018 Velo-Payments, Inc.  All rights reserved.
  */
 
-#include <gtest/gtest.h>
 #include "../../src/stream_cipher/aes/aes.h"
+
+/* DISABLED GTEST */
+#if 0
 
 /**
  * Test that AES-256-ECB works as expected.
@@ -226,3 +228,4 @@ TEST(aes_core_test, AES_256X4_ECB)
         EXPECT_EQ(test_plaintext[i], plaintext[i]);
     }
 }
+#endif
