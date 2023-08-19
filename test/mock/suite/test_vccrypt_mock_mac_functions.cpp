@@ -3,19 +3,19 @@
  *
  * Unit tests for the Velo mock mac functions.
  *
- * \copyright 2020 Velo-Payments, Inc.  All rights reserved.
+ * \copyright 2020-2023 Velo-Payments, Inc.  All rights reserved.
  */
 
+#include <minunit/minunit.h>
 #include <vccrypt/mock_suite.h>
 #include <vpr/allocator/malloc_allocator.h>
 
-/* DISABLED GTEST */
-#if 0
+TEST_SUITE(vccrypt_mock_mac_functions);
 
 /**
  * By default, the mac init function returns VCCRYPT_ERROR_MOCK_NOT_ADDED.
  */
-TEST(vccrypt_mock_mac_functions, init_default)
+TEST(init_default)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -29,19 +29,20 @@ TEST(vccrypt_mock_mac_functions, init_default)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* create a buffer for the mac key. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_suite_buffer_init_for_mac_private_key(
+                    &suite, &key, false));
 
     /* attempting to initiate a mock mac algorithm should fail. */
-    EXPECT_EQ(
-        VCCRYPT_ERROR_MOCK_NOT_ADDED,
-        vccrypt_suite_mac_init(&suite, &mac, &key));
+    TEST_EXPECT(
+        VCCRYPT_ERROR_MOCK_NOT_ADDED
+            == vccrypt_suite_mac_init(&suite, &mac, &key));
 
     /* cleanup. */
     dispose((disposable_t*)&key);
@@ -52,7 +53,7 @@ TEST(vccrypt_mock_mac_functions, init_default)
 /**
  * It's possible to mock the mac init method.
  */
-TEST(vccrypt_mock_mac_functions, init_mocked)
+TEST(init_mocked)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -66,30 +67,30 @@ TEST(vccrypt_mock_mac_functions, init_mocked)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* add a mock for the init method. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_mac_init(
-            &suite,
-            [&](
-                vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                const vccrypt_buffer_t*) -> int {
-                    return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_mac_init(
+                    &suite,
+                    [&](
+                        vccrypt_mac_options_t*, vccrypt_mac_context_t*,
+                        const vccrypt_buffer_t*) -> int {
+                            return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* create a buffer for the mac key. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_suite_buffer_init_for_mac_private_key(
+                    &suite, &key, false));
 
     /* We should now be able to init a mock mac context. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_mac_init(&suite, &mac, &key));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_suite_mac_init(&suite, &mac, &key));
 
     /* cleanup. */
     dispose((disposable_t*)&key);
@@ -100,7 +101,7 @@ TEST(vccrypt_mock_mac_functions, init_mocked)
 /**
  * It's possible to mock the mac dispose method.
  */
-TEST(vccrypt_mock_mac_functions, dispose_mocked)
+TEST(dispose_mocked)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -114,59 +115,59 @@ TEST(vccrypt_mock_mac_functions, dispose_mocked)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* add a mock for the init method. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_mac_init(
-            &suite,
-            [&](
-                vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                const vccrypt_buffer_t*) -> int {
-                    return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_mac_init(
+                    &suite,
+                    [&](
+                        vccrypt_mac_options_t*, vccrypt_mac_context_t*,
+                        const vccrypt_buffer_t*) -> int {
+                            return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* add a mock for the dispose method. */
     vccrypt_mac_options_t* got_options = nullptr;
     vccrypt_mac_context_t* got_context = nullptr;
     bool dispose_called = false;
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_mac_dispose(
-            &suite,
-            [&](
-                vccrypt_mac_options_t* options,
-                vccrypt_mac_context_t* context) {
-                    got_options = options;
-                    got_context = context;
-                    dispose_called = true;
-            }));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_mac_dispose(
+                    &suite,
+                    [&](
+                        vccrypt_mac_options_t* options,
+                        vccrypt_mac_context_t* context) {
+                            got_options = options;
+                            got_context = context;
+                            dispose_called = true;
+                    }));
 
     /* create a buffer for the mac key. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_suite_buffer_init_for_mac_private_key(
+                    &suite, &key, false));
 
     /* precondition: dispose_called is false. */
-    EXPECT_EQ(nullptr, got_options);
-    EXPECT_EQ(nullptr, got_context);
-    EXPECT_FALSE(dispose_called);
+    TEST_EXPECT(nullptr == got_options);
+    TEST_EXPECT(nullptr == got_context);
+    TEST_EXPECT(!dispose_called);
 
     /* We should be able to init a mock mac context. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_mac_init(&suite, &mac, &key));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_suite_mac_init(&suite, &mac, &key));
 
     /* Dispose this instance. */
     dispose((disposable_t*)&mac);
 
     /* postcondition: dispose_called should now be set to true. */
-    EXPECT_EQ(&suite.mac_opts, got_options);
-    EXPECT_EQ(&mac, got_context);
-    EXPECT_TRUE(dispose_called);
+    TEST_EXPECT(&suite.mac_opts == got_options);
+    TEST_EXPECT(&mac == got_context);
+    TEST_EXPECT(dispose_called);
 
     /* cleanup. */
     dispose((disposable_t*)&key);
@@ -177,7 +178,7 @@ TEST(vccrypt_mock_mac_functions, dispose_mocked)
 /**
  * By default, the mac digest method returns VCCRYPT_ERROR_MOCK_NOT_ADDED.
  */
-TEST(vccrypt_mock_mac_functions, digest_default)
+TEST(digest_default)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -193,35 +194,35 @@ TEST(vccrypt_mock_mac_functions, digest_default)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* add a mock for the init method. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_mac_init(
-            &suite,
-            [&](
-                vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                const vccrypt_buffer_t*) -> int {
-                    return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_mac_init(
+                    &suite,
+                    [&](
+                        vccrypt_mac_options_t*, vccrypt_mac_context_t*,
+                        const vccrypt_buffer_t*) -> int {
+                            return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* create a buffer for the mac key. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_suite_buffer_init_for_mac_private_key(
+                    &suite, &key, false));
 
     /* We should be able to init a mock mac context. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_mac_init(&suite, &mac, &key));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_suite_mac_init(&suite, &mac, &key));
 
     /* Calling the digest method should return an error. */
-    EXPECT_EQ(
-        VCCRYPT_ERROR_MOCK_NOT_ADDED,
-        vccrypt_mac_digest(&mac, EXPECTED_DATA, EXPECTED_DATA_SIZE));
+    TEST_EXPECT(
+        VCCRYPT_ERROR_MOCK_NOT_ADDED
+            == vccrypt_mac_digest(&mac, EXPECTED_DATA, EXPECTED_DATA_SIZE));
 
     /* cleanup. */
     dispose((disposable_t*)&key);
@@ -232,7 +233,7 @@ TEST(vccrypt_mock_mac_functions, digest_default)
 /**
  * We can mock the mac digest method.
  */
-TEST(vccrypt_mock_mac_functions, digest_mocked)
+TEST(digest_mocked)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -248,64 +249,64 @@ TEST(vccrypt_mock_mac_functions, digest_mocked)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* add a mock for the init method. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_mac_init(
-            &suite,
-            [&](
-                vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                const vccrypt_buffer_t*) -> int {
-                    return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_mac_init(
+                    &suite,
+                    [&](
+                        vccrypt_mac_options_t*, vccrypt_mac_context_t*,
+                        const vccrypt_buffer_t*) -> int {
+                            return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* mock the digest method. */
     vccrypt_mac_context_t* got_context = nullptr;
     const uint8_t* got_data = nullptr;
     size_t got_size = 0;
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_mac_digest(
-            &suite,
-            [&](
-                vccrypt_mac_context_t* context, const uint8_t* data,
-                size_t size) -> int {
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_mac_digest(
+                    &suite,
+                    [&](
+                        vccrypt_mac_context_t* context, const uint8_t* data,
+                        size_t size) -> int {
 
-                    got_context = context;
-                    got_data = data;
-                    got_size = size;
+                            got_context = context;
+                            got_data = data;
+                            got_size = size;
 
-                    return VCCRYPT_STATUS_SUCCESS;
-            }));
+                            return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* create a buffer for the mac key. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_suite_buffer_init_for_mac_private_key(
+                    &suite, &key, false));
 
     /* We should be able to init a mock mac context. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_mac_init(&suite, &mac, &key));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_suite_mac_init(&suite, &mac, &key));
 
     /* PRECONDITIONS: the got* values are unset. */
-    EXPECT_EQ(nullptr, got_context);
-    EXPECT_EQ(nullptr, got_data);
-    EXPECT_EQ(0, got_size);
+    TEST_EXPECT(nullptr == got_context);
+    TEST_EXPECT(nullptr == got_data);
+    TEST_EXPECT(0 == got_size);
 
     /* Calling the digest method should succeed. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mac_digest(&mac, EXPECTED_DATA, EXPECTED_DATA_SIZE));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mac_digest(&mac, EXPECTED_DATA, EXPECTED_DATA_SIZE));
 
     /* POSTCONDITIONS: the got* values are set. */
-    EXPECT_EQ(&mac, got_context);
-    EXPECT_EQ(EXPECTED_DATA, got_data);
-    EXPECT_EQ(EXPECTED_DATA_SIZE, got_size);
+    TEST_EXPECT(&mac == got_context);
+    TEST_EXPECT(EXPECTED_DATA == got_data);
+    TEST_EXPECT(EXPECTED_DATA_SIZE == got_size);
 
     /* cleanup. */
     dispose((disposable_t*)&key);
@@ -316,7 +317,7 @@ TEST(vccrypt_mock_mac_functions, digest_mocked)
 /**
  * By default, the mac finalize method returns VCCRYPT_ERROR_MOCK_NOT_ADDED.
  */
-TEST(vccrypt_mock_mac_functions, finalize_default)
+TEST(finalize_default)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -331,41 +332,41 @@ TEST(vccrypt_mock_mac_functions, finalize_default)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* add a mock for the init method. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_mac_init(
-            &suite,
-            [&](
-                vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                const vccrypt_buffer_t*) -> int {
-                    return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_mac_init(
+                    &suite,
+                    [&](
+                        vccrypt_mac_options_t*, vccrypt_mac_context_t*,
+                        const vccrypt_buffer_t*) -> int {
+                            return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* create a buffer for the mac key. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_suite_buffer_init_for_mac_private_key(
+                    &suite, &key, false));
 
     /* create a buffer for the mac buffer. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_authentication_code(
-            &suite, &mac_buffer, false));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_suite_buffer_init_for_mac_authentication_code(
+                    &suite, &mac_buffer, false));
 
     /* We should be able to init a mock mac context. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_mac_init(&suite, &mac, &key));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_suite_mac_init(&suite, &mac, &key));
 
     /* Calling the finalize method should return an error. */
-    EXPECT_EQ(
-        VCCRYPT_ERROR_MOCK_NOT_ADDED,
-        vccrypt_mac_finalize(&mac, &mac_buffer));
+    TEST_EXPECT(
+        VCCRYPT_ERROR_MOCK_NOT_ADDED
+            == vccrypt_mac_finalize(&mac, &mac_buffer));
 
     /* cleanup. */
     dispose((disposable_t*)&key);
@@ -377,7 +378,7 @@ TEST(vccrypt_mock_mac_functions, finalize_default)
 /**
  * We can mock the finalize method.
  */
-TEST(vccrypt_mock_mac_functions, finalize_mocked)
+TEST(finalize_mocked)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -392,66 +393,66 @@ TEST(vccrypt_mock_mac_functions, finalize_mocked)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* add a mock for the init method. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_mac_init(
-            &suite,
-            [&](
-                vccrypt_mac_options_t*, vccrypt_mac_context_t*,
-                const vccrypt_buffer_t*) -> int {
-                    return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_mac_init(
+                    &suite,
+                    [&](
+                        vccrypt_mac_options_t*, vccrypt_mac_context_t*,
+                        const vccrypt_buffer_t*) -> int {
+                            return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* mock the finalize method. */
     vccrypt_mac_context_t* got_context = nullptr;
     vccrypt_buffer_t* got_digest = nullptr;
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_mac_finalize(
-            &suite,
-            [&](
-                vccrypt_mac_context_t* context, vccrypt_buffer_t* digest)
-                    -> int {
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_mac_finalize(
+                    &suite,
+                    [&](
+                        vccrypt_mac_context_t* context,
+                        vccrypt_buffer_t* digest)
+                            -> int {
 
-                got_context = context;
-                got_digest = digest;
+                        got_context = context;
+                        got_digest = digest;
 
-                return VCCRYPT_STATUS_SUCCESS;
-            }));
+                        return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* create a buffer for the mac key. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_private_key(&suite, &key, false));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_suite_buffer_init_for_mac_private_key(
+                    &suite, &key, false));
 
     /* create a buffer for the mac buffer. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_buffer_init_for_mac_authentication_code(
-            &suite, &mac_buffer, false));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_suite_buffer_init_for_mac_authentication_code(
+                    &suite, &mac_buffer, false));
 
     /* We should be able to init a mock mac context. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_mac_init(&suite, &mac, &key));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_suite_mac_init(&suite, &mac, &key));
 
     /* PRECONDITIONS: the got* values are unset. */
-    EXPECT_EQ(nullptr, got_context);
-    EXPECT_EQ(nullptr, got_digest);
+    TEST_EXPECT(nullptr == got_context);
+    TEST_EXPECT(nullptr == got_digest);
 
     /* Calling the finalize method should succeed. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mac_finalize(&mac, &mac_buffer));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_mac_finalize(&mac, &mac_buffer));
 
     /* POSTCONDITIONS: the got* values are set. */
-    EXPECT_EQ(&mac, got_context);
-    EXPECT_EQ(&mac_buffer, got_digest);
+    TEST_EXPECT(&mac == got_context);
+    TEST_EXPECT(&mac_buffer == got_digest);
 
     /* cleanup. */
     dispose((disposable_t*)&key);
@@ -459,4 +460,3 @@ TEST(vccrypt_mock_mac_functions, finalize_mocked)
     dispose((disposable_t*)&suite);
     dispose((disposable_t*)&alloc_opts);
 }
-#endif
