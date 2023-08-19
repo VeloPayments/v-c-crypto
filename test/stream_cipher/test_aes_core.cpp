@@ -3,18 +3,19 @@
  *
  * Unit tests for aes_core.
  *
- * \copyright 2018 Velo-Payments, Inc.  All rights reserved.
+ * \copyright 2018-2023 Velo-Payments, Inc.  All rights reserved.
  */
+
+#include <minunit/minunit.h>
 
 #include "../../src/stream_cipher/aes/aes.h"
 
-/* DISABLED GTEST */
-#if 0
+TEST_SUITE(aes_core_test);
 
 /**
  * Test that AES-256-ECB works as expected.
  */
-TEST(aes_core_test, AES_256_ECB)
+TEST(AES_256_ECB)
 {
     const uint8_t key[32] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -53,26 +54,26 @@ TEST(aes_core_test, AES_256_ECB)
     AES_KEY test_key;
 
     /* test encryption AES-256-ECB */
-    ASSERT_EQ(0, AES_set_encrypt_key(key, 256, 1, &test_key));
+    TEST_ASSERT(0 == AES_set_encrypt_key(key, 256, 1, &test_key));
     AES_encrypt(plaintext, test_ciphertext, &test_key);
     for (int i = 0; i < 16; ++i)
     {
-        EXPECT_EQ(test_ciphertext[i], ciphertext[i]);
+        TEST_EXPECT(test_ciphertext[i] == ciphertext[i]);
     }
 
     /* test decryption AES-256-ECB */
-    ASSERT_EQ(0, AES_set_decrypt_key(key, 256, 1, &test_key));
+    TEST_ASSERT(0 == AES_set_decrypt_key(key, 256, 1, &test_key));
     AES_decrypt(ciphertext, test_plaintext, &test_key);
     for (int i = 0; i < 16; ++i)
     {
-        EXPECT_EQ(test_plaintext[i], plaintext[i]);
+        TEST_EXPECT(test_plaintext[i] == plaintext[i]);
     }
 }
 
 /**
  * Test that AES-256X2-ECB works as expected.
  */
-TEST(aes_core_test, AES_256X2_ECB)
+TEST(AES_256X2_ECB)
 {
     const uint8_t key[32] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -97,26 +98,26 @@ TEST(aes_core_test, AES_256X2_ECB)
     AES_KEY test_key;
 
     /* test encryption AES-256X2-ECB */
-    ASSERT_EQ(0, AES_set_encrypt_key(key, 256, 2, &test_key));
+    TEST_ASSERT(0 == AES_set_encrypt_key(key, 256, 2, &test_key));
     AES_encrypt(plaintext, test_ciphertext, &test_key);
     for (int i = 0; i < 16; ++i)
     {
-        EXPECT_EQ(test_ciphertext[i], ciphertext[i]);
+        TEST_EXPECT(test_ciphertext[i] == ciphertext[i]);
     }
 
     /* test decryption AES-256X2-ECB */
-    ASSERT_EQ(0, AES_set_decrypt_key(key, 256, 2, &test_key));
+    TEST_ASSERT(0 == AES_set_decrypt_key(key, 256, 2, &test_key));
     AES_decrypt(ciphertext, test_plaintext, &test_key);
     for (int i = 0; i < 16; ++i)
     {
-        EXPECT_EQ(test_plaintext[i], plaintext[i]);
+        TEST_EXPECT(test_plaintext[i] == plaintext[i]);
     }
 }
 
 /**
  * Test that AES-256X3-ECB works as expected.
  */
-TEST(aes_core_test, AES_256X3_ECB)
+TEST(AES_256X3_ECB)
 {
     const uint8_t key[32] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -155,26 +156,26 @@ TEST(aes_core_test, AES_256X3_ECB)
     AES_KEY test_key;
 
     /* test encryption AES-256X3-ECB */
-    ASSERT_EQ(0, AES_set_encrypt_key(key, 256, 3, &test_key));
+    TEST_ASSERT(0 == AES_set_encrypt_key(key, 256, 3, &test_key));
     AES_encrypt(plaintext, test_ciphertext, &test_key);
     for (int i = 0; i < 16; ++i)
     {
-        EXPECT_EQ(test_ciphertext[i], ciphertext[i]);
+        TEST_EXPECT(test_ciphertext[i] == ciphertext[i]);
     }
 
     /* test decryption AES-256X3-ECB */
-    ASSERT_EQ(0, AES_set_decrypt_key(key, 256, 3, &test_key));
+    TEST_ASSERT(0 == AES_set_decrypt_key(key, 256, 3, &test_key));
     AES_decrypt(ciphertext, test_plaintext, &test_key);
     for (int i = 0; i < 16; ++i)
     {
-        EXPECT_EQ(test_plaintext[i], plaintext[i]);
+        TEST_EXPECT(test_plaintext[i] == plaintext[i]);
     }
 }
 
 /**
  * Test that AES-256X4-ECB works as expected.
  */
-TEST(aes_core_test, AES_256X4_ECB)
+TEST(AES_256X4_ECB)
 {
     const uint8_t key[32] = {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -213,19 +214,18 @@ TEST(aes_core_test, AES_256X4_ECB)
     AES_KEY test_key;
 
     /* test encryption AES-256X4-ECB */
-    ASSERT_EQ(0, AES_set_encrypt_key(key, 256, 4, &test_key));
+    TEST_ASSERT(0 == AES_set_encrypt_key(key, 256, 4, &test_key));
     AES_encrypt(plaintext, test_ciphertext, &test_key);
     for (int i = 0; i < 16; ++i)
     {
-        EXPECT_EQ(test_ciphertext[i], ciphertext[i]);
+        TEST_EXPECT(test_ciphertext[i] == ciphertext[i]);
     }
 
     /* test decryption AES-256X4-ECB */
-    ASSERT_EQ(0, AES_set_decrypt_key(key, 256, 4, &test_key));
+    TEST_ASSERT(0 == AES_set_decrypt_key(key, 256, 4, &test_key));
     AES_decrypt(ciphertext, test_plaintext, &test_key);
     for (int i = 0; i < 16; ++i)
     {
-        EXPECT_EQ(test_plaintext[i], plaintext[i]);
+        TEST_EXPECT(test_plaintext[i] == plaintext[i]);
     }
 }
-#endif
