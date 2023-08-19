@@ -3,18 +3,17 @@
  *
  * Unit tests for the reference HMAC-SHA-512 implementation.
  *
- * \copyright 2017 Velo-Payments, Inc.  All rights reserved.
+ * \copyright 2017-2023 Velo-Payments, Inc.  All rights reserved.
  */
 
+#include <minunit/minunit.h>
+#include <string.h>
 #include <vccrypt/mac.h>
 #include <vpr/allocator/malloc_allocator.h>
 
-/* DISABLED GTEST */
-#if 0
-
-class vccrypt_hmac512_ref_test : public ::testing::Test {
-protected:
-    void SetUp() override
+class vccrypt_hmac512_ref_test {
+public:
+    void setUp()
     {
         //make sure HMAC-512 has been registered
         vccrypt_mac_register_SHA_2_512_HMAC();
@@ -32,7 +31,7 @@ protected:
             memset(dummyKey.data, 0, dummyKey.size);
     }
 
-    void TearDown() override
+    void tearDown()
     {
         if (buffer_init_result == 0)
             dispose((disposable_t*)&dummyKey);
@@ -50,31 +49,41 @@ protected:
     vccrypt_buffer_t dummyKey;
 };
 
+TEST_SUITE(vccrypt_hmac512_ref_test);
+
+#define BEGIN_TEST_F(name) \
+TEST(name) \
+{ \
+    vccrypt_hmac512_ref_test fixture; \
+    fixture.setUp();
+
+#define END_TEST_F() \
+    fixture.tearDown(); \
+}
+
 /**
  * SHA-512-HMAC should have been successfully initialized.
  */
-TEST_F(vccrypt_hmac512_ref_test, options_init)
-{
-    ASSERT_EQ(0, hmac_init_result);
-}
+BEGIN_TEST_F(options_init)
+    TEST_ASSERT(0 == fixture.hmac_init_result);
+END_TEST_F()
 
 /**
  * We should be able to create an HMAC context.
  */
-TEST_F(vccrypt_hmac512_ref_test, init)
-{
+BEGIN_TEST_F(init)
     vccrypt_mac_context_t context;
 
-    ASSERT_EQ(0, vccrypt_mac_init(&options, &context, &dummyKey));
+    TEST_ASSERT(
+        0 == vccrypt_mac_init(&fixture.options, &context, &fixture.dummyKey));
 
     dispose((disposable_t*)&context);
-}
+END_TEST_F()
 
 /**
  * We should be able to HMAC RFC-4231 Test Case 1.
  */
-TEST_F(vccrypt_hmac512_ref_test, test_case_1)
-{
+BEGIN_TEST_F(test_case_1)
     const uint8_t KEY[] = {
         0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
         0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b, 0x0b,
@@ -98,35 +107,38 @@ TEST_F(vccrypt_hmac512_ref_test, test_case_1)
     vccrypt_mac_context_t context;
 
     //create key buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&keybuf, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&keybuf, &fixture.alloc_opts, sizeof(KEY)));
     memcpy(keybuf.data, KEY, sizeof(KEY));
 
     //initialize MAC
-    ASSERT_EQ(0, vccrypt_mac_init(&options, &context, &keybuf));
+    TEST_ASSERT(0 == vccrypt_mac_init(&fixture.options, &context, &keybuf));
 
     //digest input
-    ASSERT_EQ(0, vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
+    TEST_ASSERT(0 == vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
 
     //create output buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&outbuf, &alloc_opts, options.mac_size));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &outbuf, &fixture.alloc_opts, fixture.options.mac_size));
 
     //finalize hmac
-    ASSERT_EQ(0, vccrypt_mac_finalize(&context, &outbuf));
+    TEST_ASSERT(0 == vccrypt_mac_finalize(&context, &outbuf));
 
     //the HMAC output should match our expected HMAC
-    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+    TEST_ASSERT(0 == memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
 
     //clean up
     dispose((disposable_t*)&outbuf);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&keybuf);
-}
+END_TEST_F()
 
 /**
  * We should be able to HMAC RFC-4231 Test Case 2.
  */
-TEST_F(vccrypt_hmac512_ref_test, test_case_2)
-{
+BEGIN_TEST_F(test_case_2)
     const uint8_t KEY[] = {
         0x4a, 0x65, 0x66, 0x65
     };
@@ -151,35 +163,38 @@ TEST_F(vccrypt_hmac512_ref_test, test_case_2)
     vccrypt_mac_context_t context;
 
     //create key buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&keybuf, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&keybuf, &fixture.alloc_opts, sizeof(KEY)));
     memcpy(keybuf.data, KEY, sizeof(KEY));
 
     //initialize MAC
-    ASSERT_EQ(0, vccrypt_mac_init(&options, &context, &keybuf));
+    TEST_ASSERT(0 == vccrypt_mac_init(&fixture.options, &context, &keybuf));
 
     //digest input
-    ASSERT_EQ(0, vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
+    TEST_ASSERT(0 == vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
 
     //create output buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&outbuf, &alloc_opts, options.mac_size));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &outbuf, &fixture.alloc_opts, fixture.options.mac_size));
 
     //finalize hmac
-    ASSERT_EQ(0, vccrypt_mac_finalize(&context, &outbuf));
+    TEST_ASSERT(0 == vccrypt_mac_finalize(&context, &outbuf));
 
     //the HMAC output should match our expected HMAC
-    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+    TEST_ASSERT(0 == memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
 
     //clean up
     dispose((disposable_t*)&outbuf);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&keybuf);
-}
+END_TEST_F()
 
 /**
  * We should be able to HMAC RFC-4231 Test Case 3.
  */
-TEST_F(vccrypt_hmac512_ref_test, test_case_3)
-{
+BEGIN_TEST_F(test_case_3)
     const uint8_t KEY[] = {
         0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
         0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
@@ -209,35 +224,38 @@ TEST_F(vccrypt_hmac512_ref_test, test_case_3)
     vccrypt_mac_context_t context;
 
     //create key buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&keybuf, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&keybuf, &fixture.alloc_opts, sizeof(KEY)));
     memcpy(keybuf.data, KEY, sizeof(KEY));
 
     //initialize MAC
-    ASSERT_EQ(0, vccrypt_mac_init(&options, &context, &keybuf));
+    TEST_ASSERT(0 == vccrypt_mac_init(&fixture.options, &context, &keybuf));
 
     //digest input
-    ASSERT_EQ(0, vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
+    TEST_ASSERT(0 == vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
 
     //create output buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&outbuf, &alloc_opts, options.mac_size));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &outbuf, &fixture.alloc_opts, fixture.options.mac_size));
 
     //finalize hmac
-    ASSERT_EQ(0, vccrypt_mac_finalize(&context, &outbuf));
+    TEST_ASSERT(0 == vccrypt_mac_finalize(&context, &outbuf));
 
     //the HMAC output should match our expected HMAC
-    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+    TEST_ASSERT(0 == memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
 
     //clean up
     dispose((disposable_t*)&outbuf);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&keybuf);
-}
+END_TEST_F()
 
 /**
  * We should be able to HMAC RFC-4231 Test Case 4.
  */
-TEST_F(vccrypt_hmac512_ref_test, test_case_4)
-{
+BEGIN_TEST_F(test_case_4)
     const uint8_t KEY[] = {
         0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
         0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
@@ -268,37 +286,40 @@ TEST_F(vccrypt_hmac512_ref_test, test_case_4)
     vccrypt_mac_context_t context;
 
     //create key buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&keybuf, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&keybuf, &fixture.alloc_opts, sizeof(KEY)));
     memcpy(keybuf.data, KEY, sizeof(KEY));
 
     //initialize MAC
-    ASSERT_EQ(0, vccrypt_mac_init(&options, &context, &keybuf));
+    TEST_ASSERT(0 == vccrypt_mac_init(&fixture.options, &context, &keybuf));
 
     //digest input
-    ASSERT_EQ(0, vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
+    TEST_ASSERT(0 == vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
 
     //create output buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&outbuf, &alloc_opts, options.mac_size));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &outbuf, &fixture.alloc_opts, fixture.options.mac_size));
 
     //finalize hmac
-    ASSERT_EQ(0, vccrypt_mac_finalize(&context, &outbuf));
+    TEST_ASSERT(0 == vccrypt_mac_finalize(&context, &outbuf));
 
     //the HMAC output should match our expected HMAC
-    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+    TEST_ASSERT(0 == memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
 
     //clean up
     dispose((disposable_t*)&outbuf);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&keybuf);
-}
+END_TEST_F()
 
 /* test case 5 intentionally skipped; it's meaningless to us. */
 
 /**
  * We should be able to HMAC RFC-4231 Test Case 6.
  */
-TEST_F(vccrypt_hmac512_ref_test, test_case_6)
-{
+BEGIN_TEST_F(test_case_6)
     const uint8_t KEY[] = {
         0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
         0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
@@ -342,35 +363,38 @@ TEST_F(vccrypt_hmac512_ref_test, test_case_6)
     vccrypt_mac_context_t context;
 
     //create key buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&keybuf, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&keybuf, &fixture.alloc_opts, sizeof(KEY)));
     memcpy(keybuf.data, KEY, sizeof(KEY));
 
     //initialize MAC
-    ASSERT_EQ(0, vccrypt_mac_init(&options, &context, &keybuf));
+    TEST_ASSERT(0 == vccrypt_mac_init(&fixture.options, &context, &keybuf));
 
     //digest input
-    ASSERT_EQ(0, vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
+    TEST_ASSERT(0 == vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
 
     //create output buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&outbuf, &alloc_opts, options.mac_size));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &outbuf, &fixture.alloc_opts, fixture.options.mac_size));
 
     //finalize hmac
-    ASSERT_EQ(0, vccrypt_mac_finalize(&context, &outbuf));
+    TEST_ASSERT(0 == vccrypt_mac_finalize(&context, &outbuf));
 
     //the HMAC output should match our expected HMAC
-    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+    TEST_ASSERT(0 == memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
 
     //clean up
     dispose((disposable_t*)&outbuf);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&keybuf);
-}
+END_TEST_F()
 
 /**
  * We should be able to HMAC RFC-4231 Test Case 7.
  */
-TEST_F(vccrypt_hmac512_ref_test, test_case_7)
-{
+BEGIN_TEST_F(test_case_7)
     const uint8_t KEY[] = {
         0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
         0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
@@ -426,35 +450,38 @@ TEST_F(vccrypt_hmac512_ref_test, test_case_7)
     vccrypt_mac_context_t context;
 
     //create key buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&keybuf, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&keybuf, &fixture.alloc_opts, sizeof(KEY)));
     memcpy(keybuf.data, KEY, sizeof(KEY));
 
     //initialize MAC
-    ASSERT_EQ(0, vccrypt_mac_init(&options, &context, &keybuf));
+    TEST_ASSERT(0 == vccrypt_mac_init(&fixture.options, &context, &keybuf));
 
     //digest input
-    ASSERT_EQ(0, vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
+    TEST_ASSERT(0 == vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
 
     //create output buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&outbuf, &alloc_opts, options.mac_size));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &outbuf, &fixture.alloc_opts, fixture.options.mac_size));
 
     //finalize hmac
-    ASSERT_EQ(0, vccrypt_mac_finalize(&context, &outbuf));
+    TEST_ASSERT(0 == vccrypt_mac_finalize(&context, &outbuf));
 
     //the HMAC output should match our expected HMAC
-    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+    TEST_ASSERT(0 == memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
 
     //clean up
     dispose((disposable_t*)&outbuf);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&keybuf);
-}
+END_TEST_F()
 
 /**
  * Key exactly equals block size.
  */
-TEST_F(vccrypt_hmac512_ref_test, test_key_block_size)
-{
+BEGIN_TEST_F(test_key_block_size)
     const uint8_t KEY[] = {
         '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
@@ -491,35 +518,38 @@ TEST_F(vccrypt_hmac512_ref_test, test_key_block_size)
     vccrypt_mac_context_t context;
 
     //create key buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&keybuf, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&keybuf, &fixture.alloc_opts, sizeof(KEY)));
     memcpy(keybuf.data, KEY, sizeof(KEY));
 
     //initialize MAC
-    ASSERT_EQ(0, vccrypt_mac_init(&options, &context, &keybuf));
+    TEST_ASSERT(0 == vccrypt_mac_init(&fixture.options, &context, &keybuf));
 
     //digest input
-    ASSERT_EQ(0, vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
+    TEST_ASSERT(0 == vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
 
     //create output buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&outbuf, &alloc_opts, options.mac_size));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &outbuf, &fixture.alloc_opts, fixture.options.mac_size));
 
     //finalize hmac
-    ASSERT_EQ(0, vccrypt_mac_finalize(&context, &outbuf));
+    TEST_ASSERT(0 == vccrypt_mac_finalize(&context, &outbuf));
 
     //the HMAC output should match our expected HMAC
-    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+    TEST_ASSERT(0 == memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
 
     //clean up
     dispose((disposable_t*)&outbuf);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&keybuf);
-}
+END_TEST_F()
 
 /**
  * Simple hash to re-use in the suite.
  */
-TEST_F(vccrypt_hmac512_ref_test, test_case_8)
-{
+BEGIN_TEST_F(test_case_8)
     const uint8_t KEY[] = {
         0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
         0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa,
@@ -548,27 +578,30 @@ TEST_F(vccrypt_hmac512_ref_test, test_case_8)
     vccrypt_mac_context_t context;
 
     //create key buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&keybuf, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&keybuf, &fixture.alloc_opts, sizeof(KEY)));
     memcpy(keybuf.data, KEY, sizeof(KEY));
 
     //initialize MAC
-    ASSERT_EQ(0, vccrypt_mac_init(&options, &context, &keybuf));
+    TEST_ASSERT(0 == vccrypt_mac_init(&fixture.options, &context, &keybuf));
 
     //digest input
-    ASSERT_EQ(0, vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
+    TEST_ASSERT(0 == vccrypt_mac_digest(&context, DATA, sizeof(DATA)));
 
     //create output buffer
-    ASSERT_EQ(0, vccrypt_buffer_init(&outbuf, &alloc_opts, options.mac_size));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &outbuf, &fixture.alloc_opts, fixture.options.mac_size));
 
     //finalize hmac
-    ASSERT_EQ(0, vccrypt_mac_finalize(&context, &outbuf));
+    TEST_ASSERT(0 == vccrypt_mac_finalize(&context, &outbuf));
 
     //the HMAC output should match our expected HMAC
-    ASSERT_EQ(0, memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
+    TEST_ASSERT(0 == memcmp(outbuf.data, EXPECTED_HMAC, sizeof(EXPECTED_HMAC)));
 
     //clean up
     dispose((disposable_t*)&outbuf);
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&keybuf);
-}
-#endif
+END_TEST_F()
