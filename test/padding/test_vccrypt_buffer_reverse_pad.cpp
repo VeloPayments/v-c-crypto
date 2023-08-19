@@ -3,20 +3,21 @@
  *
  * Unit tests for vccrypt_buffer_reverse_pad.
  *
- * \copyright 2020 Velo-Payments, Inc.  All rights reserved.
+ * \copyright 2020-2023 Velo-Payments, Inc.  All rights reserved.
  */
 
+#include <minunit/minunit.h>
+#include <string.h>
 #include <vccrypt/padding.h>
 #include <vpr/allocator/malloc_allocator.h>
 
-/* DISABLED GTEST */
-#if 0
+TEST_SUITE(vccrypt_buffer_reverse_pad);
 
 /**
  * Test that passing an invalid value to vccrypt_buffer_reverse_pad results in
  * VCCRYPT_ERROR_BUFFER_INVALID_ARGUMENT.
  */
-TEST(vccrypt_buffer_reverse_pad, parameter_checks)
+TEST(parameter_checks)
 {
     vccrypt_buffer_t buffer;
     allocator_options_t alloc_opts;
@@ -25,17 +26,16 @@ TEST(vccrypt_buffer_reverse_pad, parameter_checks)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initialize the buffer. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_buffer_init(&buffer, &alloc_opts, 3));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_buffer_init(&buffer, &alloc_opts, 3));
 
     /* calling vccrypt_buffer_pad with an invalid argument causes an error. */
-    ASSERT_EQ(
-        VCCRYPT_ERROR_BUFFER_INVALID_ARGUMENT,
-        vccrypt_buffer_reverse_pad(nullptr, &alloc_opts));
-    ASSERT_EQ(
-        VCCRYPT_ERROR_BUFFER_INVALID_ARGUMENT,
-        vccrypt_buffer_reverse_pad(&buffer, nullptr));
+    TEST_ASSERT(
+        VCCRYPT_ERROR_BUFFER_INVALID_ARGUMENT
+            == vccrypt_buffer_reverse_pad(nullptr, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_ERROR_BUFFER_INVALID_ARGUMENT
+            == vccrypt_buffer_reverse_pad(&buffer, nullptr));
 
     /* cleanup. */
     dispose((disposable_t*)&buffer);
@@ -45,7 +45,7 @@ TEST(vccrypt_buffer_reverse_pad, parameter_checks)
 /**
  * A zero size buffer is an invalid padding.
  */
-TEST(vccrypt_buffer_reverse_pad, zero_size_buffer)
+TEST(zero_size_buffer)
 {
     vccrypt_buffer_t buffer;
     allocator_options_t alloc_opts;
@@ -54,14 +54,13 @@ TEST(vccrypt_buffer_reverse_pad, zero_size_buffer)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initialize the buffer. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_buffer_init(&buffer, &alloc_opts, 0));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_buffer_init(&buffer, &alloc_opts, 0));
 
     /* This buffer is rejected. */
-    ASSERT_EQ(
-        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID,
-        vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID
+            == vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
 
     /* cleanup. */
     dispose((disposable_t*)&buffer);
@@ -71,7 +70,7 @@ TEST(vccrypt_buffer_reverse_pad, zero_size_buffer)
 /**
  * A one byte buffer is an invalid padding.
  */
-TEST(vccrypt_buffer_reverse_pad, one_byte_buffer)
+TEST(one_byte_buffer)
 {
     vccrypt_buffer_t buffer;
     allocator_options_t alloc_opts;
@@ -80,14 +79,13 @@ TEST(vccrypt_buffer_reverse_pad, one_byte_buffer)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initialize the buffer. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_buffer_init(&buffer, &alloc_opts, 1));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_buffer_init(&buffer, &alloc_opts, 1));
 
     /* This buffer is rejected. */
-    ASSERT_EQ(
-        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID,
-        vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID
+            == vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
 
     /* cleanup. */
     dispose((disposable_t*)&buffer);
@@ -97,7 +95,7 @@ TEST(vccrypt_buffer_reverse_pad, one_byte_buffer)
 /**
  * If the last byte is 0, then the padding scheme is invalid.
  */
-TEST(vccrypt_buffer_reverse_pad, last_byte_zero)
+TEST(last_byte_zero)
 {
     vccrypt_buffer_t buffer;
     allocator_options_t alloc_opts;
@@ -106,17 +104,17 @@ TEST(vccrypt_buffer_reverse_pad, last_byte_zero)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initialize the buffer. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_buffer_init(&buffer, &alloc_opts, 16));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_buffer_init(&buffer, &alloc_opts, 16));
 
     /* clear the buffer. */
     memset(buffer.data, 0, buffer.size);
 
     /* This buffer is rejected. */
-    ASSERT_EQ(
-        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID,
-        vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID
+            == vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
 
     /* cleanup. */
     dispose((disposable_t*)&buffer);
@@ -127,7 +125,7 @@ TEST(vccrypt_buffer_reverse_pad, last_byte_zero)
  * If the last byte is greater than the buffer size, then the padding scheme is
  * invalid.
  */
-TEST(vccrypt_buffer_reverse_pad, last_byte_greater_than_buffer_size)
+TEST(last_byte_greater_than_buffer_size)
 {
     vccrypt_buffer_t buffer;
     allocator_options_t alloc_opts;
@@ -136,9 +134,9 @@ TEST(vccrypt_buffer_reverse_pad, last_byte_greater_than_buffer_size)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initialize the buffer. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_buffer_init(&buffer, &alloc_opts, 16));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_buffer_init(&buffer, &alloc_opts, 16));
 
     /* clear the buffer. */
     memset(buffer.data, 0, buffer.size);
@@ -150,9 +148,9 @@ TEST(vccrypt_buffer_reverse_pad, last_byte_greater_than_buffer_size)
     buf[15] = 16 + 1;
 
     /* This buffer is rejected. */
-    ASSERT_EQ(
-        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID,
-        vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID
+            == vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
 
     /* cleanup. */
     dispose((disposable_t*)&buffer);
@@ -163,7 +161,7 @@ TEST(vccrypt_buffer_reverse_pad, last_byte_greater_than_buffer_size)
  * If the last byte is equal to the buffer size, then the padding scheme is
  * invalid.
  */
-TEST(vccrypt_buffer_reverse_pad, last_byte_equal_to_buffer_size)
+TEST(last_byte_equal_to_buffer_size)
 {
     vccrypt_buffer_t buffer;
     allocator_options_t alloc_opts;
@@ -172,9 +170,9 @@ TEST(vccrypt_buffer_reverse_pad, last_byte_equal_to_buffer_size)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initialize the buffer. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_buffer_init(&buffer, &alloc_opts, 16));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_buffer_init(&buffer, &alloc_opts, 16));
 
     /* clear the buffer. */
     memset(buffer.data, 0, buffer.size);
@@ -186,9 +184,9 @@ TEST(vccrypt_buffer_reverse_pad, last_byte_equal_to_buffer_size)
     buf[15] = 16;
 
     /* This buffer is rejected. */
-    ASSERT_EQ(
-        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID,
-        vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID
+            == vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
 
     /* cleanup. */
     dispose((disposable_t*)&buffer);
@@ -199,7 +197,7 @@ TEST(vccrypt_buffer_reverse_pad, last_byte_equal_to_buffer_size)
  * If the padding bytes don't equal the last padding byte, the padding scheme is
  * invalid.
  */
-TEST(vccrypt_buffer_reverse_pad, padding_byte_equality)
+TEST(padding_byte_equality)
 {
     vccrypt_buffer_t buffer;
     allocator_options_t alloc_opts;
@@ -208,9 +206,9 @@ TEST(vccrypt_buffer_reverse_pad, padding_byte_equality)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initialize the buffer. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_buffer_init(&buffer, &alloc_opts, 20));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_buffer_init(&buffer, &alloc_opts, 20));
 
     /* clear the buffer. */
     memset(buffer.data, 0, buffer.size);
@@ -225,9 +223,9 @@ TEST(vccrypt_buffer_reverse_pad, padding_byte_equality)
     buf[16] = 0x05; /* WRONG */
 
     /* This buffer is rejected. */
-    ASSERT_EQ(
-        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID,
-        vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_ERROR_BUFFER_PADDING_SCHEME_INVALID
+            == vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
 
     /* cleanup. */
     dispose((disposable_t*)&buffer);
@@ -237,7 +235,7 @@ TEST(vccrypt_buffer_reverse_pad, padding_byte_equality)
 /**
  * A valid padded buffer can be unpadded.
  */
-TEST(vccrypt_buffer_reverse_pad, happy_path)
+TEST(happy_path)
 {
     vccrypt_buffer_t buffer;
     allocator_options_t alloc_opts;
@@ -247,9 +245,8 @@ TEST(vccrypt_buffer_reverse_pad, happy_path)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initialize the buffer. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_buffer_init(&buffer, &alloc_opts, 8));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_buffer_init(&buffer, &alloc_opts, 8));
 
     /* "pad" the buffer. */
     memset(buffer.data, 0x04, buffer.size);
@@ -258,21 +255,20 @@ TEST(vccrypt_buffer_reverse_pad, happy_path)
     memcpy(buffer.data, EXPECTED_BYTES, sizeof(EXPECTED_BYTES));
 
     /* This buffer is successfully unpadded. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_buffer_reverse_pad(&buffer, &alloc_opts));
 
     /* the updated buffer has a valid data pointer. */
-    ASSERT_NE(nullptr, buffer.data);
+    TEST_ASSERT(nullptr != buffer.data);
 
     /* the new buffer size is the size of the expected bytes array. */
-    ASSERT_EQ(sizeof(EXPECTED_BYTES), buffer.size);
+    TEST_ASSERT(sizeof(EXPECTED_BYTES) == buffer.size);
 
     /* the buffer was copied over correctly. */
-    EXPECT_EQ(0, memcmp(buffer.data, EXPECTED_BYTES, buffer.size));
+    TEST_EXPECT(0 == memcmp(buffer.data, EXPECTED_BYTES, buffer.size));
 
     /* cleanup. */
     dispose((disposable_t*)&buffer);
     dispose((disposable_t*)&alloc_opts);
 }
-#endif
