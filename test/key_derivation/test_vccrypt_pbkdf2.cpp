@@ -3,9 +3,11 @@
  *
  * Unit tests for pbkdf2
  *
- * \copyright 2019 Velo-Payments, Inc.  All rights reserved.
+ * \copyright 2019-2023 Velo-Payments, Inc.  All rights reserved.
  */
 
+#include <cstring>
+#include <minunit/minunit.h>
 #include <vpr/parameters.h>
 #include <vpr/allocator/malloc_allocator.h>
 #include <vccrypt/key_derivation.h>
@@ -13,20 +15,20 @@
 
 #include "../../src/key_derivation/pbkdf2/pbkdf2.h"
 
-/* DISABLED GTEST */
-#if 0
-
-static void key_derivation_test(allocator_options_t* alloc_opts,
-    uint32_t hmac_algorithm, const char* password, const char* salt,
-    int iterations, const char* expected);
+static void key_derivation_test(
+    const minunit_test_options_t* minunit_reserved_options,
+    minunit_test_context_t* minunit_reserved_context,
+    allocator_options_t* alloc_opts, uint32_t hmac_algorithm,
+    const char* password, const char* salt, int iterations,
+    const char* expected);
 
 static void to_hex(uint8_t vals[], size_t vals_len, char** hex);
 
 using namespace std;
 
-class vccrypt_pbkdf2_test : public ::testing::Test {
-protected:
-    void SetUp() override
+class vccrypt_pbkdf2_test {
+public:
+    void setUp()
     {
         //make sure our key derivation algorithm has been registered
         vccrypt_key_derivation_register_pbkdf2();
@@ -34,7 +36,7 @@ protected:
         malloc_allocator_options_init(&alloc_opts);
     }
 
-    void TearDown() override
+    void tearDown()
     {
         dispose((disposable_t*)&alloc_opts);
     }
@@ -42,72 +44,85 @@ protected:
     allocator_options_t alloc_opts;
 };
 
+TEST_SUITE(vccrypt_pbkdf2_test);
+
+#define BEGIN_TEST_F(name) \
+TEST(name) \
+{ \
+    vccrypt_pbkdf2_test fixture; \
+    fixture.setUp();
+
+#define END_TEST_F() \
+    fixture.tearDown(); \
+}
 
 /**
  * We should be able to get pbkdf2 options using SHA-512 if it has been
  * registered.
  */
-TEST_F(vccrypt_pbkdf2_test, options_init_sha512)
-{
+BEGIN_TEST_F(options_init_sha512)
     vccrypt_key_derivation_options_t options;
 
     //we should be able to initialize options for this algorithm
-    ASSERT_EQ(0,
-        vccrypt_key_derivation_options_init(
-            &options, &alloc_opts,
-            VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2,
-            VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_derivation_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2,
+                    VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC));
 
-    EXPECT_EQ((unsigned int)VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC,
-        options.hmac_algorithm);
-    EXPECT_EQ(64u, options.hmac_digest_length);
+    TEST_EXPECT(
+        (unsigned int)VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC
+            == options.hmac_algorithm);
+    TEST_EXPECT(64u == options.hmac_digest_length);
 
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to get pbkdf2 options using SHA-512/256 if it has been
  * registered.
  */
-TEST_F(vccrypt_pbkdf2_test, options_init_sha512_256)
-{
+BEGIN_TEST_F(options_init_sha512_256)
     vccrypt_key_derivation_options_t options;
 
     //we should be able to initialize options for this algorithm
-    ASSERT_EQ(0,
-        vccrypt_key_derivation_options_init(
-            &options, &alloc_opts,
-            VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2,
-            VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_derivation_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2,
+                    VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC));
 
-    EXPECT_EQ((unsigned int)VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC,
-        options.hmac_algorithm);
-    EXPECT_EQ(32u, options.hmac_digest_length);
+    TEST_EXPECT(
+        (unsigned int)VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC
+            == options.hmac_algorithm);
+    TEST_EXPECT(32u == options.hmac_digest_length);
 
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * We should be able to create a pbkdf2 instance.
  */
-TEST_F(vccrypt_pbkdf2_test, init)
-{
+BEGIN_TEST_F(init)
     vccrypt_key_derivation_options_t options;
     vccrypt_key_derivation_context_t context;
 
     //we should be able to initialize options for this algorithm
-    ASSERT_EQ(0,
-        vccrypt_key_derivation_options_init(
-            &options, &alloc_opts,
-            VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2,
-            VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_derivation_options_init(
+                    &options, &fixture.alloc_opts,
+                    VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2,
+                    VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC));
 
     //we should be able to create an algorithm instance
-    ASSERT_EQ(0, vccrypt_key_derivation_init(&context, &options));
+    TEST_ASSERT(0 == vccrypt_key_derivation_init(&context, &options));
 
     dispose((disposable_t*)&context);
     dispose((disposable_t*)&options);
-}
+END_TEST_F()
 
 /**
  * Verify the derived key matches expected results.  At the time these
@@ -115,8 +130,7 @@ TEST_F(vccrypt_pbkdf2_test, init)
  * tests.  These were taken from
  * https://stackoverflow.com/questions/15593184/pbkdf2-hmac-sha-512-test-vectors
  */
-TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_1)
-{
+BEGIN_TEST_F(sha512_test_vector_1)
     const char* password = "password";
 
     const char* salt = "salt";
@@ -132,12 +146,11 @@ TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_1)
                            "5E63F73B60A57FCE";
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt,
-        1, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt, 1, expected);
+END_TEST_F()
 
-TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_2)
-{
+BEGIN_TEST_F(sha512_test_vector_2)
     const char* password = "password";
 
     const char* salt = "salt";
@@ -153,12 +166,11 @@ TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_2)
                            "04112754F27CCF4E";
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt,
-        2, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt, 2, expected);
+END_TEST_F()
 
-TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_3)
-{
+BEGIN_TEST_F(sha512_test_vector_3)
     const char* password = "password";
 
     const char* salt = "salt";
@@ -174,12 +186,11 @@ TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_3)
                            "B742A239434AF2D5";
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt,
-        4096, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt, 4096, expected);
+END_TEST_F()
 
-TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_4)
-{
+BEGIN_TEST_F(sha512_test_vector_4)
     const char* password = "passwordPASSWORDpassword";
 
     const char* salt = "saltSALTsaltSALTsaltSALTsaltSALTsalt";
@@ -195,12 +206,11 @@ TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_4)
                            "D4DAEA9724A3D3B8";
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt,
-        4096, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt, 4096, expected);
+END_TEST_F()
 
-TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_5)
-{
+BEGIN_TEST_F(sha512_test_vector_5)
     const char* password = "passDATAb00AB7YxDTT";
 
     const char* salt = "saltKEYbcTcXHCBxtjD";
@@ -216,12 +226,11 @@ TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_5)
                            "4E9525EEDDD744FA";
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt,
-        1, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt, 1, expected);
+END_TEST_F()
 
-TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_6)
-{
+BEGIN_TEST_F(sha512_test_vector_6)
     const char* password = "passDATAb00AB7YxDTT";
 
     const char* salt = "saltKEYbcTcXHCBxtjD";
@@ -237,12 +246,11 @@ TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_6)
                            "5AF8229F762FF41F";
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt,
-        100000, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt, 100000, expected);
+END_TEST_F()
 
-TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_7)
-{
+BEGIN_TEST_F(sha512_test_vector_7)
     const char* password =
         "passDATAb00AB7YxDTTlRH2dqxDx19GDxDV1zFMz7E6QVqKIzwOtMnlxQLttpE5";
 
@@ -260,12 +268,11 @@ TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_7)
                            "E8F089FDB4DFB6BB";
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt,
-        100000, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt, 100000, expected);
+END_TEST_F()
 
-TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_8)
-{
+BEGIN_TEST_F(sha512_test_vector_8)
     const char* password =
         "passDATAb00AB7YxDTTlRH2dqxDx19GDxDV1zFMz7E6QVqKIzwOtMnlxQLttpE57Un"
         "4u12D2YD7oOPpiEvCDYvntXEe4NNPLCnGGeJArbYDEu6xDoCfWH6kbuV6awi0";
@@ -285,12 +292,11 @@ TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_8)
                            "E593847D9441A1B7";
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt,
-        1, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt, 1, expected);
+END_TEST_F()
 
-TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_9)
-{
+BEGIN_TEST_F(sha512_test_vector_9)
     const char* password =
         "passDATAb00AB7YxDTTlRH2dqxDx19GDxDV1zFMz7E6QVqKIzwOtMnlxQLttpE57Un"
         "4u12D2YD7oOPpiEvCDYvntXEe4NNPLCnGGeJArbYDEu6xDoCfWH6kbuV6awi04U";
@@ -310,12 +316,11 @@ TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_9)
                            "236B9364E22CE3A5";
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt,
-        100000, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt, 100000, expected);
+END_TEST_F()
 
-TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_10)
-{
+BEGIN_TEST_F(sha512_test_vector_10)
     const char* password = "passDATAb00AB";
 
     const char* salt = "saltKEYbcTcX";
@@ -331,16 +336,16 @@ TEST_F(vccrypt_pbkdf2_test, sha512_test_vector_10)
                            "184CB2A5F6B94815";
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt,
-        2097152, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_HMAC, password, salt, 2097152,
+        expected);
+END_TEST_F()
 
 /**
  * TODO: we don't have a test vector for SHA-512/256, but we can at least
  * verify the algorithm produced something that looks sane.
  */
-TEST_F(vccrypt_pbkdf2_test, sha512_256_test_vector_1)
-{
+BEGIN_TEST_F(sha512_256_test_vector_1)
     const char* password = "password";
 
     const char* salt = "salt";
@@ -348,9 +353,9 @@ TEST_F(vccrypt_pbkdf2_test, sha512_256_test_vector_1)
     const char* expected = NULL;
 
     key_derivation_test(
-        &alloc_opts, VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC,
-        password, salt, 10, expected);
-}
+        minunit_reserved_options, minunit_reserved_context, &fixture.alloc_opts,
+        VCCRYPT_MAC_ALGORITHM_SHA_2_512_256_HMAC, password, salt, 10, expected);
+END_TEST_F()
 
 
 /**
@@ -359,53 +364,58 @@ TEST_F(vccrypt_pbkdf2_test, sha512_256_test_vector_1)
  * expected is optional.  if unknown, pass NULL and the test will simply
  * assert the derived key is not all 0's.
  */
-static void key_derivation_test(allocator_options_t* alloc_opts,
-    uint32_t hmac_algorithm, const char* password, const char* salt,
-    int iterations, const char* expected)
+static void key_derivation_test(
+    const minunit_test_options_t* minunit_reserved_options,
+    minunit_test_context_t* minunit_reserved_context,
+    allocator_options_t* alloc_opts, uint32_t hmac_algorithm,
+    const char* password, const char* salt, int iterations,
+    const char* expected)
 {
     vccrypt_key_derivation_options_t options;
     vccrypt_key_derivation_context_t context;
 
-    ASSERT_EQ(0,
-        vccrypt_key_derivation_options_init(
-            &options, alloc_opts,
-            VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2,
-            hmac_algorithm));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_derivation_options_init(
+                    &options, alloc_opts,
+                    VCCRYPT_KEY_DERIVATION_ALGORITHM_PBKDF2, hmac_algorithm));
 
-    ASSERT_EQ(0, vccrypt_key_derivation_init(&context, &options));
+    TEST_ASSERT(0 == vccrypt_key_derivation_init(&context, &options));
 
     // construct a buffer for the password
     vccrypt_buffer_t password_buffer;
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(
-            &password_buffer, alloc_opts, strlen(password)));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &password_buffer, alloc_opts, strlen(password)));
     memcpy(password_buffer.data, password, strlen(password));
 
 
     // construct a buffer for the salt
     vccrypt_buffer_t salt_buffer;
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(
-            &salt_buffer, alloc_opts, strlen(salt)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&salt_buffer, alloc_opts, strlen(salt)));
     memcpy(salt_buffer.data, salt, strlen(salt));
 
 
     // construct a buffer for the derived key
     vccrypt_buffer_t dk_buffer;
-    ASSERT_EQ(0,
-        vccrypt_buffer_init(
-            &dk_buffer, alloc_opts, options.hmac_digest_length));
+    TEST_ASSERT(
+        0
+            == vccrypt_buffer_init(
+                    &dk_buffer, alloc_opts, options.hmac_digest_length));
 
-    ASSERT_EQ(0,
-        vccrypt_key_derivation_derive_key(&dk_buffer,
-            &context, &password_buffer, &salt_buffer, iterations));
+    TEST_ASSERT(
+        0
+            == vccrypt_key_derivation_derive_key(&dk_buffer,
+                    &context, &password_buffer, &salt_buffer, iterations));
 
     if (NULL != expected)
     {
         char* hex;
         to_hex((uint8_t*)dk_buffer.data, dk_buffer.size, &hex);
 
-        EXPECT_EQ(0, memcmp(hex, expected, strlen(expected)));
+        TEST_EXPECT(0 == memcmp(hex, expected, strlen(expected)));
         free(hex);
     }
     else
@@ -413,7 +423,8 @@ static void key_derivation_test(allocator_options_t* alloc_opts,
         uint8_t test_block[dk_buffer.size];
         memset(test_block, 0, sizeof(test_block));
 
-        EXPECT_NE(0, memcmp(dk_buffer.data, test_block, sizeof(test_block)));
+        TEST_EXPECT(
+            0 != memcmp(dk_buffer.data, test_block, sizeof(test_block)));
     }
 
 
@@ -443,4 +454,3 @@ static void to_hex(uint8_t vals[], size_t vals_len, char** hex)
         sprintf(cp, "%02X", vals[i]);
     }
 }
-#endif
