@@ -3,26 +3,33 @@
  *
  * Unit tests for AES CTR Mode.
  *
- * \copyright 2018 Velo Payments, Inc.  All rights reserved.
+ * \copyright 2018-2023 Velo Payments, Inc.  All rights reserved.
  */
 
+#include <minunit/minunit.h>
+#include <string.h>
 #include <vccrypt/stream_cipher.h>
 #include <vpr/allocator/malloc_allocator.h>
 
 #include "../../src/stream_cipher/aes/aes.h"
 #include "../../src/stream_cipher/stream_cipher_private.h"
 
-/* DISABLED GTEST */
-#if 0
-
 static uint64_t mmhtonll(uint64_t n)
 {
-    return ((((0xFF00000000000000 & n) >> 56) << 0) | (((0x00FF000000000000 & n) >> 48) << 8) | (((0x0000FF0000000000 & n) >> 40) << 16) | (((0x000000FF00000000 & n) >> 32) << 24) | (((0x00000000FF000000 & n) >> 24) << 32) | (((0x0000000000FF0000 & n) >> 16) << 40) | (((0x000000000000FF00 & n) >> 8) << 48) | (((0x00000000000000FF & n) >> 0) << 56));
+    return
+      (  (((0xFF00000000000000 & n) >> 56) <<  0)
+       | (((0x00FF000000000000 & n) >> 48) <<  8)
+       | (((0x0000FF0000000000 & n) >> 40) << 16)
+       | (((0x000000FF00000000 & n) >> 32) << 24)
+       | (((0x00000000FF000000 & n) >> 24) << 32)
+       | (((0x0000000000FF0000 & n) >> 16) << 40)
+       | (((0x000000000000FF00 & n) >>  8) << 48)
+       | (((0x00000000000000FF & n) >>  0) << 56));
 }
 
-class aes_ctr_test : public ::testing::Test {
-protected:
-    void SetUp() override
+class aes_ctr_test {
+public:
+    void setUp()
     {
         /* register all AES stream ciphers. */
         vccrypt_stream_register_AES_256_CTR_FIPS();
@@ -52,7 +59,7 @@ protected:
                 VCCRYPT_STREAM_ALGORITHM_AES_256_4X_CTR);
     }
 
-    void TearDown() override
+    void tearDown()
     {
         /* tear down options for each variation. */
         if (0 == fips_options_init_result)
@@ -87,71 +94,101 @@ protected:
     int x4_options_init_result;
 };
 
+TEST_SUITE(aes_ctr_test);
+
+#define BEGIN_TEST_F(name) \
+TEST(name) \
+{ \
+    aes_ctr_test fixture; \
+    fixture.setUp();
+
+#define END_TEST_F() \
+    fixture.tearDown(); \
+}
+
 /**
  * We should be able to create an options structure for each of the supported
  * CTR mode ciphers.
  */
-TEST_F(aes_ctr_test, register_options)
-{
+BEGIN_TEST_F(register_options)
     /* Test FIPS AES-256-CTR options init. */
-    ASSERT_EQ(0, fips_options_init_result);
-    EXPECT_NE(nullptr, fips_options.hdr.dispose);
-    EXPECT_EQ(&alloc_opts, fips_options.alloc_opts);
-    EXPECT_EQ(32U, fips_options.key_size);
-    EXPECT_EQ(8U, fips_options.IV_size);
-    EXPECT_EQ(UINT64_MAX, fips_options.maximum_message_size);
-    EXPECT_NE(nullptr, fips_options.vccrypt_stream_alg_init);
-    EXPECT_NE(nullptr, fips_options.vccrypt_stream_alg_start_encryption);
-    EXPECT_NE(nullptr, fips_options.vccrypt_stream_alg_start_decryption);
-    EXPECT_NE(nullptr, fips_options.vccrypt_stream_alg_encrypt);
-    EXPECT_NE(nullptr, fips_options.vccrypt_stream_alg_decrypt);
+    TEST_ASSERT(0 == fixture.fips_options_init_result);
+    TEST_EXPECT(nullptr != fixture.fips_options.hdr.dispose);
+    TEST_EXPECT(&fixture.alloc_opts == fixture.fips_options.alloc_opts);
+    TEST_EXPECT(32U == fixture.fips_options.key_size);
+    TEST_EXPECT(8U == fixture.fips_options.IV_size);
+    TEST_EXPECT(UINT64_MAX == fixture.fips_options.maximum_message_size);
+    TEST_EXPECT(
+        nullptr != fixture.fips_options.vccrypt_stream_alg_init);
+    TEST_EXPECT(
+        nullptr != fixture.fips_options.vccrypt_stream_alg_start_encryption);
+    TEST_EXPECT(
+        nullptr != fixture.fips_options.vccrypt_stream_alg_start_decryption);
+    TEST_EXPECT(
+        nullptr != fixture.fips_options.vccrypt_stream_alg_encrypt);
+    TEST_EXPECT(
+        nullptr != fixture.fips_options.vccrypt_stream_alg_decrypt);
 
     /* Test AES-256-2X-CTR options init. */
-    ASSERT_EQ(0, x2_options_init_result);
-    EXPECT_NE(nullptr, x2_options.hdr.dispose);
-    EXPECT_EQ(&alloc_opts, x2_options.alloc_opts);
-    EXPECT_EQ(32U, x2_options.key_size);
-    EXPECT_EQ(8U, x2_options.IV_size);
-    EXPECT_EQ(UINT64_MAX, x2_options.maximum_message_size);
-    EXPECT_NE(nullptr, x2_options.vccrypt_stream_alg_init);
-    EXPECT_NE(nullptr, x2_options.vccrypt_stream_alg_start_encryption);
-    EXPECT_NE(nullptr, x2_options.vccrypt_stream_alg_start_decryption);
-    EXPECT_NE(nullptr, x2_options.vccrypt_stream_alg_encrypt);
-    EXPECT_NE(nullptr, x2_options.vccrypt_stream_alg_decrypt);
+    TEST_ASSERT(0 == fixture.x2_options_init_result);
+    TEST_EXPECT(nullptr != fixture.x2_options.hdr.dispose);
+    TEST_EXPECT(&fixture.alloc_opts == fixture.x2_options.alloc_opts);
+    TEST_EXPECT(32U == fixture.x2_options.key_size);
+    TEST_EXPECT(8U == fixture.x2_options.IV_size);
+    TEST_EXPECT(UINT64_MAX == fixture.x2_options.maximum_message_size);
+    TEST_EXPECT(
+        nullptr != fixture.x2_options.vccrypt_stream_alg_init);
+    TEST_EXPECT(
+        nullptr != fixture.x2_options.vccrypt_stream_alg_start_encryption);
+    TEST_EXPECT(
+        nullptr != fixture.x2_options.vccrypt_stream_alg_start_decryption);
+    TEST_EXPECT(
+        nullptr != fixture.x2_options.vccrypt_stream_alg_encrypt);
+    TEST_EXPECT(
+        nullptr != fixture.x2_options.vccrypt_stream_alg_decrypt);
 
     /* Test AES-256-3X-CTR options init. */
-    ASSERT_EQ(0, x3_options_init_result);
-    EXPECT_NE(nullptr, x3_options.hdr.dispose);
-    EXPECT_EQ(&alloc_opts, x3_options.alloc_opts);
-    EXPECT_EQ(32U, x3_options.key_size);
-    EXPECT_EQ(8U, x3_options.IV_size);
-    EXPECT_EQ(UINT64_MAX, x3_options.maximum_message_size);
-    EXPECT_NE(nullptr, x3_options.vccrypt_stream_alg_init);
-    EXPECT_NE(nullptr, x3_options.vccrypt_stream_alg_start_encryption);
-    EXPECT_NE(nullptr, x3_options.vccrypt_stream_alg_start_decryption);
-    EXPECT_NE(nullptr, x3_options.vccrypt_stream_alg_encrypt);
-    EXPECT_NE(nullptr, x3_options.vccrypt_stream_alg_decrypt);
+    TEST_ASSERT(0 == fixture.x3_options_init_result);
+    TEST_EXPECT(nullptr != fixture.x3_options.hdr.dispose);
+    TEST_EXPECT(&fixture.alloc_opts == fixture.x3_options.alloc_opts);
+    TEST_EXPECT(32U == fixture.x3_options.key_size);
+    TEST_EXPECT(8U == fixture.x3_options.IV_size);
+    TEST_EXPECT(UINT64_MAX == fixture.x3_options.maximum_message_size);
+    TEST_EXPECT(
+        nullptr != fixture.x3_options.vccrypt_stream_alg_init);
+    TEST_EXPECT(
+        nullptr != fixture.x3_options.vccrypt_stream_alg_start_encryption);
+    TEST_EXPECT(
+        nullptr != fixture.x3_options.vccrypt_stream_alg_start_decryption);
+    TEST_EXPECT(
+        nullptr != fixture.x3_options.vccrypt_stream_alg_encrypt);
+    TEST_EXPECT(
+        nullptr != fixture.x3_options.vccrypt_stream_alg_decrypt);
 
     /* Test AES-256-4X-CTR options init. */
-    ASSERT_EQ(0, x4_options_init_result);
-    EXPECT_NE(nullptr, x4_options.hdr.dispose);
-    EXPECT_EQ(&alloc_opts, x4_options.alloc_opts);
-    EXPECT_EQ(32U, x4_options.key_size);
-    EXPECT_EQ(8U, x4_options.IV_size);
-    EXPECT_EQ(UINT64_MAX, x4_options.maximum_message_size);
-    EXPECT_NE(nullptr, x4_options.vccrypt_stream_alg_init);
-    EXPECT_NE(nullptr, x4_options.vccrypt_stream_alg_start_encryption);
-    EXPECT_NE(nullptr, x4_options.vccrypt_stream_alg_start_decryption);
-    EXPECT_NE(nullptr, x4_options.vccrypt_stream_alg_encrypt);
-    EXPECT_NE(nullptr, x4_options.vccrypt_stream_alg_decrypt);
-}
+    TEST_ASSERT(0 == fixture.x4_options_init_result);
+    TEST_EXPECT(nullptr != fixture.x4_options.hdr.dispose);
+    TEST_EXPECT(&fixture.alloc_opts == fixture.x4_options.alloc_opts);
+    TEST_EXPECT(32U == fixture.x4_options.key_size);
+    TEST_EXPECT(8U == fixture.x4_options.IV_size);
+    TEST_EXPECT(UINT64_MAX == fixture.x4_options.maximum_message_size);
+    TEST_EXPECT(
+        nullptr != fixture.x4_options.vccrypt_stream_alg_init);
+    TEST_EXPECT(
+        nullptr != fixture.x4_options.vccrypt_stream_alg_start_encryption);
+    TEST_EXPECT(
+        nullptr != fixture.x4_options.vccrypt_stream_alg_start_decryption);
+    TEST_EXPECT(
+        nullptr != fixture.x4_options.vccrypt_stream_alg_encrypt);
+    TEST_EXPECT(
+        nullptr != fixture.x4_options.vccrypt_stream_alg_decrypt);
+END_TEST_F()
 
 /**
  * We should be able to initialize, start, and encrypt using a FIPS compatible
  * stream cipher. TEST from RFC-3686 (Test Case #7).
  */
-TEST_F(aes_ctr_test, aes_256_ctr_fips_01)
-{
+BEGIN_TEST_F(aes_256_ctr_fips_01)
     vccrypt_stream_context_t ctx;
     vccrypt_buffer_t key;
 
@@ -182,28 +219,30 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_01)
     memset(output, 0xFC, sizeof(output));
 
     /* create a buffer for the key data. */
-    ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&key, &fixture.alloc_opts, sizeof(KEY)));
     /* read the key into the buffer. */
-    ASSERT_EQ(0, vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
+    TEST_ASSERT(0 == vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
 
     /* create a new stream cipher with the given key. */
-    ASSERT_EQ(0, vccrypt_stream_init(&fips_options, &ctx, &key));
+    TEST_ASSERT(0 == vccrypt_stream_init(&fixture.fips_options, &ctx, &key));
 
     /* start encryption using a dummy IV. */
-    ASSERT_EQ(0,
-        vccrypt_stream_start_encryption(
-            &ctx, &DUMMY_IV, sizeof(DUMMY_IV), output, &offset));
+    TEST_ASSERT(
+        0
+            == vccrypt_stream_start_encryption(
+                    &ctx, &DUMMY_IV, sizeof(DUMMY_IV), output, &offset));
     /* the offset should be set to 8. */
-    EXPECT_EQ(8U, offset);
+    TEST_EXPECT(8U == offset);
     /* the first 8 bytes of output should be set to the value of DUMMY_IV */
-    EXPECT_EQ(0x01U, output[0]);
-    EXPECT_EQ(0x02U, output[1]);
-    EXPECT_EQ(0x03U, output[2]);
-    EXPECT_EQ(0x04U, output[3]);
-    EXPECT_EQ(0x05U, output[4]);
-    EXPECT_EQ(0x06U, output[5]);
-    EXPECT_EQ(0x07U, output[6]);
-    EXPECT_EQ(0x08U, output[7]);
+    TEST_EXPECT(0x01U == output[0]);
+    TEST_EXPECT(0x02U == output[1]);
+    TEST_EXPECT(0x03U == output[2]);
+    TEST_EXPECT(0x04U == output[3]);
+    TEST_EXPECT(0x05U == output[4]);
+    TEST_EXPECT(0x06U == output[5]);
+    TEST_EXPECT(0x07U == output[6]);
+    TEST_EXPECT(0x08U == output[7]);
 
     /* We need to do a little surgery for this test vector to work.  This is a
      * known-good CTR mode test vector, but the RFC we are using works
@@ -212,30 +251,30 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_01)
      * counter.
      */
     aes_ctr_context_data_t* priv = (aes_ctr_context_data_t*)ctx.stream_state;
-    ASSERT_NE(nullptr, priv);
+    TEST_ASSERT(nullptr != priv);
     memcpy(priv->ctr, COUNT_BLOCK, sizeof(COUNT_BLOCK));
     /* start encryption creates the first 16 bytes of the stream.  We need to
      * redo this with the correct IV. */
     AES_encrypt(priv->ctr, priv->stream, &priv->key);
 
     /* encrypt the plaintext. */
-    ASSERT_EQ(0,
-        vccrypt_stream_encrypt(
-            &ctx, PLAINTEXT, sizeof(PLAINTEXT), output, &offset));
+    TEST_ASSERT(
+        0
+            == vccrypt_stream_encrypt(
+                    &ctx, PLAINTEXT, sizeof(PLAINTEXT), output, &offset));
     /* the offset should be set to 24. */
-    EXPECT_EQ(24U, offset);
+    TEST_EXPECT(24U == offset);
     /* the next 16 bytes of output should correspond to our ciphertext. */
     for (int i = 0; i < 16; ++i)
     {
-        EXPECT_EQ(CIPHERTEXT[i], output[i + 8]);
+        TEST_EXPECT(CIPHERTEXT[i] == output[i + 8]);
     }
 
     /* start decryption using the dummy IV. */
-    ASSERT_EQ(0,
-        vccrypt_stream_start_decryption(
-            &ctx, output, &offset));
+    TEST_ASSERT(
+        0 == vccrypt_stream_start_decryption(&ctx, output, &offset));
     /* the offset should be set to 8 */
-    EXPECT_EQ(8U, offset);
+    TEST_EXPECT(8U == offset);
 
     /* We need to do a little surgery for this test vector to work.  This is a
      * known-good CTR mode test vector, but the RFC we are using works
@@ -251,28 +290,26 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_01)
     offset = 0;
 
     /* decrypt the ciphertext. */
-    ASSERT_EQ(0,
-        vccrypt_stream_decrypt(
-            &ctx, output + 8, 16, poutput, &offset));
+    TEST_ASSERT(
+        0 == vccrypt_stream_decrypt(&ctx, output + 8, 16, poutput, &offset));
     /* the offset should be set to 16. */
-    EXPECT_EQ(16U, offset);
+    TEST_EXPECT(16U == offset);
     /* the next 16 bytes of output should correspond to our ciphertext. */
     for (int i = 0; i < 16; ++i)
     {
-        EXPECT_EQ(PLAINTEXT[i], poutput[i]);
+        TEST_EXPECT(PLAINTEXT[i] == poutput[i]);
     }
 
     /* tear down this instance. */
     dispose((disposable_t*)&key);
     dispose((disposable_t*)&ctx);
-}
+END_TEST_F()
 
 /**
  * We should be able to initialize, start, and encrypt using a FIPS compatible
  * stream cipher. TEST from RFC-3686 (Test Case #8).
  */
-TEST_F(aes_ctr_test, aes_256_ctr_fips_02)
-{
+BEGIN_TEST_F(aes_256_ctr_fips_02)
     vccrypt_stream_context_t ctx;
     vccrypt_buffer_t key;
 
@@ -308,28 +345,30 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_02)
     memset(output, 0xFC, sizeof(output));
 
     /* create a buffer for the key data. */
-    ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&key, &fixture.alloc_opts, sizeof(KEY)));
     /* read the key into the buffer. */
-    ASSERT_EQ(0, vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
+    TEST_ASSERT(0 == vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
 
     /* create a new stream cipher with the given key. */
-    ASSERT_EQ(0, vccrypt_stream_init(&fips_options, &ctx, &key));
+    TEST_ASSERT(0 == vccrypt_stream_init(&fixture.fips_options, &ctx, &key));
 
     /* start encryption using a dummy IV. */
-    ASSERT_EQ(0,
-        vccrypt_stream_start_encryption(
-            &ctx, &DUMMY_IV, sizeof(DUMMY_IV), output, &offset));
+    TEST_ASSERT(
+        0
+            == vccrypt_stream_start_encryption(
+                    &ctx, &DUMMY_IV, sizeof(DUMMY_IV), output, &offset));
     /* the offset should be set to 8. */
-    EXPECT_EQ(8U, offset);
+    TEST_EXPECT(8U == offset);
     /* the first 8 bytes of output should be set to the value of DUMMY_IV */
-    EXPECT_EQ(0x01U, output[0]);
-    EXPECT_EQ(0x02U, output[1]);
-    EXPECT_EQ(0x03U, output[2]);
-    EXPECT_EQ(0x04U, output[3]);
-    EXPECT_EQ(0x05U, output[4]);
-    EXPECT_EQ(0x06U, output[5]);
-    EXPECT_EQ(0x07U, output[6]);
-    EXPECT_EQ(0x08U, output[7]);
+    TEST_EXPECT(0x01U == output[0]);
+    TEST_EXPECT(0x02U == output[1]);
+    TEST_EXPECT(0x03U == output[2]);
+    TEST_EXPECT(0x04U == output[3]);
+    TEST_EXPECT(0x05U == output[4]);
+    TEST_EXPECT(0x06U == output[5]);
+    TEST_EXPECT(0x07U == output[6]);
+    TEST_EXPECT(0x08U == output[7]);
 
     /* We need to do a little surgery for this test vector to work.  This is a
      * known-good CTR mode test vector, but the RFC we are using works
@@ -338,30 +377,29 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_02)
      * counter.
      */
     aes_ctr_context_data_t* priv = (aes_ctr_context_data_t*)ctx.stream_state;
-    ASSERT_NE(nullptr, priv);
+    TEST_ASSERT(nullptr != priv);
     memcpy(priv->ctr, COUNT_BLOCK, sizeof(COUNT_BLOCK));
     /* start encryption creates the first 16 bytes of the stream.  We need to
      * redo this with the correct IV. */
     AES_encrypt(priv->ctr, priv->stream, &priv->key);
 
     /* encrypt the plaintext. */
-    ASSERT_EQ(0,
-        vccrypt_stream_encrypt(
-            &ctx, PLAINTEXT, sizeof(PLAINTEXT), output, &offset));
+    TEST_ASSERT(
+        0
+            == vccrypt_stream_encrypt(
+                    &ctx, PLAINTEXT, sizeof(PLAINTEXT), output, &offset));
     /* the offset should be set to 40. */
-    EXPECT_EQ(40U, offset);
+    TEST_EXPECT(40U == offset);
     /* the next 32 bytes of output should correspond to our ciphertext. */
     for (int i = 0; i < 32; ++i)
     {
-        EXPECT_EQ(CIPHERTEXT[i], output[i + 8]);
+        TEST_EXPECT(CIPHERTEXT[i] == output[i + 8]);
     }
 
     /* start decryption using the dummy IV. */
-    ASSERT_EQ(0,
-        vccrypt_stream_start_decryption(
-            &ctx, output, &offset));
+    TEST_ASSERT(0 == vccrypt_stream_start_decryption(&ctx, output, &offset));
     /* the offset should be set to 8 */
-    EXPECT_EQ(8U, offset);
+    TEST_EXPECT(8U == offset);
 
     /* We need to do a little surgery for this test vector to work.  This is a
      * known-good CTR mode test vector, but the RFC we are using works
@@ -377,28 +415,27 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_02)
     offset = 0;
 
     /* decrypt the ciphertext. */
-    ASSERT_EQ(0,
-        vccrypt_stream_decrypt(
-            &ctx, output + 8, 32, poutput, &offset));
+    TEST_ASSERT(
+        0
+            == vccrypt_stream_decrypt(&ctx, output + 8, 32, poutput, &offset));
     /* the offset should be set to 16. */
-    EXPECT_EQ(32U, offset);
+    TEST_EXPECT(32U == offset);
     /* the next 32 bytes of output should correspond to our ciphertext. */
     for (int i = 0; i < 32; ++i)
     {
-        EXPECT_EQ(PLAINTEXT[i], poutput[i]);
+        TEST_EXPECT(PLAINTEXT[i] == poutput[i]);
     }
 
     /* tear down this instance. */
     dispose((disposable_t*)&key);
     dispose((disposable_t*)&ctx);
-}
+END_TEST_F()
 
 /**
  * We should be able to initialize, start, and encrypt using a FIPS compatible
  * stream cipher. TEST from RFC-3686 (Test Case #9).
  */
-TEST_F(aes_ctr_test, aes_256_ctr_fips_03)
-{
+BEGIN_TEST_F(aes_256_ctr_fips_03)
     vccrypt_stream_context_t ctx;
     vccrypt_buffer_t key;
 
@@ -436,28 +473,30 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_03)
     memset(output, 0xFC, sizeof(output));
 
     /* create a buffer for the key data. */
-    ASSERT_EQ(0, vccrypt_buffer_init(&key, &alloc_opts, sizeof(KEY)));
+    TEST_ASSERT(
+        0 == vccrypt_buffer_init(&key, &fixture.alloc_opts, sizeof(KEY)));
     /* read the key into the buffer. */
-    ASSERT_EQ(0, vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
+    TEST_ASSERT(0 == vccrypt_buffer_read_data(&key, KEY, sizeof(KEY)));
 
     /* create a new stream cipher with the given key. */
-    ASSERT_EQ(0, vccrypt_stream_init(&fips_options, &ctx, &key));
+    TEST_ASSERT(0 == vccrypt_stream_init(&fixture.fips_options, &ctx, &key));
 
     /* start encryption using a dummy IV. */
-    ASSERT_EQ(0,
-        vccrypt_stream_start_encryption(
-            &ctx, &DUMMY_IV, sizeof(DUMMY_IV), output, &offset));
+    TEST_ASSERT(
+        0
+            == vccrypt_stream_start_encryption(
+                    &ctx, &DUMMY_IV, sizeof(DUMMY_IV), output, &offset));
     /* the offset should be set to 8. */
-    EXPECT_EQ(8U, offset);
+    TEST_EXPECT(8U == offset);
     /* the first 8 bytes of output should be set to the value of DUMMY_IV */
-    EXPECT_EQ(0x01U, output[0]);
-    EXPECT_EQ(0x02U, output[1]);
-    EXPECT_EQ(0x03U, output[2]);
-    EXPECT_EQ(0x04U, output[3]);
-    EXPECT_EQ(0x05U, output[4]);
-    EXPECT_EQ(0x06U, output[5]);
-    EXPECT_EQ(0x07U, output[6]);
-    EXPECT_EQ(0x08U, output[7]);
+    TEST_EXPECT(0x01U == output[0]);
+    TEST_EXPECT(0x02U == output[1]);
+    TEST_EXPECT(0x03U == output[2]);
+    TEST_EXPECT(0x04U == output[3]);
+    TEST_EXPECT(0x05U == output[4]);
+    TEST_EXPECT(0x06U == output[5]);
+    TEST_EXPECT(0x07U == output[6]);
+    TEST_EXPECT(0x08U == output[7]);
 
     /* We need to do a little surgery for this test vector to work.  This is a
      * known-good CTR mode test vector, but the RFC we are using works
@@ -466,30 +505,29 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_03)
      * counter.
      */
     aes_ctr_context_data_t* priv = (aes_ctr_context_data_t*)ctx.stream_state;
-    ASSERT_NE(nullptr, priv);
+    TEST_ASSERT(nullptr != priv);
     memcpy(priv->ctr, COUNT_BLOCK, sizeof(COUNT_BLOCK));
     /* start encryption creates the first 16 bytes of the stream.  We need to
      * redo this with the correct IV. */
     AES_encrypt(priv->ctr, priv->stream, &priv->key);
 
     /* encrypt the plaintext. */
-    ASSERT_EQ(0,
-        vccrypt_stream_encrypt(
-            &ctx, PLAINTEXT, sizeof(PLAINTEXT), output, &offset));
+    TEST_ASSERT(
+        0
+            == vccrypt_stream_encrypt(
+                    &ctx, PLAINTEXT, sizeof(PLAINTEXT), output, &offset));
     /* the offset should be set to 44. */
-    EXPECT_EQ(44U, offset);
+    TEST_EXPECT(44U == offset);
     /* the next 36 bytes of output should correspond to our ciphertext. */
     for (int i = 0; i < 36; ++i)
     {
-        EXPECT_EQ(CIPHERTEXT[i], output[i + 8]);
+        TEST_EXPECT(CIPHERTEXT[i] == output[i + 8]);
     }
 
     /* start decryption using the dummy IV. */
-    ASSERT_EQ(0,
-        vccrypt_stream_start_decryption(
-            &ctx, output, &offset));
+    TEST_ASSERT(0 == vccrypt_stream_start_decryption(&ctx, output, &offset));
     /* the offset should be set to 8 */
-    EXPECT_EQ(8U, offset);
+    TEST_EXPECT(8U == offset);
 
     /* We need to do a little surgery for this test vector to work.  This is a
      * known-good CTR mode test vector, but the RFC we are using works
@@ -505,19 +543,18 @@ TEST_F(aes_ctr_test, aes_256_ctr_fips_03)
     offset = 0;
 
     /* decrypt the ciphertext. */
-    ASSERT_EQ(0,
-        vccrypt_stream_decrypt(
-            &ctx, output + 8, 36, poutput, &offset));
+    TEST_ASSERT(
+        0 == vccrypt_stream_decrypt(&ctx, output + 8, 36, poutput, &offset));
+
     /* the offset should be set to 16. */
-    EXPECT_EQ(36U, offset);
+    TEST_EXPECT(36U == offset);
     /* the next 16 bytes of output should correspond to our ciphertext. */
     for (int i = 0; i < 36; ++i)
     {
-        EXPECT_EQ(PLAINTEXT[i], poutput[i]);
+        TEST_EXPECT(PLAINTEXT[i] == poutput[i]);
     }
 
     /* tear down this instance. */
     dispose((disposable_t*)&key);
     dispose((disposable_t*)&ctx);
-}
-#endif
+END_TEST_F()
