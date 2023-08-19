@@ -3,19 +3,19 @@
  *
  * Unit tests for the Velo mock prng functions.
  *
- * \copyright 2020 Velo-Payments, Inc.  All rights reserved.
+ * \copyright 2020-2023 Velo-Payments, Inc.  All rights reserved.
  */
 
+#include <minunit/minunit.h>
 #include <vccrypt/mock_suite.h>
 #include <vpr/allocator/malloc_allocator.h>
 
-/* DISABLED GTEST */
-#if 0
+TEST_SUITE(vccrypt_mock_prng_functions);
 
 /**
  * By default, the prng init function returns VCCRYPT_ERROR_MOCK_NOT_ADDED.
  */
-TEST(vccrypt_mock_prng_functions, init_default)
+TEST(init_default)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -28,14 +28,13 @@ TEST(vccrypt_mock_prng_functions, init_default)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* attempting to initiate a mock hash algorithm should fail. */
-    EXPECT_EQ(
-        VCCRYPT_ERROR_MOCK_NOT_ADDED,
-        vccrypt_suite_prng_init(&suite, &prng));
+    TEST_EXPECT(
+        VCCRYPT_ERROR_MOCK_NOT_ADDED == vccrypt_suite_prng_init(&suite, &prng));
 
     /* cleanup. */
     dispose((disposable_t*)&suite);
@@ -45,7 +44,7 @@ TEST(vccrypt_mock_prng_functions, init_default)
 /**
  * The prng init function can be mocked.
  */
-TEST(vccrypt_mock_prng_functions, init_mocked)
+TEST(init_mocked)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -58,23 +57,23 @@ TEST(vccrypt_mock_prng_functions, init_mocked)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* add a mock for the init method. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_prng_init(
-            &suite,
-            [&](vccrypt_prng_options_t*, vccrypt_prng_context_t*) -> int {
-                return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_prng_init(
+                    &suite,
+                    [&](vccrypt_prng_options_t*, vccrypt_prng_context_t*)
+                            -> int {
+                        return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* attempting to initiate a mock prng algorithm should work. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_prng_init(&suite, &prng));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_suite_prng_init(&suite, &prng));
 
     /* cleanup. */
     dispose((disposable_t*)&suite);
@@ -84,7 +83,7 @@ TEST(vccrypt_mock_prng_functions, init_mocked)
 /**
  * The prng dispose function can be mocked.
  */
-TEST(vccrypt_mock_prng_functions, dispose_mocked)
+TEST(dispose_mocked)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -97,52 +96,52 @@ TEST(vccrypt_mock_prng_functions, dispose_mocked)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* add a mock for the init method. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_prng_init(
-            &suite,
-            [&](vccrypt_prng_options_t*, vccrypt_prng_context_t*) -> int {
-                return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_prng_init(
+                    &suite,
+                    [&](vccrypt_prng_options_t*, vccrypt_prng_context_t*)
+                            -> int {
+                        return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* add a mock for the dispose method. */
     vccrypt_prng_options_t* got_options = nullptr;
     vccrypt_prng_context_t* got_context = nullptr;
     bool dispose_called = false;
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_prng_dispose(
-            &suite,
-            [&](
-                vccrypt_prng_options_t* options,
-                vccrypt_prng_context_t* context) -> void {
-                    got_options = options;
-                    got_context = context;
-                    dispose_called = true;
-            }));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_prng_dispose(
+                    &suite,
+                    [&](
+                        vccrypt_prng_options_t* options,
+                        vccrypt_prng_context_t* context) -> void {
+                            got_options = options;
+                            got_context = context;
+                            dispose_called = true;
+                    }));
 
     /* PRECONDITIONS: got* are unset. */
-    EXPECT_EQ(nullptr, got_options);
-    EXPECT_EQ(nullptr, got_context);
-    EXPECT_FALSE(dispose_called);
+    TEST_EXPECT(nullptr == got_options);
+    TEST_EXPECT(nullptr == got_context);
+    TEST_EXPECT(!dispose_called);
 
     /* attempting to initiate a mock prng algorithm should work. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_prng_init(&suite, &prng));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_suite_prng_init(&suite, &prng));
 
     /* dispose a mock prng algorithm. */
     dispose((disposable_t*)&prng);
 
     /* POSTCONDITIONS: got* are set. */
-    EXPECT_EQ(&suite.prng_opts, got_options);
-    EXPECT_EQ(&prng, got_context);
-    EXPECT_TRUE(dispose_called);
+    TEST_EXPECT(&suite.prng_opts == got_options);
+    TEST_EXPECT(&prng == got_context);
+    TEST_EXPECT(dispose_called);
 
     /* cleanup. */
     dispose((disposable_t*)&suite);
@@ -152,7 +151,7 @@ TEST(vccrypt_mock_prng_functions, dispose_mocked)
 /**
  * By default, the read mock returns VCCRYPT_ERROR_MOCK_NOT_ADDED.
  */
-TEST(vccrypt_mock_prng_functions, read_default)
+TEST(read_default)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -167,29 +166,29 @@ TEST(vccrypt_mock_prng_functions, read_default)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* add a mock for the init method. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_prng_init(
-            &suite,
-            [&](vccrypt_prng_options_t*, vccrypt_prng_context_t*) -> int {
-                return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_prng_init(
+                    &suite,
+                    [&](vccrypt_prng_options_t*, vccrypt_prng_context_t*)
+                            -> int {
+                        return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* attempting to initiate a mock prng algorithm should work. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_prng_init(&suite, &prng));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_suite_prng_init(&suite, &prng));
 
     /* Calling the read method should result in an error. */
-    EXPECT_EQ(
-        VCCRYPT_ERROR_MOCK_NOT_ADDED,
-        vccrypt_prng_read_c(
-            &prng, EXPECTED_BUFFER, EXPECTED_SIZE));
+    TEST_EXPECT(
+        VCCRYPT_ERROR_MOCK_NOT_ADDED
+            == vccrypt_prng_read_c(
+                    &prng, EXPECTED_BUFFER, EXPECTED_SIZE));
 
     /* cleanup. */
     dispose((disposable_t*)&suite);
@@ -199,7 +198,7 @@ TEST(vccrypt_mock_prng_functions, read_default)
 /**
  * It is possible to mock the read method.
  */
-TEST(vccrypt_mock_prng_functions, read_mocked)
+TEST(read_mocked)
 {
     vccrypt_suite_options_t suite;
     allocator_options_t alloc_opts;
@@ -214,59 +213,57 @@ TEST(vccrypt_mock_prng_functions, read_mocked)
     malloc_allocator_options_init(&alloc_opts);
 
     /* initializing the mock suite should succeed. */
-    ASSERT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_options_init(&suite, &alloc_opts));
+    TEST_ASSERT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_options_init(&suite, &alloc_opts));
 
     /* add a mock for the init method. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_prng_init(
-            &suite,
-            [&](vccrypt_prng_options_t*, vccrypt_prng_context_t*) -> int {
-                return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_prng_init(
+                    &suite,
+                    [&](vccrypt_prng_options_t*, vccrypt_prng_context_t*)
+                            -> int {
+                        return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* add a mock for the read method. */
     vccrypt_prng_context_t* got_context = nullptr;
     uint8_t* got_buffer = nullptr;
     size_t got_size = 0;
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_mock_suite_add_mock_prng_read(
-            &suite,
-            [&](
-                vccrypt_prng_context_t* context, uint8_t* buffer,
-                size_t size) -> int {
-                    got_context = context;
-                    got_buffer = buffer;
-                    got_size = size;
-                    return VCCRYPT_STATUS_SUCCESS;
-            }));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_mock_suite_add_mock_prng_read(
+                    &suite,
+                    [&](
+                        vccrypt_prng_context_t* context, uint8_t* buffer,
+                        size_t size) -> int {
+                            got_context = context;
+                            got_buffer = buffer;
+                            got_size = size;
+                            return VCCRYPT_STATUS_SUCCESS;
+                    }));
 
     /* attempting to initiate a mock prng algorithm should work. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_suite_prng_init(&suite, &prng));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS == vccrypt_suite_prng_init(&suite, &prng));
 
     /* PRECONDITIONS: the got* values are unset. */
-    EXPECT_EQ(nullptr, got_context);
-    EXPECT_EQ(nullptr, got_buffer);
-    EXPECT_EQ(0, got_size);
+    TEST_EXPECT(nullptr == got_context);
+    TEST_EXPECT(nullptr == got_buffer);
+    TEST_EXPECT(0 == got_size);
 
     /* Calling the read method should succeed. */
-    EXPECT_EQ(
-        VCCRYPT_STATUS_SUCCESS,
-        vccrypt_prng_read_c(
-            &prng, EXPECTED_BUFFER, EXPECTED_SIZE));
+    TEST_EXPECT(
+        VCCRYPT_STATUS_SUCCESS
+            == vccrypt_prng_read_c(&prng, EXPECTED_BUFFER, EXPECTED_SIZE));
 
     /* POSTCONDITIONS: the got* values are set. */
-    EXPECT_EQ(&prng, got_context);
-    EXPECT_EQ(EXPECTED_BUFFER, got_buffer);
-    EXPECT_EQ(EXPECTED_SIZE, got_size);
+    TEST_EXPECT(&prng == got_context);
+    TEST_EXPECT(EXPECTED_BUFFER == got_buffer);
+    TEST_EXPECT(EXPECTED_SIZE == got_size);
 
     /* cleanup. */
     dispose((disposable_t*)&suite);
     dispose((disposable_t*)&alloc_opts);
 }
-#endif
